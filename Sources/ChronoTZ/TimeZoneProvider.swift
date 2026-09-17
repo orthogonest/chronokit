@@ -1,6 +1,5 @@
 import ChronoCore
 import ChronoSystem
-import Foundation
 
 public protocol TimeZoneProvider {
     func getTimeZone(named: String) throws -> TimeZoneInfo
@@ -17,8 +16,8 @@ public final class IANAProvider: @unchecked Sendable {
     private var cache: [String: TimeZoneInfo]
     private let lock: Mutex
 
-    public init(path: String) throws {
-        registry = try TimeZoneRegistry(path: path)
+    public init(bytes: [UInt8]) throws {
+        registry = try TimeZoneRegistry(bytes: bytes)
         cache = [:]
         lock = Mutex()
     }
@@ -29,17 +28,13 @@ public extension IANAProvider {
         _accessLock.withLock {
             if let existing = _shared { return existing }
 
-            guard let path = Bundle.module.url(forResource: "iana", withExtension: "tzdb")?.path
-            else {
-                preconditionFailure("ChronoTZ: iana.tzdb not found.")
-            }
-
             do {
-                let provider = try IANAProvider(path: path)
+                let tzdb = PackageResources.iana_tzdb
+                let provider = try IANAProvider(bytes: tzdb)
                 _shared = provider
                 return provider
             } catch {
-                preconditionFailure("ChronoTZ: Failed to load iana.tzdb at \(path): \(error)")
+                preconditionFailure("ChronoTZ: Failed to load iana.tzdb: \(error)")
             }
         }
     }
