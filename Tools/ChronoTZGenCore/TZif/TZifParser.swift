@@ -1,8 +1,9 @@
 import ChronoSystem
 import ChronoTZ
+import Foundation
 
-/// An Time Zone Information Format (TZif) parser compliant with RFC 8536.
-package enum TZifParser {
+/// A Time Zone Information Format (TZif) parser compliant with RFC 8536.
+enum TZifParser {
     /// Parses a raw byte stream into a structured ``TZDBDataPayload``.
     ///
     /// This decoder is optimized for modern TZif files (Version 2+). It gracefully parses
@@ -26,7 +27,7 @@ package enum TZifParser {
     ///
     /// - Note: This implementation requires a V2+ file. It uses a "sync-to-magic" approach
     ///   to locate the V2 header, ensuring resilience against minor structural variations.
-    package static func parse(from bytes: [UInt8]) throws -> TZDBDataPayload {
+    static func parse(from bytes: [UInt8]) throws -> TZDBDataPayload {
         return try bytes.withUnsafeBufferPointer { buffer in
             guard let baseAddress = buffer.baseAddress else { throw TZifError.prematureEOF }
             var reader = BinaryReader(ptr: baseAddress, capacity: buffer.count)
@@ -164,7 +165,6 @@ package enum TZifParser {
             }
 
             // Transitions zip
-
             var transitions: [TZDBTransition] = []
             transitions.reserveCapacity(Int(timeCountV2))
             for i in 0 ..< Int(timeCountV2) {
