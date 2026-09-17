@@ -3,25 +3,25 @@
 </h1>
 
 <p align="center">
-  High-performance, zero-dependency date and time primitives for Swift.
+  A lightweight, high-performance, foundation-free, and zero-dependency date and time primitives library for Swift.
 </p>
 
 <br><br>
 
-ChronoKit is designed for systems where runtime efficiency and binary size are critical, providing an alternative to `Foundation.Date` with zero dependencies.
+ChronoKit is designed for systems where runtime efficiency and binary size are critical, providing a pure alternative to `Foundation.Date` with absolutely no external or framework dependencies.
 
 ## Features
 
+- **Zero Foundation Framework Dependency**: Core modules are written in 100% pure Swift, making the library ideal for Linux servers, Embedded Swift, and WebAssembly (WASM).
 - **Core Types**: Strictly typed primitives (`Instant`, `PlainDate`, `PlainTime`, `PlainDateTime`, `DateTime<TZ>`) to enforce correct time representation.
 - **Standards Compliant**: Native support for **RFC 3339**, **RFC 5322**, and **RFC 2822** (legacy support).
 - **Zero-Allocation**: Custom byte-level parser and formatter designed for high-throughput serialization and logging.
-- **IANA Integration**: Optional, high-performance timezone support with memory-pooled lookups and BLOB deduplication.
+- **IANA Integration (`ChronoTZ`)**: High-performance, compile-time embedded timezone support with memory-pooled lookups and BLOB deduplication.
 
 ## Quick Start
 
 ```swift
 import ChronoKit
-import ChronoTZ
 
 /// Parse an RFC 3339 string
 let instant = Instant(rfc3339: "2026-04-26T12:00:00Z")!
@@ -46,7 +46,7 @@ print(datetime) // 2026-04-26T12:00:00Z
 
 ## Performance Philosophy
 
-ChronoKit avoids `Foundation`'s overhead by using direct memory buffers for parsing and formatting.
+ChronoKit completely avoids `Foundation`'s heavy runtime overhead and transitive baggage by manipulating direct memory buffers for parsing, formatting, and resource handling.
 It is designed to be embedded in low-level systems, CLI tools, and performance-sensitive services.
 
 ## Acknowledgments

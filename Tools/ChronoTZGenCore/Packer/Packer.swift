@@ -1,5 +1,6 @@
 import ChronoSystem
 import ChronoTZ
+import Foundation
 
 package struct Packer {
     package struct Context {
@@ -13,9 +14,9 @@ package struct Packer {
         "strftime.c", "zdump.c", "zic.c", "private.h", "tzfile.h",
     ]
 
-    let sourceDir: String
-    let parse: ([UInt8]) throws -> TZDBDataPayload
-    let encode: (TZDBDataPayload) throws -> [UInt8]
+    private let sourceDir: String
+    private let parse: ([UInt8]) throws -> TZDBDataPayload
+    private let encode: (TZDBDataPayload) throws -> [UInt8]
 
     package init(
         sourceDir: String,

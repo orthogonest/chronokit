@@ -38,8 +38,9 @@ struct InstantTZIntegrationTests {
     func customProviderInjection() throws {
         let instant = Instant(seconds: 1_700_000_000, nanoseconds: 0)
 
-        #expect(throws: FileSystemError.openFileFailed(2)) {
-            let provider = try IANAProvider(path: "/some/path/to/mock/db")
+        #expect(throws: TZDBError.invalidHeader) {
+            let dummyBytes: [UInt8] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+            let provider = try IANAProvider(bytes: dummyBytes)
             _ = try instant.dateTime(in: "UTC", provider: provider)
         }
     }

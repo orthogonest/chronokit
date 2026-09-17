@@ -12,8 +12,8 @@ func readFileBytes(path: String) throws -> [UInt8] {
     return buffer
 }
 
-func writeBytes<T>(
-    _ value: T,
+func writeBytes<Value>(
+    _ value: Value,
     to fd: Int32
 ) throws {
     var val = value
@@ -21,7 +21,7 @@ func writeBytes<T>(
         try FileSystem.writeFile(
             fd,
             buffer: ptr.baseAddress,
-            count: MemoryLayout<T>.size
+            count: MemoryLayout<Value>.size
         )
     }
 }

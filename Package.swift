@@ -40,6 +40,7 @@ let package = Package(
                 "ChronoMath",
                 "ChronoParser",
                 "ChronoSystem",
+                "ChronoTZ",
             ],
             path: "Sources/ChronoKit"
         ),
@@ -79,7 +80,7 @@ let package = Package(
             ],
             path: "Sources/ChronoTZ",
             resources: [
-                .process("Resources/iana.tzdb"),
+                .embedInCode("Resources/iana.tzdb"),
             ]
         ),
 
@@ -164,10 +165,7 @@ let package = Package(
                 "ChronoSystem",
                 "ChronoTZ",
             ],
-            path: "Tests/Integration",
-            resources: [
-                .process("Resources/iana.tzdb"),
-            ]
+            path: "Tests/Integration"
         ),
 
         // MARK: - Property Tests

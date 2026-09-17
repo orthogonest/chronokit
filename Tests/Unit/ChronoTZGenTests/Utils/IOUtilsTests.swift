@@ -19,13 +19,16 @@ struct IOUtilsTests {
     @Test("IOUtilsTests: writeBytes writes raw memory correctly")
     func testWriteBytes() throws {
         try withSandbox { sandbox in
-            let path = sandbox.appendingPathComponent("bytes.bin").path
-            let fd = try FileSystem.openFile(path, mode: .writeCreateTruncate)
-            defer { FileSystem.closeFile(fd) }
+            let fileName = "bytes_\(UUID().uuidString).bin"
+            let path = sandbox.appendingPathComponent(fileName).path
 
-            let value: UInt32 = 0x1234_5678
-            try writeBytes(value.bigEndian, to: fd)
-            FileSystem.closeFile(fd) // Close to flush
+            try {
+                let fd = try FileSystem.openFile(path, mode: .writeCreateTruncate)
+                defer { FileSystem.closeFile(fd) }
+
+                let value: UInt32 = 0x1234_5678
+                try writeBytes(value.bigEndian, to: fd)
+            }()
 
             let readBack = try Data(contentsOf: URL(fileURLWithPath: path))
             #expect(readBack == Data([0x12, 0x34, 0x56, 0x78]))

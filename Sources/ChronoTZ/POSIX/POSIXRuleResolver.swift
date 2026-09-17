@@ -1,6 +1,5 @@
 import ChronoCore
 import ChronoMath
-import Foundation
 
 enum POSIXRuleResolver {
     static func offset(
