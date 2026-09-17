@@ -139,44 +139,6 @@ extension FileSystemTests {
     }
 }
 
-// MARK: - Memory Mapping Tests
-
-extension FileSystemTests {
-    @Test("FileSystemTests: MMap and Read")
-    func testMapFile() throws {
-        let path = createTempPath()
-        defer { try? FileManager.default.removeItem(atPath: path) }
-
-        let content = "MMap_Test_Data"
-        let fd = try FileSystem.openFile(path, mode: .writeCreateTruncate)
-        try content.withCString { ptr in
-            try FileSystem.writeFile(fd, buffer: ptr, count: content.count)
-        }
-        FileSystem.closeFile(fd)
-
-        // Re-open for reading
-        let fdRead = try FileSystem.openFile(path, mode: .read)
-        defer { FileSystem.closeFile(fdRead) }
-
-        let ptr = try FileSystem.mapFile(fd: fdRead, size: content.count)
-        defer { FileSystem.unmapFile(pointer: ptr, size: content.count) }
-
-        // Verify content in memory
-        let bound = ptr.bindMemory(to: CChar.self, capacity: content.count)
-        let string = String(cString: bound) // Note: ensure null-termination or use buffer
-        #expect(string.hasPrefix("MMap_Test_Data"))
-    }
-
-    @Test("FileSystemTests: Invalid MMap")
-    func mmapFailure() {
-        // Attempting to mmap -1 fd
-        // 9 is EBADF (Bad File Descriptor)
-        #expect(throws: FileSystemError.mmapFailed(errno)) {
-            try FileSystem.mapFile(fd: -1, size: 4096)
-        }
-    }
-}
-
 // MARK: - Helpers
 
 extension FileSystemTests {

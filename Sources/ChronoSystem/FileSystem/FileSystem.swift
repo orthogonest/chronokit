@@ -98,26 +98,6 @@ extension FileSystem {
     }
 }
 
-// MARK: - Memory Mapping
-
-package extension FileSystem {
-    static func mapFile(fd: Int32, size: Int) throws -> UnsafeRawPointer {
-        let addr = mmap(nil, size, PROT_READ, MAP_PRIVATE, fd, 0)
-
-        guard let ptr = addr,
-              ptr != MAP_FAILED
-        else {
-            throw FileSystemError.mmapFailed(errno)
-        }
-
-        return UnsafeRawPointer(ptr)
-    }
-
-    static func unmapFile(pointer: UnsafeRawPointer, size: Int) {
-        munmap(UnsafeMutableRawPointer(mutating: pointer), size)
-    }
-}
-
 // MARK: - Helpers
 
 extension String {
