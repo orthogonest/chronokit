@@ -45,6 +45,44 @@ struct ZonedDateTimeFoundationTests {
         #expect(zonedDateTime.instant.nanoseconds == 500_000_000)
         #expect(zonedDateTime.timeZone == chronoTimeZone)
     }
+
+    @Test("ZonedDateTimeTests: Resolve DST ambiguous overlap using preferEarlier policy")
+    func resolveDSTOverlapPreferEarlier() throws {
+        // In New York on November 1, 2026 at 01:30 AM, wall-clock time occurs twice
+        // because clocks are turned back 1 hour due to the Autumn DST transition (Overlap).
+        var components = Foundation.DateComponents()
+        components.year = 2026
+        components.month = 11
+        components.day = 1
+        components.hour = 1
+        components.minute = 30
+        components.second = 0
+        components.nanosecond = 0
+
+        let chronoOptionalTimeZone = Foundation.TimeZone(identifier: "America/New_York")
+        let chronoTimeZone = try #require(chronoOptionalTimeZone).chrono.timeZone
+
+        // Test .preferEarlier policy (Default) -> Resolves to the earlier offset (-4 hours = EDT)
+        let zonedDateTimeEarlier: ChronoCore.ZonedDateTime = try #require(ZonedDateTime(
+            foundation: components,
+            timeZone: chronoTimeZone,
+            resolving: .preferEarlier
+        ))
+
+        // Test .preferLater policy -> Resolves to the later offset (-5 hours = EST)
+        let zonedDateTimeLater: ChronoCore.ZonedDateTime = try #require(ZonedDateTime(
+            foundation: components,
+            timeZone: chronoTimeZone,
+            resolving: .preferLater
+        ))
+
+        // The offset between EDT (-4) vs EST (-5) produces two absolute timestamps that differ by exactly 1 hour.
+        let diffInSeconds = zonedDateTimeLater.instant.seconds - zonedDateTimeEarlier.instant.seconds
+        #expect(
+            diffInSeconds == 3600,
+            "PreferLater instant should be 1 hour later than PreferEarlier during alignment fallback"
+        )
+    }
 }
 
 // MARK: - From ChronoKit Tests
@@ -118,5 +156,36 @@ extension ZonedDateTimeFoundationTests {
         #expect(zonedDateTimeFromComponents.hour == 12)
         #expect(zonedDateTimeFromComponents.minute == 0)
         #expect(zonedDateTimeFromComponents.second == 0)
+    }
+
+    @Test("ZonedDateTimeTests: Outbound proxy variants with Foundation.TimeZone and custom resolving policy")
+    func outboundProxyVariantsAndPolicies() throws {
+        var components = Foundation.DateComponents()
+        components.year = 2026
+        components.month = 5
+        components.day = 15
+        components.hour = 9
+        components.minute = 0
+        components.second = 0
+        components.nanosecond = 0
+
+        let foundationOptionalTimeZone = Foundation.TimeZone(identifier: "Asia/Jakarta")
+        let foundationTimeZone = try #require(foundationOptionalTimeZone)
+        let chronoTimeZone = foundationTimeZone.chrono.timeZone
+
+        // Test DateComponents outbound proxy method passing a native Foundation.TimeZone
+        let zonedFromCompWithFoundationTZ = try #require(components.chrono.zonedDateTime(timeZone: foundationTimeZone))
+        #expect(zonedFromCompWithFoundationTZ.hour == 9)
+        #expect(zonedFromCompWithFoundationTZ.timeZone.identifier == "Asia/Jakarta")
+
+        // Test Foundation.Date outbound proxy method passing a native Foundation.TimeZone
+        let date = Foundation.Date(timeIntervalSince1970: 50000)
+        let zonedFromDateWithFoundationTZ = date.chrono.zonedDateTime(timeZone: foundationTimeZone)
+        #expect(zonedFromDateWithFoundationTZ.instant.seconds == 50000)
+
+        // Test .strict resolution rule behavior under a completely standard, non-ambiguous civil date
+        // to verify parameter forwarding integrity to your core engine.
+        let zonedStrict = components.chrono.zonedDateTime(timeZone: chronoTimeZone, resolving: .strict)
+        #expect(zonedStrict != nil, "Should succeed under normal non-ambiguous dates")
     }
 }
