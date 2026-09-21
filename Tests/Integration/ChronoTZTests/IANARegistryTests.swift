@@ -28,11 +28,11 @@ struct IANARegistryTests {
 
     @Test("IANARegistryTests: Registry integrity", arguments: allZoneNames)
     func allZones(zoneName: String) throws {
-        let tz = try IANAProvider.shared.getTimeZone(named: zoneName)
+        let tz = try IANAProvider.shared.timeZone(named: zoneName)
         #expect(tz.identifier == zoneName)
         #expect(!tz.payload.types.isEmpty)
 
-        let now = Instant.now()
+        let now: Instant = .now
         let offset = tz.offset(for: now)
         let maxReasonableOffset: Int64 = 14 * Seconds.perHour64
         #expect(
@@ -64,7 +64,7 @@ struct IANARegistryTests {
     @Test("IANARegistryTests: Complex DST Regression Checks")
     func verifyKnownTimezoneTransitions() throws {
         // Test a zone notorious for complex historical shifts (London GMT -> BST)
-        let london = try IANAProvider.shared.getTimeZone(named: "Europe/London")
+        let london = try IANAProvider.shared.timeZone(named: "Europe/London")
 
         let winterLondon = Instant(seconds: 1_767_225_600)
         #expect(london.offset(for: winterLondon).seconds == 0, "Jan 1, 2026: Should be GMT (0 offset)")
@@ -72,8 +72,8 @@ struct IANARegistryTests {
         let summerLondon = Instant(seconds: 1_782_864_000)
         #expect(london.offset(for: summerLondon).seconds == 3600, "Jul 1, 2026: Should be BST (+3600 seconds offset)")
 
-        let kiritimati = try IANAProvider.shared.getTimeZone(named: "Pacific/Kiritimati")
-        let kiritimatiOffset = kiritimati.offset(for: Instant.now())
+        let kiritimati = try IANAProvider.shared.timeZone(named: "Pacific/Kiritimati")
+        let kiritimatiOffset = kiritimati.offset(for: Instant.now)
         #expect(kiritimatiOffset.seconds == 14 * Seconds.perHour64, "Line Islands should maintain +14 UTC baseline")
     }
 }

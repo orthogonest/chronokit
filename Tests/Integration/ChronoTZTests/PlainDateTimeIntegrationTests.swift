@@ -44,10 +44,10 @@ struct PlainDateTimeTZIntegrationTests {
         ))
         let zone = "Asia/Jakarta"
 
-        let dt = try plain.dateTime(timezone: zone)
+        let dt = try plain.zonedDateTime(timeZone: zone)
 
-        #expect(dt.timezone.identifier == "Asia/Jakarta")
-        #expect(dt.plain.year == 2025)
+        #expect(dt.timeZone.identifier == "Asia/Jakarta")
+        #expect(dt.plainDateTime.year == 2025)
     }
 
     @Test("PlainDateTimeTZIntegrationTests: Throws error for non-existent zone")
