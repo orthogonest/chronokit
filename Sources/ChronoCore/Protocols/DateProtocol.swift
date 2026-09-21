@@ -1,7 +1,7 @@
 import ChronoMath
 
 public protocol DateProtocol: Equatable, Comparable {
-    var year: Int32 { get }
+    var year: Int { get }
     var yearCE: (isCE: Bool, year: UInt32) { get }
     var isLeapYear: Bool { get }
 
@@ -23,7 +23,7 @@ public protocol DateProtocol: Equatable, Comparable {
     var ordinal: Int { get }
     var ordinalZeroBased: Int { get }
 
-    func with(year: Int32) -> Self?
+    func with(year: Int) -> Self?
 
     func with(month: Int) -> Self?
     func with(monthZeroBased value: Int) -> Self?
@@ -91,7 +91,7 @@ public extension DateProtocol {
         Int(daysFromCivil(
             year: Int64(year),
             month: UInt8(month),
-            day: UInt8(day),
+            day: UInt8(day)
         ))
     }
 

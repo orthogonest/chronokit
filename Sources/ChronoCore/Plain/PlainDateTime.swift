@@ -12,7 +12,7 @@ public struct PlainDateTime: Equatable, Hashable, Sendable {
 
     @inlinable
     public init?(
-        year: Int32,
+        year: Int,
         month: Int,
         day: Int,
         hour: Int = 0,
@@ -168,7 +168,7 @@ public extension PlainDateTime {
 
 extension PlainDateTime: DateProtocol {
     @inlinable
-    public var year: Int32 {
+    public var year: Int {
         date.year
     }
 
@@ -193,7 +193,7 @@ extension PlainDateTime: DateProtocol {
     }
 
     @inlinable
-    public func with(year: Int32) -> Self? {
+    public func with(year: Int) -> Self? {
         guard let newDate = date.with(year: year) else { return nil }
         return Self(date: newDate, time: time)
     }
@@ -293,17 +293,13 @@ extension PlainDateTime: TimeProtocol {
 
 package extension PlainDateTime {
     @inlinable
-    func timestampNanosecondsChecked() -> Int64? {
+    var timestampNanosecondsChecked: Int64? {
         let (daysStamp, daysOverflow) = date
             .daysSinceEpoch
             .multipliedReportingOverflow(by: NanoSeconds.perDay64)
-        if daysOverflow { return nil }
-
         let (stamp, stampOverflow) = daysStamp
             .addingReportingOverflow(time.nanosecondsSinceMidnight)
-        if stampOverflow { return nil }
-
-        return stamp
+        return (daysOverflow || stampOverflow) ? nil : stamp
     }
 
     @inlinable
@@ -326,16 +322,16 @@ extension PlainDateTime: SubsecondRoundable {
         if digits >= 9 { return self }
 
         let span = NanosecondMath.span(forDigits: digits)
-        guard let stamp = timestampNanosecondsChecked() else { return self }
+        guard let timestamp = timestampNanosecondsChecked else { return self }
 
-        let deltaDown = floorMod(stamp, span)
+        let deltaDown = floorMod(timestamp, span)
         if deltaDown == 0 { return self }
 
         let deltaUp = span - deltaDown
 
         let rounded = deltaUp <= deltaDown
-            ? stamp + deltaUp
-            : stamp - deltaDown
+            ? timestamp + deltaUp
+            : timestamp - deltaDown
 
         return Self.fromTimestampNanoseconds(rounded)
     }
@@ -345,12 +341,12 @@ extension PlainDateTime: SubsecondRoundable {
         if digits >= 9 { return self }
 
         let span = NanosecondMath.span(forDigits: digits)
-        guard let stamp = timestampNanosecondsChecked() else { return self }
+        guard let timestamp = timestampNanosecondsChecked else { return self }
 
-        let deltaDown = floorMod(stamp, span)
+        let deltaDown = floorMod(timestamp, span)
         if deltaDown == 0 { return self }
 
-        let truncated = stamp - deltaDown
+        let truncated = timestamp - deltaDown
 
         return Self.fromTimestampNanoseconds(truncated)
     }
@@ -365,16 +361,16 @@ extension PlainDateTime: DurationRoundable {
     public func round(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
-        guard let stamp = timestampNanosecondsChecked() else { throw .timestampExceedsLimit }
+        guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
-        let deltaDown = floorMod(stamp, span)
+        let deltaDown = floorMod(timestamp, span)
         if deltaDown == 0 { return self }
 
         let deltaUp = span - deltaDown
 
         let rounded = deltaUp <= deltaDown
-            ? stamp + deltaUp
-            : stamp - deltaDown
+            ? timestamp + deltaUp
+            : timestamp - deltaDown
 
         return Self.fromTimestampNanoseconds(rounded)
     }
@@ -383,12 +379,12 @@ extension PlainDateTime: DurationRoundable {
     public func truncate(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
-        guard let stamp = timestampNanosecondsChecked() else { throw .timestampExceedsLimit }
+        guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
-        let deltaDown = floorMod(stamp, span)
+        let deltaDown = floorMod(timestamp, span)
         if deltaDown == 0 { return self }
 
-        let truncated = stamp - deltaDown
+        let truncated = timestamp - deltaDown
 
         return Self.fromTimestampNanoseconds(truncated)
     }
@@ -397,12 +393,12 @@ extension PlainDateTime: DurationRoundable {
     public func roundUp(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
-        guard let stamp = timestampNanosecondsChecked() else { throw .timestampExceedsLimit }
+        guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
-        let deltaDown = floorMod(stamp, span)
+        let deltaDown = floorMod(timestamp, span)
         if deltaDown == 0 { return self }
 
-        let roundedUp = stamp + (span - deltaDown)
+        let roundedUp = timestamp + (span - deltaDown)
 
         return Self.fromTimestampNanoseconds(roundedUp)
     }
@@ -418,61 +414,50 @@ public extension PlainDateTime {
 
     @inlinable
     func instant(
-        in timezone: some TimeZoneProtocol,
+        in timeZone: some TimeZoneProtocol,
         resolving policy: DSTResolutionPolicy = .preferEarlier
     ) -> Instant? {
-        guard let offset = timezone
+        guard let offset = timeZone
             .offset(for: self)
             .resolve(using: policy)
         else { return nil }
 
         let daysInSecs = date.daysSinceEpoch * Seconds.perDay64
 
-        let rawSecs = daysInSecs - offset.duration.seconds
+        let rawSecs = daysInSecs.subtractingReportingOverflow(offset.duration.seconds).partialValue
         let rawNanos = time.nanosecondsSinceMidnight - Int64(offset.duration.nanoseconds)
 
-        let extraSecs = floorDiv(rawNanos, NanoSeconds.perSecond64)
-        let normalizedNanos = floorMod(rawNanos, NanoSeconds.perSecond64)
-
-        return Instant(
-            seconds: rawSecs + extraSecs,
-            nanoseconds: Int32(normalizedNanos)
-        )
+        return Instant(seconds: rawSecs, nanoseconds: rawNanos)
     }
 
     @inlinable
     func instant(offset: FixedOffset) -> Instant {
         let daysInSecs = date.daysSinceEpoch * Seconds.perDay64
 
-        let rawSecs = daysInSecs - offset.duration.seconds
+        let rawSecs = daysInSecs.subtractingReportingOverflow(offset.duration.seconds).partialValue
         let rawNanos = time.nanosecondsSinceMidnight - Int64(offset.duration.nanoseconds)
 
-        let extraSecs = floorDiv(rawNanos, NanoSeconds.perSecond64)
-        let finalNanos = floorMod(rawNanos, NanoSeconds.perSecond64)
-
-        return Instant(
-            seconds: rawSecs + extraSecs,
-            nanoseconds: Int32(finalNanos)
-        )
+        return Instant(seconds: rawSecs, nanoseconds: rawNanos)
     }
 }
 
-// MARK: - Date Time Conversion
+// MARK: - Zoned Date Time Conversion
 
 public extension PlainDateTime {
     @inlinable
-    var dateTimeUTC: DateTime<FixedOffset> {
-        instantUTC.dateTime(in: .utc)
+    var zonedDateTimeUTC: ZonedDateTime {
+        instantUTC.zonedDateTimeUTC
     }
 
     @inlinable
-    func dateTime<TZ: TimeZoneProtocol>(timezone: TZ) -> DateTime<TZ>? {
-        guard let instant = instant(in: timezone) else { return nil }
-        return instant.dateTime(in: timezone)
+    func zonedDateTime(timeZone: TimeZone) -> ZonedDateTime? {
+        guard let instant = instant(in: timeZone) else { return nil }
+        return instant.zonedDateTime(in: timeZone)
     }
 
     @inlinable
-    func dateTime(offset: FixedOffset) -> DateTime<FixedOffset> {
-        instant(offset: offset).dateTime(in: offset)
+    func zonedDateTime(offset: FixedOffset) -> ZonedDateTime {
+        let timeZone = TimeZone(offset)
+        return instant(offset: offset).zonedDateTime(in: timeZone)
     }
 }
