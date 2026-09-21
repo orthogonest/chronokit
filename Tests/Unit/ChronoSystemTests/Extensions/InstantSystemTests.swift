@@ -2,12 +2,12 @@
 import ChronoMath
 import Testing
 
-struct SystemInstantTests {
+struct InstantSystemTests {
     // MARK: - Initialization Tests
 
-    @Test("SystemInstantTests: Invariant - Nanosecond range")
+    @Test("InstantSystemTests: Invariant - Nanosecond range")
     func nanosecondRange() {
-        let now = Instant.now()
+        let now: Instant = .now
 
         // Nanoseconds must always be within [0, 999_999_999]
         // If this fails, ChronoMath logic produce incorrect results.
@@ -15,31 +15,31 @@ struct SystemInstantTests {
         #expect(now.nanoseconds < 1_000_000_000, "Nanoseconds must be less than 1 second")
     }
 
-    @Test("SystemInstantTests: Invariant - Positive Seconds")
+    @Test("InstantSystemTests: Invariant - Positive Seconds")
     func positiveSeconds() {
-        let now = Instant.now()
+        let now: Instant = .now
         #expect(now.seconds >= 0, "Current time should not be in the past relative to the Unix Epoch")
     }
 
-    @Test("SystemInstantTests: Monotonicity under load")
+    @Test("InstantSystemTests: Monotonicity under load")
     func monotonicConsistency() {
-        let start = Instant.now()
+        let start: Instant = .now
 
         // Simulate a burst of activity
         for _ in 0 ..< 1000 {
-            let current = Instant.now()
+            let current: Instant = .now
             #expect(current >= start, "System clock should be monotonic")
         }
     }
 
-    @Test("SystemInstantTests: Verify Clock Source")
+    @Test("InstantSystemTests: Verify Clock Source")
     func verifyClockBehavior() {
-        let now = Instant.now()
-        let now2 = Instant.now()
+        let now: Instant = .now
+        let now2: Instant = .now
         #expect(now2 >= now, "Clock should not move backward during standard operation")
     }
 
-    @Test("SystemInstantTests: High resolution check")
+    @Test("InstantSystemTests: High resolution check")
     func highResolution() {
         // Capture many instants in a tight loop
         let count = 100
@@ -47,7 +47,7 @@ struct SystemInstantTests {
         var instants: [Instant] = []
         instants.reserveCapacity(count)
         for _ in 0 ..< count {
-            instants.append(.now())
+            instants.append(.now)
         }
 
         // Verify that we are actually getting different nanosecond values

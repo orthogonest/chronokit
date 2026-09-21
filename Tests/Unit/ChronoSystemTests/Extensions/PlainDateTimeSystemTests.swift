@@ -3,16 +3,16 @@ import ChronoMath
 @testable import ChronoSystem
 import Testing
 
-struct SystemPlainDateTimeTests {
-    @Test("SystemPlainDateTimeTests: PlainDateTime.now() matches system year")
+struct PlainDateTimeSystemTests {
+    @Test("PlainDateTimeSystemTests: PlainDateTime.now() matches system year")
     func nowConsistency() {
-        let now: PlainDateTime = .now()
+        let now: PlainDateTime = .now
         #expect(now.date.year >= 1970, "Should be more than unix year")
         #expect(now.date.month >= 1 && now.date.month <= 12)
         #expect(now.date.day >= 1 && now.date.day <= 31)
     }
 
-    @Test("SystemPlainDateTimeTests: now(in: FixedOffset) handles extreme offsets")
+    @Test("PlainDateTimeSystemTests: now(in: FixedOffset) handles extreme offsets")
     func nowWithOffsets() {
         let plus12 = FixedOffset(.hours(12))
         let minus12 = FixedOffset(.hours(-12))
@@ -29,9 +29,9 @@ struct SystemPlainDateTimeTests {
         #expect(abs(hourDiff) >= 23 && abs(hourDiff) <= 25)
     }
 
-    @Test("SystemPlainDateTimeTests: Consistency between Instant and Plain now")
+    @Test("PlainDateTimeSystemTests: Consistency between Instant and Plain now")
     func instantPlainCohesion() {
-        let instant: Instant = .now()
+        let instant: Instant = .now
         let tz = SystemTimeZone()
 
         // Manual conversion
@@ -45,17 +45,17 @@ struct SystemPlainDateTimeTests {
         #expect(abs(Int32(manualPlain.time.hour) - Int32(autoPlain.time.hour)) <= 1)
     }
 
-    @Test("SystemPlainDateTimeTests: UTC absolute consistency")
+    @Test("PlainDateTimeSystemTests: UTC absolute consistency")
     func utcAlignment() {
-        let now = PlainDateTime.now(in: FixedOffset.utc)
-        let instant = Instant.now()
+        let now: PlainDateTime = .now(in: FixedOffset.utc)
+        let instant: Instant = .now
         let manual = instant.plainDateTime(in: FixedOffset.utc)
 
         #expect(now.date == manual.date, "PlainDateTime(in: .utc) must align with manual Instant conversion")
         #expect(now.time.hour == manual.time.hour, "Hour must match UTC reference")
     }
 
-    @Test("SystemPlainDateTimeTests: Zone Isolation")
+    @Test("PlainDateTimeSystemTests: Zone Isolation")
     func zoneIsolation() {
         // Ensure that calling 'now(in:)' returns data strictly
         // bound to the provided timezone, not the system environment.

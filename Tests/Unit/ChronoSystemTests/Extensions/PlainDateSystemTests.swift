@@ -3,12 +3,12 @@ import ChronoMath
 @testable import ChronoSystem
 import Testing
 
-struct SystemPlainDateTests {
+struct PlainDateSystemTests {
     // MARK: - Initialization Tests
 
-    @Test("SystemPlainDateTests: PlainDate.now() basic validation")
+    @Test("PlainDateSystemTests: PlainDate.now() basic validation")
     func dateNow() {
-        let date: PlainDate = .now()
+        let date: PlainDate = .now
 
         // Sanity check: Should be a realistic year in the current era
         #expect(date.year >= 2025)
@@ -16,7 +16,7 @@ struct SystemPlainDateTests {
         #expect(date.day >= 1 && date.day <= ChronoMath.lastDayOfMonth(Int64(date.year), UInt8(date.month)))
     }
 
-    @Test("SystemPlainDateTests: now(in:) respects large offsets (Midnight Crossing)")
+    @Test("PlainDateSystemTests: now(in:) respects large offsets (Midnight Crossing)")
     func dateNowWithOffset() {
         // We pick two opposite extreme offsets
         let plus14 = FixedOffset(.hours(14))
@@ -32,17 +32,17 @@ struct SystemPlainDateTests {
         #expect(dayDiff >= 0 && dayDiff <= 2)
     }
 
-    @Test("SystemPlainDateTests: Consistency between PlainDate.now() and PlainDate.now(in:)")
+    @Test("PlainDateSystemTests: Consistency between PlainDate.now() and PlainDate.now(in:)")
     func defaultConsistency() {
         // This test ensures that the parameterless .now()
         // is indeed calling the .now(in: SystemTimeZone()) implementation.
-        let date1 = PlainDate.now()
+        let date1 = PlainDate.now
         let date2 = PlainDate.now(in: SystemTimeZone())
 
         #expect(date1 == date2, "Default .now() should match SystemTimeZone implementation")
     }
 
-    @Test("SystemPlainDateTests: Contract alignment with PlainDateTime")
+    @Test("PlainDateSystemTests: Contract alignment with PlainDateTime")
     func contractWithDateTime() {
         // Prove that PlainDate.now(in:) is strictly derived
         // from the PlainDateTime.now(in:)'s date component.
@@ -56,7 +56,7 @@ struct SystemPlainDateTests {
         #expect(date.day == dateTime.date.day)
     }
 
-    @Test("SystemPlainDateTests: Protocol Generic Compatibility")
+    @Test("PlainDateSystemTests: Protocol Generic Compatibility")
     func protocolCompatibility() {
         // Verifying that the 'some TimeZoneProtocol' constraint
         // accepts our types correctly.

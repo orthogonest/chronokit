@@ -3,12 +3,12 @@ import ChronoMath
 @testable import ChronoSystem
 import Testing
 
-struct SystemPlainTimeTests {
+struct PlainTimeSystemTests {
     // MARK: - Initialization Tests
 
-    @Test("SystemPlainTimeTests: PlainTime.now() basic validation")
+    @Test("PlainTimeSystemTests: PlainTime.now() basic validation")
     func timeNow() {
-        let now = PlainTime.now()
+        let now: PlainTime = .now
 
         // Sanity check: hour and minute must be within standard clock bounds
         #expect(now.hour >= 0 && now.hour <= 23)
@@ -16,7 +16,7 @@ struct SystemPlainTimeTests {
         #expect(now.second >= 0 && now.second <= 59)
     }
 
-    @Test("SystemPlainTimeTests: Rapid-fire consistency")
+    @Test("PlainTimeSystemTests: Rapid-fire consistency")
     func rapidConsistency() {
         let zone = FixedOffset(.hours(5))
 
@@ -30,24 +30,24 @@ struct SystemPlainTimeTests {
         }
     }
 
-    @Test("SystemPlainTimeTests: Deterministic UTC Initialization")
+    @Test("PlainTimeSystemTests: Deterministic UTC Initialization")
     func utcDeterminism() {
-        let tz = FixedOffset.utc
-        let nowUTC = PlainTime.now(in: tz)
+        let tz: FixedOffset = .utc
+        let nowUTC: PlainTime = .now(in: tz)
 
         // Ensure that explicit UTC handling doesn't produce weird artifacts
         #expect(nowUTC.hour >= 0 && nowUTC.hour < 24)
         #expect(nowUTC.minute >= 0 && nowUTC.minute < 60)
     }
 
-    @Test("SystemPlainTimeTests: now(in:) reflects specific offsets")
+    @Test("PlainTimeSystemTests: now(in:) reflects specific offsets")
     func timeNowWithOffset() {
         // We use UTC and a +1 hour offset
         let utc = FixedOffset.utc
         let plusOne = FixedOffset(.hours(1))
 
-        let timeUTC = PlainTime.now(in: utc)
-        let timePlus1 = PlainTime.now(in: plusOne)
+        let timeUTC: PlainTime = .now(in: utc)
+        let timePlus1: PlainTime = .now(in: plusOne)
 
         // Convert to total seconds for easy comparison
         let totalSecondsUTC = Int64(timeUTC.hour) * 3600 + Int64(timeUTC.minute) * 60 + Int64(timeUTC.second)
@@ -59,13 +59,13 @@ struct SystemPlainTimeTests {
         #expect(diff == 3600)
     }
 
-    @Test("SystemPlainTimeTests: Consistency across TimeZoneProtocol")
+    @Test("PlainTimeSystemTests: Consistency across TimeZoneProtocol")
     func protocolConsistency() {
         let systemZone = SystemTimeZone()
 
         // The two calls should produce virtually identical results
-        let time1 = PlainTime.now() // uses default internal SystemTimeZone
-        let time2 = PlainTime.now(in: systemZone) // uses explicit protocol
+        let time1: PlainTime = .now // uses default internal SystemTimeZone
+        let time2: PlainTime = .now(in: systemZone) // uses explicit protocol
 
         // We allow for a 1-second drift in case the clock ticked during execution
         let total1 = time1.nanosecondsSinceMidnight
@@ -75,11 +75,11 @@ struct SystemPlainTimeTests {
         #expect(drift < NanoSeconds.perSecond64)
     }
 
-    @Test("SystemPlainTimeTests: Contract alignment with PlainDateTime")
+    @Test("PlainTimeSystemTests: Contract alignment with PlainDateTime")
     func contractAlignment() {
-        let tz = FixedOffset.utc
-        let time = PlainTime.now(in: tz)
-        let dt = PlainDateTime.now(in: tz)
+        let tz: FixedOffset = .utc
+        let time: PlainTime = .now(in: tz)
+        let dt: PlainDateTime = .now(in: tz)
 
         #expect(time.hour == dt.time.hour)
         #expect(time.minute == dt.time.minute)
