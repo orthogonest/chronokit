@@ -60,7 +60,7 @@ extension InstantFormatterTests {
         (0, 0, "Thu, 01 Jan 1970 00:00:00 +0000"),
         (1_773_748_800, 0, "Tue, 17 Mar 2026 12:00:00 +0000"),
     ])
-    func formatting_rfc5322(seconds: Int64, nanoseconds: Int32, expected: String) {
+    func formatting_rfc5322(seconds: Int64, nanoseconds: Int64, expected: String) {
         let epoch = Instant(seconds: seconds, nanoseconds: nanoseconds)
         #expect(epoch.rfc5322() == expected)
     }
@@ -69,7 +69,7 @@ extension InstantFormatterTests {
         (946_684_800, 0, "Sat, 01 Jan 2000 00:00:00 +0000"), // Y2K
         (946_684_799, 0, "Fri, 31 Dec 1999 23:59:59 +0000") // End of a century
     ])
-    func yearBoundaries_rfc5322(seconds: Int64, nanoseconds: Int32, expected: String) {
+    func yearBoundaries_rfc5322(seconds: Int64, nanoseconds: Int64, expected: String) {
         let boundaries = Instant(seconds: seconds, nanoseconds: nanoseconds)
         #expect(boundaries.rfc5322() == expected)
     }

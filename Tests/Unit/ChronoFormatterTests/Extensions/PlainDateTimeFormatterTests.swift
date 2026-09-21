@@ -106,7 +106,7 @@ extension PlainDateTimeFormatterTests {
     ])
     // swiftlint:disable:next function_parameter_count
     func formatting_rfc5322(
-        year: Int32,
+        year: Int,
         month: Int,
         day: Int,
         hour: Int,

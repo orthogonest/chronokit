@@ -4,8 +4,8 @@ import Testing
 
 // MARK: - RFC 3339 Tests
 
-struct DateFormatterTests {
-    @Test("DateFormatterTests: RFC 3339 formatting", arguments: [
+struct PlainDateFormatterTests {
+    @Test("PlainDateFormatterTests: RFC 3339 formatting", arguments: [
         (PlainDate(year: 2025, month: 1, day: 1), "2025-01-01"),
         (PlainDate(year: 2024, month: 2, day: 29), "2024-02-29"), // Leap Year
         (PlainDate(year: 9999, month: 12, day: 31), "9999-12-31"), // Bounds
@@ -17,21 +17,21 @@ struct DateFormatterTests {
         #expect("Today is \(requiredDate)" == "Today is \(expected)")
     }
 
-    @Test("DateFormatterTests: Consistency RFC 3339 padding")
+    @Test("PlainDateFormatterTests: Consistency RFC 3339 padding")
     func paddingConsistency_rfc3339() throws {
         // Specifically testing if the convenience method preserves the FixedWriter's 0-padding
         let earlyDate = try #require(PlainDate(year: 1, month: 1, day: 1))
         #expect(earlyDate.rfc3339() == "0001-01-01")
     }
 
-    @Test("DateFormatterTests: RFC 3339 padding for single-digit months and days")
+    @Test("PlainDateFormatterTests: RFC 3339 padding for single-digit months and days")
     func paddingTest_rfc3339() throws {
         // Tests FixedWriter.write2 logic for leading zeros
         let date = try #require(PlainDate(year: 2025, month: 5, day: 3))
         #expect(date.description == "2025-05-03")
     }
 
-    @Test("DateFormatterTests: RFC 3339 early year padding (0-999)")
+    @Test("PlainDateFormatterTests: RFC 3339 early year padding (0-999)")
     func earlyYearPadding_rfc3339() throws {
         // Tests FixedWriter.write4 logic for years with leading zeros
         let date = try #require(PlainDate(year: 8, month: 10, day: 12))
@@ -41,7 +41,7 @@ struct DateFormatterTests {
         #expect(medievalDate.description == "0450-01-01")
     }
 
-    @Test("DateFormatterTests: RFC 3339 Maximum and Minimum supported years")
+    @Test("PlainDateFormatterTests: RFC 3339 Maximum and Minimum supported years")
     func extremeYearPadding_rfc3339() throws {
         let futureDate = try #require(PlainDate(year: 9999, month: 12, day: 31))
         #expect(futureDate.description == "9999-12-31")
@@ -53,19 +53,19 @@ struct DateFormatterTests {
 
 // MARK: - RFC 5322 Tests
 
-extension DateFormatterTests {
-    @Test("DateFormatterTests: RFC 5322 formatting", arguments: [
+extension PlainDateFormatterTests {
+    @Test("PlainDateFormatterTests: RFC 5322 formatting", arguments: [
         (2025, 5, 3, "Sat, 03 May 2025"),
         (2024, 2, 29, "Thu, 29 Feb 2024"), // Leap year
         (2026, 1, 1, "Thu, 01 Jan 2026"), // Year transition
         (1990, 12, 25, "Tue, 25 Dec 1990"),
     ])
-    func formatting_rfc5322(year: Int32, month: Int, day: Int, expected: String) throws {
+    func formatting_rfc5322(year: Int, month: Int, day: Int, expected: String) throws {
         let date = try #require(PlainDate(year: year, month: month, day: day))
         #expect(date.rfc5322() == expected)
     }
 
-    @Test("DateFormatterTests: RFC 5322 edge years")
+    @Test("PlainDateFormatterTests: RFC 5322 edge years")
     func edgeYears_rfc5322() throws {
         // Year 0001
         let ancient = try #require(PlainDate(year: 1, month: 1, day: 1))
@@ -77,7 +77,7 @@ extension DateFormatterTests {
         #expect(future.rfc5322() == "Fri, 31 Dec 9999")
     }
 
-    @Test("DateFormatterTests: RFC 5322 Month naming")
+    @Test("PlainDateFormatterTests: RFC 5322 Month naming")
     func monthNaming_rfc5322() throws {
         let months = [
             (1, "Jan"), (2, "Feb"), (3, "Mar"), (4, "Apr"),
@@ -92,7 +92,7 @@ extension DateFormatterTests {
         }
     }
 
-    @Test("DateFormatterTests: RFC 5322 weekday logic")
+    @Test("PlainDateFormatterTests: RFC 5322 weekday logic")
     func weekdayLogic_rfc5322() throws {
         // Checking specific known days to ensure ChronoMath calculation is right
         let mon = try #require(PlainDate(year: 2025, month: 4, day: 14))
@@ -105,7 +105,7 @@ extension DateFormatterTests {
 
 // MARK: - RFC 2822 Tests
 
-extension DateFormatterTests {
+extension PlainDateFormatterTests {
     @available(*, deprecated)
     @Test("DateFormatterTests: RFC 2822 alias yields identical results to RFC 5322")
     func redirectedDeprecation_rfc2822() throws {
