@@ -2,10 +2,10 @@ import ChronoCore
 @testable import ChronoTZ
 import Testing
 
-struct IANAInstantTests {
+struct InstantTZTests {
     let instant = Instant(seconds: 1_713_926_400)
 
-    @Test("IANAInstantTests: PlainDateTime conversion succeeds with valid provider")
+    @Test("InstantTZTests: PlainDateTime conversion succeeds with valid provider")
     func plainDateTimeSuccess() throws {
         // Create data payload
         let types = try [TZDBTypeDefinition(offset: 0, isDST: 0)]
@@ -21,7 +21,7 @@ struct IANAInstantTests {
         _ = try instant.plainDateTime(in: tzName, provider: mock)
     }
 
-    @Test("IANAInstantTests: DateTime conversion succeeds with valid provider")
+    @Test("InstantTZTests: DateTime conversion succeeds with valid provider")
     func dateTimeSuccess() throws {
         // Create data payload
         let types = try [TZDBTypeDefinition(offset: 0, isDST: 0)]
@@ -34,12 +34,12 @@ struct IANAInstantTests {
         let tz = TimeZoneInfo(identifier: tzName, payload: payload)
         mock.insertZones(tzName, tz: tz)
 
-        let result = try instant.dateTime(in: tzName, provider: mock)
+        let result = try instant.zonedDateTime(in: tzName, provider: mock)
 
-        #expect(result.timezone.identifier == tzName)
+        #expect(result.timeZone.identifier == tzName)
     }
 
-    @Test("IANAInstantTests: Methods throw error when TimeZone is not found")
+    @Test("InstantTZTests: Methods throw error when TimeZone is not found")
     func conversionThrowsOnInvalidZone() throws {
         let mock = MockTimeZoneProvider()
 
@@ -48,7 +48,7 @@ struct IANAInstantTests {
         }
 
         #expect(throws: (any Error).self) {
-            try instant.dateTime(in: "Invalid/Zone", provider: mock)
+            try instant.zonedDateTime(in: "Invalid/Zone", provider: mock)
         }
     }
 }

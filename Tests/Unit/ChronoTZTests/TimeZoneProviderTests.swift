@@ -7,7 +7,7 @@ struct TimeZoneProviderTests {
     func initializationAndRetrieval() throws {
         let mockBytes = try createMockDB(entryName: "UTC")
         let provider = try IANAProvider(bytes: mockBytes)
-        let zone = try provider.getTimeZone(named: "UTC")
+        let zone = try provider.timeZone(named: "UTC")
         #expect(zone.identifier == "UTC")
     }
 
@@ -15,8 +15,8 @@ struct TimeZoneProviderTests {
     func cacheIdentity() throws {
         let mockBytes = try createMockDB(entryName: "UTC")
         let provider = try IANAProvider(bytes: mockBytes)
-        let firstCall = try provider.getTimeZone(named: "UTC")
-        let secondCall = try provider.getTimeZone(named: "UTC")
+        let firstCall = try provider.timeZone(named: "UTC")
+        let secondCall = try provider.timeZone(named: "UTC")
         #expect(firstCall == secondCall, "Provider should return the cached instance")
     }
 
@@ -25,7 +25,7 @@ struct TimeZoneProviderTests {
         let mockBytes = try createMockDB(entryName: "UTC")
         let provider = try IANAProvider(bytes: mockBytes)
         #expect(throws: TimeZoneError.zoneNotFound("NonExistent")) {
-            try provider.getTimeZone(named: "NonExistent")
+            try provider.timeZone(named: "NonExistent")
         }
     }
 
@@ -37,7 +37,7 @@ struct TimeZoneProviderTests {
         await withTaskGroup(of: Void.self) { group in
             for _ in 0 ..< 10 {
                 group.addTask {
-                    _ = try? provider.getTimeZone(named: "UTC")
+                    _ = try? provider.timeZone(named: "UTC")
                 }
             }
         }
