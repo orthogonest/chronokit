@@ -16,30 +16,19 @@ extension Weekday: Comparable {
 }
 
 public extension Weekday {
+    @usableFromInline
+    internal static let _cachedAllCases: [Self] = Array(Self.allCases)
+
     @inlinable
     func next() -> Self {
-        switch self {
-        case .sunday: .monday
-        case .monday: .tuesday
-        case .tuesday: .wednesday
-        case .wednesday: .thursday
-        case .thursday: .friday
-        case .friday: .saturday
-        case .saturday: .sunday
-        }
+        let nextIndex = (rawValue + 1) % 7
+        return Self._cachedAllCases[nextIndex]
     }
 
     @inlinable
     func prev() -> Self {
-        switch self {
-        case .sunday: .saturday
-        case .monday: .sunday
-        case .tuesday: .monday
-        case .wednesday: .tuesday
-        case .thursday: .wednesday
-        case .friday: .thursday
-        case .saturday: .friday
-        }
+        let prevIndex = (rawValue + 6) % 7
+        return Self._cachedAllCases[prevIndex]
     }
 }
 
@@ -66,10 +55,6 @@ public extension Weekday {
 
     @inlinable
     func daysUntil(_ other: Self) -> Int {
-        let lhs = rawValue
-        let rhs = other.rawValue
-
-        let diff = rhs - lhs
-        return diff < 0 ? diff + 7 : diff
+        (other.rawValue - rawValue + 7) % 7
     }
 }
