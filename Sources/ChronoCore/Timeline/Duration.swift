@@ -26,11 +26,14 @@ public struct Duration: Equatable, Hashable, Sendable {
         self.seconds = sec
         self.nanoseconds = Int32(nano)
     }
+
+    @inlinable
+    public init(seconds: Int, nanoseconds: Int = 0) {
+        self.init(seconds: Int64(seconds), nanoseconds: Int64(nanoseconds))
+    }
 }
 
 public extension Duration {
-    static let zero: Self = .init(seconds: .zero)
-
     @inlinable
     static func nanoseconds(_ value: Int) -> Duration {
         Duration(seconds: 0, nanoseconds: Int64(value))
@@ -186,44 +189,45 @@ extension Duration: Comparable {
     }
 }
 
+extension Duration: AdditiveArithmetic {
+    @inlinable
+    public static var zero: Self {
+        Self(seconds: 0, nanoseconds: 0)
+    }
+
+    @inlinable
+    public static func + (lhs: Self, rhs: Self) -> Self {
+        return lhs.addingReportingOverflow(rhs).partialValue
+    }
+
+    @inlinable
+    public static func - (lhs: Self, rhs: Self) -> Self {
+        return lhs.subtractingReportingOverflow(rhs).partialValue
+    }
+}
+
 public extension Duration {
     @inlinable
-    static func + (lhs: Self, rhs: Self) -> Self {
-        let totalNanos = Int64(lhs.nanoseconds) + Int64(rhs.nanoseconds)
-        let extraSec = floorDiv(totalNanos, NanoSeconds.perSecond64)
-        let remNanos = floorMod(totalNanos, NanoSeconds.perSecond64)
-        return Self(
-            seconds: lhs.seconds + rhs.seconds + extraSec,
-            nanoseconds: remNanos
-        )
-    }
-
-    @inlinable
-    static func - (lhs: Self, rhs: Self) -> Self {
-        let totalNanos = Int64(lhs.nanoseconds) - Int64(rhs.nanoseconds)
-        let extraSec = floorDiv(totalNanos, NanoSeconds.perSecond64)
-        let remNanos = floorMod(totalNanos, NanoSeconds.perSecond64)
-        return Self(
-            seconds: lhs.seconds - rhs.seconds + extraSec,
-            nanoseconds: remNanos
-        )
-    }
-
-    @inlinable
     static func * (lhs: Self, rhs: Int64) -> Self {
-        let totalNanos = Int64(lhs.nanoseconds) * rhs
-        let extraSec = floorDiv(totalNanos, NanoSeconds.perSecond64)
-        let remNanos = floorMod(totalNanos, NanoSeconds.perSecond64)
-        return Self(
-            seconds: (lhs.seconds * rhs) + extraSec,
-            nanoseconds: remNanos
-        )
+        lhs.multipliedReportingOverflow(rhs).partialValue
+    }
+
+    @inlinable
+    static func * (lhs: Self, rhs: Int) -> Self {
+        lhs.multipliedReportingOverflow(rhs).partialValue
     }
 
     @inlinable
     static func / (lhs: Self, rhs: Self) -> Double {
-        let lhsTotalNanos = Double(lhs.seconds) * Double(NanoSeconds.perSecond64) + Double(lhs.nanoseconds)
-        let rhsTotalNanos = Double(rhs.seconds) * Double(NanoSeconds.perSecond64) + Double(rhs.nanoseconds)
+        if let lhsNanos = lhs.timestampNanosecondsChecked,
+           let rhsNanos = rhs.timestampNanosecondsChecked
+        {
+            return Double(lhsNanos) / Double(rhsNanos)
+        }
+
+        let lhsTotalNanos = Double(lhs.seconds) + (Double(lhs.nanoseconds) / NanoSeconds.perSecondDouble)
+        let rhsTotalNanos = Double(rhs.seconds) + (Double(rhs.nanoseconds) / NanoSeconds.perSecondDouble)
+
         return lhsTotalNanos / rhsTotalNanos
     }
 
@@ -232,16 +236,7 @@ public extension Duration {
         precondition(rhs != 0, "Duration division by zero")
 
         let (secNanos, overflow) = lhs.seconds.multipliedReportingOverflow(by: NanoSeconds.perSecond64)
-
-        if !overflow {
-            let totalNanos = secNanos + Int64(lhs.nanoseconds)
-            let quotientNanos = floorDiv(totalNanos, rhs)
-
-            return Self(
-                seconds: floorDiv(quotientNanos, NanoSeconds.perSecond64),
-                nanoseconds: floorMod(quotientNanos, NanoSeconds.perSecond64)
-            )
-        } else {
+        if overflow {
             let quotientSec = floorDiv(lhs.seconds, rhs)
             let remainderSec = floorMod(lhs.seconds, rhs)
 
@@ -253,18 +248,19 @@ public extension Duration {
                 nanoseconds: floorMod(quotientNanos, NanoSeconds.perSecond64)
             )
         }
-    }
-}
 
-public extension Duration {
-    @inlinable
-    static func += (lhs: inout Self, rhs: Self) {
-        lhs = lhs + rhs
+        let totalNanos = secNanos + Int64(lhs.nanoseconds)
+        let quotientNanos = floorDiv(totalNanos, rhs)
+
+        return Self(
+            seconds: floorDiv(quotientNanos, NanoSeconds.perSecond64),
+            nanoseconds: floorMod(quotientNanos, NanoSeconds.perSecond64)
+        )
     }
 
     @inlinable
-    static func -= (lhs: inout Self, rhs: Self) {
-        lhs = lhs - rhs
+    static func / (lhs: Self, rhs: Int) -> Self {
+        lhs / Int64(rhs)
     }
 
     @inlinable
@@ -273,7 +269,147 @@ public extension Duration {
     }
 
     @inlinable
+    static func *= (lhs: inout Self, rhs: Int) {
+        lhs = lhs * rhs
+    }
+
+    @inlinable
     static func /= (lhs: inout Self, rhs: Int64) {
         lhs = lhs / rhs
+    }
+
+    @inlinable
+    static func /= (lhs: inout Self, rhs: Int) {
+        lhs = lhs / rhs
+    }
+}
+
+public extension Duration {
+    @inlinable
+    func addingReportingOverflow(_ other: Self) -> (partialValue: Self, overflow: Bool) {
+        let (totalNanos, nanoOverflow) = Int64(nanoseconds).addingReportingOverflow(Int64(other.nanoseconds))
+        if nanoOverflow {
+            let isPositiveOverflow = nanoseconds > 0
+            let partialValue = Self(
+                seconds: isPositiveOverflow ? .max : .min,
+                nanoseconds: 0
+            )
+            return (partialValue: partialValue, overflow: true)
+        }
+
+        let extraSec = floorDiv(totalNanos, NanoSeconds.perSecond64)
+        let remNanos = floorMod(totalNanos, NanoSeconds.perSecond64)
+
+        let (partialSec, partialOverflow) = seconds.addingReportingOverflow(other.seconds)
+        let (finalSec, finalOverflow) = partialSec.addingReportingOverflow(extraSec)
+
+        let hasOverflow = partialOverflow || finalOverflow
+
+        if hasOverflow {
+            let isPositiveOverflow: Bool = if partialOverflow {
+                seconds >= 0
+            } else {
+                extraSec > 0
+            }
+
+            let partialValue = Self(
+                seconds: isPositiveOverflow ? .max : .min,
+                nanoseconds: remNanos
+            )
+
+            return (partialValue: partialValue, overflow: true)
+        }
+
+        return (
+            partialValue: Self(seconds: finalSec, nanoseconds: remNanos),
+            overflow: false
+        )
+    }
+
+    @inlinable
+    func subtractingReportingOverflow(_ other: Self) -> (partialValue: Self, overflow: Bool) {
+        let (totalNanos, nanoOverflow) = Int64(nanoseconds).subtractingReportingOverflow(Int64(other.nanoseconds))
+        if nanoOverflow {
+            let isPositiveOverflow = nanoseconds >= 0
+            let partialValue = Self(
+                seconds: isPositiveOverflow ? .max : .min,
+                nanoseconds: 0
+            )
+            return (partialValue: partialValue, overflow: true)
+        }
+
+        let extraSec = floorDiv(totalNanos, NanoSeconds.perSecond64)
+        let remNanos = floorMod(totalNanos, NanoSeconds.perSecond64)
+
+        let (partialSec, partialOverflow) = seconds.subtractingReportingOverflow(other.seconds)
+        let (finalSec, finalOverflow) = partialSec.addingReportingOverflow(extraSec)
+
+        let hasOverflow = partialOverflow || finalOverflow
+
+        if hasOverflow {
+            let isPositiveOverflow: Bool = if partialOverflow {
+                seconds > 0 || other.seconds < 0
+            } else {
+                extraSec > 0
+            }
+
+            let partialValue = Self(
+                seconds: isPositiveOverflow ? .max : .min,
+                nanoseconds: remNanos
+            )
+
+            return (partialValue: partialValue, overflow: true)
+        }
+
+        return (
+            partialValue: Self(seconds: finalSec, nanoseconds: remNanos),
+            overflow: false
+        )
+    }
+
+    @inlinable
+    func multipliedReportingOverflow(_ scale: Int64) -> (partialValue: Self, overflow: Bool) {
+        let (totalNanos, nanoOverflow) = Int64(nanoseconds).multipliedReportingOverflow(by: scale)
+        if nanoOverflow {
+            let isPositiveOverflow = (nanoseconds > 0 && scale > 0) || (nanoseconds < 0 && scale < 0)
+            let partialValue = Self(
+                seconds: isPositiveOverflow ? .max : .min,
+                nanoseconds: 0
+            )
+            return (partialValue: partialValue, overflow: true)
+        }
+
+        let extraSec = floorDiv(totalNanos, NanoSeconds.perSecond64)
+        let remNanos = floorMod(totalNanos, NanoSeconds.perSecond64)
+
+        let (partialSec, partialOverflow) = seconds.multipliedReportingOverflow(by: scale)
+        let (finalSec, finalOverflow) = partialSec.addingReportingOverflow(extraSec)
+
+        let hasOverflow = partialOverflow || finalOverflow
+
+        if hasOverflow {
+            let isPositiveOverflow: Bool = if partialOverflow {
+                (seconds > 0 && scale > 0) || (seconds < 0 && scale < 0)
+            } else {
+                extraSec > 0
+            }
+
+            let partialValue = Self(
+                seconds: isPositiveOverflow ? .max : .min,
+                nanoseconds: remNanos
+            )
+
+            return (partialValue: partialValue, overflow: true)
+        }
+
+        return (
+            partialValue: Self(seconds: finalSec, nanoseconds: remNanos),
+            overflow: false
+        )
+    }
+
+    @inlinable
+    func multipliedReportingOverflow(_ scale: Int) -> (partialValue: Self, overflow: Bool) {
+        multipliedReportingOverflow(Int64(scale))
     }
 }
