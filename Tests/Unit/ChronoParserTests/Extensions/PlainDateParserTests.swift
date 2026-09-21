@@ -4,14 +4,14 @@ import Testing
 
 // MARK: - RFC 3339 Tests
 
-struct DateParserTests {
-    @Test("DateParserTests: Valid RFC 3339 Date String", arguments: [
+struct PlainDateParserTests {
+    @Test("PlainDateParserTests: Valid RFC 3339 Date String", arguments: [
         ("2025-12-29", 2025, 12, 29),
         ("1970-01-01", 1970, 01, 01),
         ("0001-01-01", 1, 1, 1),
         ("2024-02-29", 2024, 2, 29), // Leap year
     ])
-    func validDateInit_rfc3339(input: String, year: Int32, month: Int, day: Int) {
+    func validDateInit_rfc3339(input: String, year: Int, month: Int, day: Int) {
         let date = PlainDate(rfc3339: input)
         #expect(date != nil)
         #expect(date?.year == year)
@@ -19,13 +19,13 @@ struct DateParserTests {
         #expect(date?.day == day)
     }
 
-    @Test("DateParserTests: RFC 3339 Initializes from full DateTime<TZ>")
+    @Test("PlainDateParserTests: RFC 3339 Initializes from full DateTime<TZ>")
     func initFromDateTimeString_rfc3339() {
         let input = "2025-12-29T15:30:45.123Z"
         #expect(PlainDate(rfc3339: input) == nil)
     }
 
-    @Test("DateParserTests: RFC 3339 Fails on invalid formatting", arguments: [
+    @Test("PlainDateParserTests: RFC 3339 Fails on invalid formatting", arguments: [
         "2025/12/29", // Wrong separator
         "25-12-29", // Short year
         "2025-1-1", // Missing padding
@@ -35,7 +35,7 @@ struct DateParserTests {
         #expect(PlainDate(rfc3339: input) == nil)
     }
 
-    @Test("DateParserTests: RFC 3339 Fails on invalid calendar dates", arguments: [
+    @Test("PlainDateParserTests: RFC 3339 Fails on invalid calendar dates", arguments: [
         "2025-13-01", // Month 13
         "2025-04-31", // April 31
         "2023-02-29" // Not a leap year
@@ -49,15 +49,15 @@ struct DateParserTests {
 
 // MARK: - RFC 5322 Tests
 
-extension DateParserTests {
-    @Test("DateParserTests: Valid RFC 5322 date strings", arguments: [
+extension PlainDateParserTests {
+    @Test("PlainDateParserTests: Valid RFC 5322 date strings", arguments: [
         ("13 Apr 2026", 2026, 4, 13),
         ("Mon, 13 Apr 2026", 2026, 4, 13),
         ("1 Jan 0001", 1, 1, 1),
         ("31 Dec 9999", 9999, 12, 31),
         ("29 Feb 2024", 2024, 2, 29), // Leap year
     ])
-    func validDateInit_rfc5322(input: String, year: Int32, month: Int, day: Int) {
+    func validDateInit_rfc5322(input: String, year: Int, month: Int, day: Int) {
         let date = PlainDate(rfc5322: input)
         #expect(date != nil)
         #expect(date?.year == year)
@@ -65,12 +65,12 @@ extension DateParserTests {
         #expect(date?.day == day)
     }
 
-    @Test("DateParserTests: RFC 5322 case insensitivity and whitespace", arguments: [
+    @Test("PlainDateParserTests: RFC 5322 case insensitivity and whitespace", arguments: [
         ("mon, 13 apr 2026", 2026, 4, 13), // Lowercase
         ("MON, 13 APR 2026", 2026, 4, 13), // Uppercase
         ("13   Apr   2026", 2026, 4, 13), // Multiple spaces (FWS)
     ])
-    func flexibleFormatting_rfc5322(input: String, year: Int32, month: Int, day: Int) {
+    func flexibleFormatting_rfc5322(input: String, year: Int, month: Int, day: Int) {
         let date = PlainDate(rfc5322: input)
         #expect(date != nil)
         #expect(date?.year == year)
@@ -78,7 +78,7 @@ extension DateParserTests {
         #expect(date?.day == day)
     }
 
-    @Test("DateParserTests: RFC 5322 failure cases", arguments: [
+    @Test("PlainDateParserTests: RFC 5322 failure cases", arguments: [
         "13 April 2026", // Full month name (must be 3 chars)
         "Mon 13 Apr 2026", // Missing comma after weekday
         "13-Apr-2026", // Wrong separators
@@ -92,9 +92,9 @@ extension DateParserTests {
 
 // MARK: - RFC 2822 Tests
 
-extension DateParserTests {
+extension PlainDateParserTests {
     @available(*, deprecated)
-    @Test("DateParserTests: RFC 2822 alias yields identical results to RFC 5322")
+    @Test("PlainDateParserTests: RFC 2822 alias yields identical results to RFC 5322")
     func redirectedDeprecation_rfc2822() {
         let date = "Tue, 17 Mar 2026"
         let modern = PlainDate(rfc5322: date)

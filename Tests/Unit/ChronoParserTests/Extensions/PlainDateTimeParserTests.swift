@@ -13,7 +13,7 @@ struct PlainDateTimeParserTests {
     // swiftlint:disable:next function_parameter_count
     func standardParsing_rfc3339(
         input: String,
-        year: Int32,
+        year: Int,
         month: Int,
         day: Int,
         hour: Int,
@@ -87,7 +87,7 @@ extension PlainDateTimeParserTests {
     // swiftlint:disable:next function_parameter_count
     func validParsing_rfc5322(
         input: String,
-        year: Int32,
+        year: Int,
         month: Int,
         day: Int,
         hour: Int,

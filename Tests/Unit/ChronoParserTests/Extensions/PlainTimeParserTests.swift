@@ -4,8 +4,8 @@ import Testing
 
 // MARK: - RFC 3339 Tests
 
-struct TimeParserTests {
-    @Test("TimeParserTests: Valid RFC 3339 Time Strings", arguments: [
+struct PlainTimeParserTests {
+    @Test("PlainTimeParserTests: Valid RFC 3339 Time Strings", arguments: [
         ("00:00:00", 0, 0, 0, 0),
         ("23:59:59", 23, 59, 59, 0),
         ("12:30:45.5", 12, 30, 45, 500_000_000),
@@ -21,7 +21,7 @@ struct TimeParserTests {
         #expect(time?.nanosecond == ns)
     }
 
-    @Test("TimeParserTests: RFC 3339 Failure Cases", arguments: [
+    @Test("PlainTimeParserTests: RFC 3339 Failure Cases", arguments: [
         "12:30:45Z", // Offset present (Z)
         "12:30:45+07:00", // Offset present (+07:00)
         "12:30:45 ", // Trailing whitespace
@@ -33,7 +33,7 @@ struct TimeParserTests {
         #expect(PlainTime(rfc3339: input) == nil)
     }
 
-    @Test("TimeParserTests: RFC 3339 Whole string consumption")
+    @Test("PlainTimeParserTests: RFC 3339 Whole string consumption")
     func consumptionCheck_rfc3339() {
         // "12:30:45" is a valid time, but followed by a space/offset,
         // PlainTime(rfc5322:) should fail because of the cursor == raw.count check.
@@ -44,8 +44,8 @@ struct TimeParserTests {
 
 // MARK: - RFC 5322 Tests
 
-extension TimeParserTests {
-    @Test("TimeParserTests: Valid RFC 5322 time strings", arguments: [
+extension PlainTimeParserTests {
+    @Test("PlainTimeParserTests: Valid RFC 5322 time strings", arguments: [
         ("12:30", 12, 30, 0, 0), // Optional seconds omitted
         ("12:30:45", 12, 30, 45, 0), // Standard with seconds
         ("12:30:45.123", 12, 30, 45, 123_000_000), // Seconds + Fractions
@@ -61,7 +61,7 @@ extension TimeParserTests {
         #expect(time?.nanosecond == ns)
     }
 
-    @Test("TimeParserTests: RFC 5322 Failure Cases", arguments: [
+    @Test("PlainTimeParserTests: RFC 5322 Failure Cases", arguments: [
         "12:30:45 +0700", // Contains offset (PlainTime should be pure)
         "12:30:45. ", // Dot without digits
         "12:3", // Missing digit in minute
@@ -73,7 +73,7 @@ extension TimeParserTests {
         #expect(PlainTime(rfc5322: input) == nil)
     }
 
-    @Test("TimeParserTests: RFC 5322 Whole string consumption")
+    @Test("PlainTimeParserTests: RFC 5322 Whole string consumption")
     func consumptionCheck_rfc5322() {
         // "12:30:45" is a valid time, but followed by a space/offset,
         // PlainTime(rfc5322:) should fail because of the cursor == raw.count check.
@@ -84,9 +84,9 @@ extension TimeParserTests {
 
 // MARK: - RFC 2822 Tests
 
-extension TimeParserTests {
+extension PlainTimeParserTests {
     @available(*, deprecated)
-    @Test("TimeParserTests: RFC 2822 alias yields identical results to RFC 5322")
+    @Test("PlainTimeParserTests: RFC 2822 alias yields identical results to RFC 5322")
     func redirectedDeprecation_rfc2822() {
         let date = "12:30:45"
         let modern = PlainTime(rfc5322: date)
