@@ -161,6 +161,14 @@ let package = Package(
             ],
             path: "Tests/Unit/ChronoTZGenTests"
         ),
+        .testTarget(
+            name: "ChronoFoundationTests",
+            dependencies: [
+                "ChronoCore",
+                "ChronoFoundation",
+            ],
+            path: "Tests/Unit/ChronoFoundationTests"
+        ),
 
         // MARK: - Integration Tests
 
