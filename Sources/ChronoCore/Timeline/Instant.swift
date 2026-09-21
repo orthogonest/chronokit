@@ -5,14 +5,31 @@ public struct Instant: Equatable, Hashable, Sendable {
     public let nanoseconds: Int32
 
     @inlinable
-    public init(seconds: Int64, nanoseconds: Int32 = 0) {
-        precondition(
-            nanoseconds >= 0 && nanoseconds < NanoSeconds.perSecond32,
-            "nanoseconds exceeds supported Instant's fraction range."
-        )
+    public init(seconds: Int64, nanoseconds: Int64 = 0) {
+        if nanoseconds >= 0, nanoseconds < NanoSeconds.perSecond64 {
+            self.seconds = seconds
+            self.nanoseconds = Int32(nanoseconds)
+            return
+        }
 
-        self.seconds = seconds
-        self.nanoseconds = nanoseconds
+        let extraSec = floorDiv(nanoseconds, NanoSeconds.perSecond64)
+        let remNano = floorMod(nanoseconds, NanoSeconds.perSecond64)
+
+        let (finalSec, overflow) = seconds.addingReportingOverflow(extraSec)
+
+        if overflow {
+            let isPositiveOverflow = seconds > 0 || (seconds == 0 && extraSec > 0)
+            self.seconds = isPositiveOverflow ? .max : .min
+        } else {
+            self.seconds = finalSec
+        }
+
+        self.nanoseconds = Int32(remNano)
+    }
+
+    @inlinable
+    public init(seconds: Int, nanoseconds: Int = 0) {
+        self.init(seconds: Int64(seconds), nanoseconds: Int64(nanoseconds))
     }
 }
 
@@ -43,6 +60,11 @@ public extension Instant {
     }
 
     @inlinable
+    var timestampMilliseconds: Int64 {
+        seconds * MilliSeconds.perSecond64 + Int64(nanoseconds) / NanoSeconds.perMilliSecond64
+    }
+
+    @inlinable
     var timestampMicroseconds: Int64 {
         seconds * MicroSeconds.perSecond64 + Int64(nanoseconds) / NanoSeconds.perMicroSecond64
     }
@@ -68,13 +90,13 @@ public extension Instant {
 
 public extension Instant {
     @inlinable
-    func advanced(bySeconds seconds: Int64, nanoseconds: Int64 = 0) -> Self {
-        let totalNanos = Int64(self.nanoseconds) + nanoseconds
-        let extraSeconds = floorDiv(totalNanos, NanoSeconds.perSecond64)
-        let remNanos = floorMod(totalNanos, NanoSeconds.perSecond64)
+    func advanced(bySeconds secs: Int64, nanoseconds nanos: Int64 = 0) -> Self {
+        let targetSeconds = seconds.addingReportingOverflow(secs).partialValue
+        let targetNanoseconds = Int64(nanoseconds).addingReportingOverflow(nanos).partialValue
+
         return Self(
-            seconds: self.seconds + seconds + extraSeconds,
-            nanoseconds: Int32(remNanos)
+            seconds: targetSeconds,
+            nanoseconds: targetNanoseconds
         )
     }
 
@@ -111,16 +133,9 @@ public extension Instant {
 public extension Instant {
     @inlinable
     static func - (lhs: Self, rhs: Self) -> Duration {
-        let secDiff = lhs.seconds - rhs.seconds
+        let secDiff = lhs.seconds.subtractingReportingOverflow(rhs.seconds).partialValue
         let nanoDiff = Int64(lhs.nanoseconds) - Int64(rhs.nanoseconds)
-
-        let extraSec = floorDiv(nanoDiff, NanoSeconds.perSecond64)
-        let normalizedNanos = floorMod(nanoDiff, NanoSeconds.perSecond64)
-
-        return Duration(
-            seconds: secDiff + extraSec,
-            nanoseconds: normalizedNanos
-        )
+        return Duration(seconds: secDiff, nanoseconds: nanoDiff)
     }
 
     @inlinable
@@ -221,14 +236,14 @@ extension Instant: DurationRoundable {
     }
 }
 
-// MARK: - Plain Conversion
+// MARK: - Plain Date Time Conversion
 
 public extension Instant {
     @inlinable
-    func plainDateTime(in timezone: some TimeZoneProtocol) -> PlainDateTime {
-        let offset = timezone.offset(for: self)
+    func plainDateTime(in timeZone: some TimeZoneProtocol) -> PlainDateTime {
+        let offset = timeZone.offset(for: self)
 
-        let totalSecs = seconds + offset.seconds
+        let totalSecs = seconds.addingReportingOverflow(offset.seconds).partialValue
         let totalNanos = Int64(nanoseconds) + Int64(offset.nanoseconds)
 
         let extraSecs = floorDiv(totalNanos, NanoSeconds.perSecond64)
@@ -248,21 +263,21 @@ public extension Instant {
     }
 
     @inlinable
-    func plainDateTimeUTC() -> PlainDateTime {
+    var plainDateTimeUTC: PlainDateTime {
         plainDateTime(in: FixedOffset.utc)
     }
 }
 
-// MARK: - Date Time Conversion
+// MARK: - Zoned Date Time Conversion
 
 public extension Instant {
     @inlinable
-    func dateTime<TZ: TimeZoneProtocol>(in timezone: TZ) -> DateTime<TZ> {
-        DateTime(instant: self, timezone: timezone)
+    func zonedDateTime(in timeZone: TimeZone) -> ZonedDateTime {
+        ZonedDateTime(instant: self, timeZone: timeZone)
     }
 
     @inlinable
-    func dateTimeUTC() -> DateTime<FixedOffset> {
-        dateTime(in: FixedOffset.utc)
+    var zonedDateTimeUTC: ZonedDateTime {
+        zonedDateTime(in: .utc)
     }
 }
