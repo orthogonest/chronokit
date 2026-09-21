@@ -63,10 +63,10 @@ let chronoZone = systemZone.chrono.timeZone // Returns ChronoCore.TimeZone fully
 
 > [!WARNING]
 > **Precision Truncation Notice**
-> Core ChronoKit primitives maintain strict 1-nanosecond (`1e-9`) lossless resolution using a split `Int64`/`Int32` layout.
+> `ChronoKit` primitives maintain strict 1-nanosecond (`1e-9`) lossless resolution using a split `Int64`/`Int32` layout.
 > However, `Foundation.Date` relies entirely on a 64-bit floating-point `Double`.
-> Due to IEEE 754 mantissa limits on modern epochs, bridging conversions passing through `Foundation.Date` are inherently lossy and bounded to a `1e-6` (microsecond) threshold.
-> For highly critical or precision-sensitive operations, keep executions entirely within the native ChronoKit integer primitives.
+> Due to [IEEE 754](https://ieeexplore.ieee.org/document/8766229) mantissa limits on modern epochs, bridging conversions passing through `Foundation.Date` are inherently lossy and bounded to a `1e-6` (microsecond) threshold.
+> For highly critical or precision-sensitive operations, keep executions entirely within the native `ChronoKit` integer primitives.
 
 ## Supported Standards
 
