@@ -28,6 +28,10 @@ let package = Package(
             name: "ChronoTZ",
             targets: ["ChronoTZ"]
         ),
+        .library(
+            name: "ChronoFoundation",
+            targets: ["ChronoFoundation"]
+        ),
     ],
     targets: [
         // MARK: - Kit Libraries
@@ -68,9 +72,6 @@ let package = Package(
             dependencies: ["ChronoCore"],
             path: "Sources/ChronoSystem"
         ),
-
-        // MARK: - TimeZone Data
-
         .target(
             name: "ChronoTZ",
             dependencies: [
@@ -82,6 +83,14 @@ let package = Package(
             resources: [
                 .embedInCode("Resources/iana.tzdb"),
             ]
+        ),
+
+        // MARK: - Compatibility Layer
+
+        .target(
+            name: "ChronoFoundation",
+            dependencies: ["ChronoCore"],
+            path: "Sources/ChronoFoundation"
         ),
 
         // MARK: - Build-time Tools
@@ -151,6 +160,14 @@ let package = Package(
                 "ChronoTZGenCore",
             ],
             path: "Tests/Unit/ChronoTZGenTests"
+        ),
+        .testTarget(
+            name: "ChronoFoundationTests",
+            dependencies: [
+                "ChronoCore",
+                "ChronoFoundation",
+            ],
+            path: "Tests/Unit/ChronoFoundationTests"
         ),
 
         // MARK: - Integration Tests
