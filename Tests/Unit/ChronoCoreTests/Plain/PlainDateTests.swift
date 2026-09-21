@@ -19,9 +19,9 @@ struct PlainDateTests {
         (2000, 2, 29),
         (1900, 2, 28) // Not a leap year
     ])
-    func validYMDInitialization(year: Int32, month: Int, day: Int) {
+    func validYMDInitialization(year: Int, month: Int, day: Int) {
         let dateInt = PlainDate(year: year, month: month, day: day)
-        let dateUInt8 = PlainDate(year: year, month: UInt8(month), day: UInt8(day))
+        let dateUInt8 = PlainDate(year: Int32(year), month: UInt8(month), day: UInt8(day))
 
         #expect(dateInt != nil)
         #expect(dateUInt8 != nil)
@@ -39,7 +39,7 @@ struct PlainDateTests {
         (2025, 0, 1), // Month out of range
         (2025, 1, 0) // Day out of range
     ])
-    func invalidYMDInitialization(year: Int32, month: Int, day: Int) {
+    func invalidYMDInitialization(year: Int, month: Int, day: Int) {
         #expect(PlainDate(year: year, month: month, day: day) == nil)
     }
 
@@ -323,7 +323,7 @@ extension PlainDateTests {
     ])
     // swiftlint:disable:next function_parameter_count
     func monthNormalization(
-        y: Int32,
+        y: Int,
         m: Int,
         d: Int,
         addM: Int32,
@@ -353,7 +353,7 @@ extension PlainDateTests {
     ])
     // swiftlint:disable:next function_parameter_count
     func dayClamping(
-        y: Int32,
+        y: Int,
         m: Int,
         d: Int,
         addM: Int32,
@@ -378,7 +378,7 @@ extension PlainDateTests {
     ])
     // swiftlint:disable:next function_parameter_count
     func dayOverflow(
-        y: Int32,
+        y: Int,
         m: Int,
         d: Int,
         addD: Int32,
@@ -648,7 +648,7 @@ extension PlainDateTests {
         (2025, 4, 30), // April
         (2025, 1, 31) // January
     ])
-    func daysInMonth(year: Int32, month: Int, expectedDays: Int) {
+    func daysInMonth(year: Int, month: Int, expectedDays: Int) {
         let date = PlainDate(year: year, month: month, day: 1)!
         #expect(date.daysInMonth == expectedDays)
     }
@@ -721,7 +721,7 @@ extension PlainDateTests {
         // Invalid month indices
         (2025, 13, 1)
     ])
-    func invalidModifications(year: Int32, month: Int, day: Int) {
+    func invalidModifications(year: Int, month: Int, day: Int) {
         let base = PlainDate(year: 2024, month: 1, day: 1)!
 
         // We test multiple paths to these invalid states

@@ -2,9 +2,9 @@
 import ChronoMath
 import Testing
 
-// MARK: - Initialization Tests
-
 struct PlainTimeTests {
+    // MARK: - Initialization Tests
+
     @Test("PlainTimeTests: Initialize from valid components", arguments: [
         (0, 0, 0, 0), // Midnight
         (12, 30, 15, 500_000), // Mid-day
@@ -557,7 +557,7 @@ extension PlainTimeTests {
         (2025, 13, 1), // Invalid month
         (2025, 1, 32), // Invalid day
     ])
-    func toDateTimeWithInvalidComponents(year: Int32, month: Int, day: Int) throws {
+    func toDateTimeWithInvalidComponents(year: Int, month: Int, day: Int) throws {
         let baseTime = try #require(PlainTime(hour: 14, minute: 15, second: 30, nanosecond: 500))
         let result = baseTime.on(year: year, month: month, day: day)
         #expect(result == nil)

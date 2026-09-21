@@ -114,13 +114,24 @@ extension InstantTests {
         #expect(instant.timestamp == 123_456_789)
     }
 
+    @Test("InstantTests: Millisecond timestamp conversion", arguments: [
+        // (sec, nano, expected millis)
+        (0, 1_000_000, 1),
+        (1, 500_000_000, 1500),
+        (-1, 1_000_000, -999) // -1.000 millis + 1 millis = -999 millis,
+    ])
+    func timestampMilliseconds(s: Int64, n: Int64, expected: Int64) {
+        let instant = Instant(seconds: s, nanoseconds: n)
+        #expect(instant.timestampMilliseconds == expected)
+    }
+
     @Test("InstantTests: Microsecond timestamp conversion", arguments: [
         // (sec, nano, expected micros)
         (0, 1000, 1),
         (1, 500_000, 1_000_500),
         (-1, 1000, -999_999) // -1s + 1ms = -999,999 micros
     ])
-    func timestampMicroseconds(s: Int64, n: Int32, expected: Int64) {
+    func timestampMicroseconds(s: Int64, n: Int64, expected: Int64) {
         let instant = Instant(seconds: s, nanoseconds: n)
         #expect(instant.timestampMicroseconds == expected)
     }
@@ -130,7 +141,7 @@ extension InstantTests {
         (1, 1, 1_000_000_001),
         (-1, 1, -999_999_999)
     ])
-    func timestampNanoseconds(s: Int64, n: Int32, expected: Int64) {
+    func timestampNanoseconds(s: Int64, n: Int64, expected: Int64) {
         let instant = Instant(seconds: s, nanoseconds: n)
         #expect(instant.timestampNanoseconds == expected)
     }
@@ -339,7 +350,7 @@ extension InstantTests {
         (123_456_789, 6, 123_456_000), // To microseconds
         (123_456_789, 8, 123_456_780), // To 10-nanoseconds
     ])
-    func truncateSubseconds(nanos: Int32, digits: Int, expectedNanos: Int32) {
+    func truncateSubseconds(nanos: Int, digits: Int, expectedNanos: Int32) {
         let instant = Instant(seconds: 1000, nanoseconds: nanos)
         let result = instant.truncateSubseconds(digits)
 
@@ -354,7 +365,7 @@ extension InstantTests {
         (123_500_000, 3, 0, 124_000_000), // Round up (milli)
         (999_999_999, 0, 1, 0) // Round up to next second
     ])
-    func roundSubseconds(nanos: Int32, digits: Int, secOffset: Int64, expNanos: Int32) {
+    func roundSubseconds(nanos: Int64, digits: Int, secOffset: Int64, expNanos: Int32) {
         let baseSeconds: Int64 = 1000
         let instant = Instant(seconds: baseSeconds, nanoseconds: nanos)
         let result = instant.roundSubseconds(digits)
@@ -473,11 +484,11 @@ extension InstantTests {
         let instant = Instant(seconds: 0, nanoseconds: 300_000_000) // 300ms
         let quantum = Duration(seconds: 0, nanoseconds: 250_000_000) // 250ms
 
-        // Truncate 300ms by 250ms -> 250ms
-        #expect(try instant.truncate(byQuantum: quantum).nanoseconds == 250_000_000)
-
         // Round 300ms by 250ms -> 250ms (since 300 is closer to 250 than 500)
         #expect(try instant.round(byQuantum: quantum).nanoseconds == 250_000_000)
+
+        // Truncate 300ms by 250ms -> 250ms
+        #expect(try instant.truncate(byQuantum: quantum).nanoseconds == 250_000_000)
 
         // Round Up 300ms by 250ms -> 500ms
         #expect(try instant.roundUp(byQuantum: quantum).nanoseconds == 500_000_000)
@@ -567,16 +578,16 @@ extension InstantTests {
         let instant = Instant(seconds: 1_735_171_200, nanoseconds: 500) // 2024-12-26
         let mockTZ = MockTimeZone(offset: 3600) // UTC+1
 
-        let zoned = instant.dateTime(in: mockTZ)
+        let zoned = instant.zonedDateTime(in: TimeZone(mockTZ))
 
         #expect(zoned.instant == instant)
-        #expect(zoned.timezone.offset == 3600)
+        #expect(zoned.timeZone.offset(for: instant) == .seconds(3600))
     }
 
     @Test("InstantTests: Wraps into DateTime<UTC>")
     func wrapInUTC() {
         let instant = Instant(seconds: 0, nanoseconds: 0)
-        let zonedUTC = instant.dateTimeUTC()
+        let zonedUTC = instant.zonedDateTimeUTC
 
         #expect(zonedUTC.instant == instant)
         #expect(zonedUTC.hour == 0) // UTC Epoch hour
@@ -585,12 +596,12 @@ extension InstantTests {
     @Test("InstantTests: Wraps into DateTime with FixedOffset")
     func wrapInFixedOffset() {
         let instant = Instant(seconds: 0, nanoseconds: 0)
-        let offset = FixedOffset(seconds: -18000) // UTC-5
+        let offset: TimeZone = .fixedOffset(seconds: -18000) // UTC-5
 
-        let zoned = instant.dateTime(in: offset)
+        let zoned = instant.zonedDateTime(in: offset)
 
         #expect(zoned.instant == instant)
-        #expect(zoned.timezone.duration.seconds == -18000)
+        #expect(zoned.timeZone.offset(for: instant) == .seconds(-18000))
 
         // In UTC-5, the Epoch 00:00:00 UTC is actually 19:00:00 on the previous day
         #expect(zoned.hour == 19)
