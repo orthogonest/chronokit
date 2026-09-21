@@ -1,9 +1,7 @@
 import ChronoMath
 
 public struct PlainDate: Equatable, Hashable, Sendable {
-    @usableFromInline
-    package let daysSinceEpoch: Int64
-
+    @usableFromInline package let daysSinceEpoch: Int64
     @usableFromInline let _year: Int32
     @usableFromInline let _month: UInt8
     @usableFromInline let _day: UInt8
@@ -36,7 +34,6 @@ public struct PlainDate: Equatable, Hashable, Sendable {
         _day = day
     }
 
-    @inlinable
     public init?(year: Int, month: Int, day: Int) {
         guard month >= 1, month <= 12 else { return nil }
 
@@ -102,7 +99,6 @@ public extension PlainDate {
         lhs = lhs + rhs
     }
 
-    @inlinable
     static func + (lhs: Self, rhs: CalendarInterval) -> Self {
         var newYear = Int64(lhs._year)
         var newMonth = Int64(lhs._month) + Int64(rhs.month)
