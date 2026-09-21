@@ -2,9 +2,9 @@ import ChronoMath
 
 public struct PlainDate: Equatable, Hashable, Sendable {
     @usableFromInline package let daysSinceEpoch: Int64
-    @usableFromInline let _year: Int32
-    @usableFromInline let _month: UInt8
-    @usableFromInline let _day: UInt8
+    @usableFromInline package let _year: Int32
+    @usableFromInline package let _month: UInt8
+    @usableFromInline package let _day: UInt8
 
     @inlinable
     public init(daysSinceEpoch days: Int64) {
@@ -169,39 +169,37 @@ extension PlainDate: DateProtocol {
 
     @inlinable
     public func with(year: Int) -> Self? {
-        Self(year: year, month: month, day: day)
+        Self(year: Int32(year), month: _month, day: _day)
     }
 
     @inlinable
     public func with(month: Int) -> Self? {
-        Self(year: year, month: month, day: day)
+        Self(year: _year, month: UInt8(month), day: _day)
     }
 
     @inlinable
     public func with(monthZeroBased value: Int) -> Self? {
-        Self(year: year, month: value + 1, day: day)
+        Self(year: _year, month: UInt8(value + 1), day: _day)
     }
 
     @inlinable
     public func with(monthSymbol value: Month) -> Self? {
-        Self(year: year, month: value.rawValue, day: day)
+        Self(year: _year, month: UInt8(value.rawValue), day: _day)
     }
 
     @inlinable
     public func with(day: Int) -> Self? {
-        Self(year: year, month: month, day: day)
+        Self(year: _year, month: _month, day: UInt8(day))
     }
 
     @inlinable
     public func with(dayZeroBased value: Int) -> Self? {
-        Self(year: year, month: month, day: value + 1)
+        Self(year: _year, month: _month, day: UInt8(value + 1))
     }
 
     @inlinable
     public func with(ordinal: Int) -> Self? {
-        guard ordinal >= 1, ordinal <= (isLeapYear ? 366 : 365)
-        else { return nil }
-
+        guard ordinal >= 1, ordinal <= (isLeapYear ? 366 : 365) else { return nil }
         return Self(daysSinceEpoch: jan1 + Int64(ordinal - 1))
     }
 
