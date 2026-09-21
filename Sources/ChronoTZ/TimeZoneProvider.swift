@@ -2,7 +2,7 @@ import ChronoCore
 import ChronoSystem
 
 public protocol TimeZoneProvider {
-    func getTimeZone(named: String) throws -> TimeZoneInfo
+    func timeZone(named: String) throws -> TimeZoneInfo
     func preloadTimeZone(names: [String]) throws
     func preloadAll() throws
     func clearCache()
@@ -54,7 +54,7 @@ extension IANAProvider: TimeZoneProvider {
         return TimeZoneInfo(identifier: name, payload: payload)
     }
 
-    public func getTimeZone(named name: String) throws -> TimeZoneInfo {
+    public func timeZone(named name: String) throws -> TimeZoneInfo {
         try lock.withLock {
             if let cached = cache[name] {
                 return cached

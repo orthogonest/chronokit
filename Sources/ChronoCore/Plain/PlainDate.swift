@@ -4,9 +4,9 @@ public struct PlainDate: Equatable, Hashable, Sendable {
     @usableFromInline
     package let daysSinceEpoch: Int64
 
-    public let year: Int32
-    public let month: Int
-    public let day: Int
+    @usableFromInline let _year: Int32
+    @usableFromInline let _month: UInt8
+    @usableFromInline let _day: UInt8
 
     @inlinable
     public init(daysSinceEpoch days: Int64) {
@@ -18,9 +18,9 @@ public struct PlainDate: Equatable, Hashable, Sendable {
         let civil = civilDate(from: days)
 
         daysSinceEpoch = days
-        year = Int32(civil.year)
-        month = Int(civil.month)
-        day = Int(civil.day)
+        _year = Int32(civil.year)
+        _month = civil.month
+        _day = civil.day
     }
 
     @inlinable
@@ -31,13 +31,13 @@ public struct PlainDate: Equatable, Hashable, Sendable {
         else { return nil }
 
         daysSinceEpoch = daysFromCivil(year: Int64(year), month: month, day: day)
-        self.year = year
-        self.month = Int(month)
-        self.day = Int(day)
+        _year = year
+        _month = month
+        _day = day
     }
 
     @inlinable
-    public init?(year: Int32, month: Int, day: Int) {
+    public init?(year: Int, month: Int, day: Int) {
         guard month >= 1, month <= 12 else { return nil }
 
         let months = UInt8(month)
@@ -47,9 +47,9 @@ public struct PlainDate: Equatable, Hashable, Sendable {
         else { return nil }
 
         daysSinceEpoch = daysFromCivil(year: Int64(year), month: months, day: days)
-        self.year = year
-        self.month = Int(month)
-        self.day = Int(day)
+        _year = Int32(year)
+        _month = months
+        _day = days
     }
 }
 
@@ -71,7 +71,7 @@ public extension PlainDate {
 
     @usableFromInline
     internal var jan1: Int64 {
-        daysFromCivil(year: Int64(year), month: 1, day: 1)
+        daysFromCivil(year: Int64(_year), month: 1, day: 1)
     }
 }
 
@@ -104,8 +104,8 @@ public extension PlainDate {
 
     @inlinable
     static func + (lhs: Self, rhs: CalendarInterval) -> Self {
-        var newYear = Int64(lhs.year)
-        var newMonth = Int64(lhs.month) + Int64(rhs.month)
+        var newYear = Int64(lhs._year)
+        var newMonth = Int64(lhs._month) + Int64(rhs.month)
 
         // Normalize months using your floor math (1-based: 1...12)
         // Subtract 1 to make it 0-indexed for the math, then add 1 back.
@@ -116,7 +116,7 @@ public extension PlainDate {
         // Saturate/Clamp the day
         // Example: Jan 31 + 1 Month -> Feb 28 (or 29)
         let maxDayInMonth = lastDayOfMonth(newYear, UInt8(newMonth))
-        let clampedDay = Swift.min(Int64(lhs.day), Int64(maxDayInMonth))
+        let clampedDay = Swift.min(Int64(lhs._day), Int64(maxDayInMonth))
 
         let baseDays = daysFromCivil(year: newYear, month: UInt8(newMonth), day: UInt8(clampedDay))
 
@@ -147,6 +147,21 @@ public extension PlainDate {
 
 extension PlainDate: DateProtocol {
     @inlinable
+    public var year: Int {
+        Int(_year)
+    }
+
+    @inlinable
+    public var month: Int {
+        Int(_month)
+    }
+
+    @inlinable
+    public var day: Int {
+        Int(_day)
+    }
+
+    @inlinable
     public var ordinal: Int {
         Int(daysSinceEpoch - jan1 + 1)
     }
@@ -157,7 +172,7 @@ extension PlainDate: DateProtocol {
     }
 
     @inlinable
-    public func with(year: Int32) -> Self? {
+    public func with(year: Int) -> Self? {
         Self(year: year, month: month, day: day)
     }
 

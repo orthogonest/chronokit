@@ -1,9 +1,17 @@
 #if canImport(Darwin)
     import Darwin
+#elseif canImport(Bionic)
+    @preconcurrency import Bionic
 #elseif canImport(Glibc)
-    import Glibc
+    @preconcurrency import Glibc
 #elseif canImport(Musl)
-    import Musl
+    @preconcurrency import Musl
+#elseif canImport(WinSDK)
+    import WinSDK
+#elseif os(WASI)
+    @preconcurrency import WASILibc
+#elseif os(Emscripten)
+    @preconcurrency import EmscriptenLibc
 #else
     #error("Unsupported platform: Standard C library not found.")
 #endif
@@ -16,6 +24,7 @@ public struct SystemClock: Clock {
     @inlinable
     public init() {}
 
+    @inlinable
     public func now() -> Instant {
         var ts = timespec()
 
@@ -28,7 +37,7 @@ public struct SystemClock: Clock {
 
         return Instant(
             seconds: Int64(ts.tv_sec),
-            nanoseconds: Int32(ts.tv_nsec)
+            nanoseconds: Int64(ts.tv_nsec)
         )
     }
 }

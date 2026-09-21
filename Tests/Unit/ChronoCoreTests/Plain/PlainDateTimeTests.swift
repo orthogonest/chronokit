@@ -29,7 +29,7 @@ struct PlainDateTimeTests {
     ])
     // swiftlint:disable:next function_parameter_count
     func validRawInit(
-        year: Int32,
+        year: Int,
         month: Int,
         day: Int,
         hour: Int,
@@ -65,7 +65,7 @@ struct PlainDateTimeTests {
     ])
     // swiftlint:disable:next function_parameter_count
     func invalidRawInit(
-        year: Int32,
+        year: Int,
         month: Int,
         day: Int,
         hour: Int,
@@ -361,7 +361,7 @@ extension PlainDateTimeTests {
     ])
     // swiftlint:disable:next function_parameter_count
     func calendarAddition(
-        year: Int32,
+        year: Int,
         month: Int,
         day: Int,
         hour: Int,
@@ -518,7 +518,7 @@ extension PlainDateTimeTests {
     ])
     // swiftlint:disable:next function_parameter_count
     func calendarSubtraction(
-        y: Int32,
+        y: Int,
         m: Int,
         d: Int,
         subM: Int32,
@@ -574,7 +574,7 @@ extension PlainDateTimeTests {
         (0, false, 1),
         (-1, false, 2),
     ])
-    func yearCE(inputYear: Int32, expectedIsCE: Bool, expectedYear: UInt32) {
+    func yearCE(inputYear: Int, expectedIsCE: Bool, expectedYear: UInt32) {
         let dt = PlainDateTime(year: inputYear, month: 1, day: 1, hour: 12, minute: 0, second: 0)!
         #expect(dt.yearCE.isCE == expectedIsCE)
         #expect(dt.yearCE.year == expectedYear)
@@ -586,7 +586,7 @@ extension PlainDateTimeTests {
         (2100, false),
         (2023, false)
     ])
-    func leapYear(year: Int32, expected: Bool) {
+    func leapYear(year: Int, expected: Bool) {
         let dt = PlainDateTime(year: year, month: 1, day: 1, hour: 0, minute: 0, second: 0)!
         #expect(dt.isLeapYear == expected)
     }
@@ -649,7 +649,7 @@ extension PlainDateTimeTests {
         (2024, 2, 29),
         (2025, 2, 28)
     ])
-    func daysInMonth(year: Int32, month: Int, expectedDays: Int) {
+    func daysInMonth(year: Int, month: Int, expectedDays: Int) {
         let dt = PlainDateTime(year: year, month: month, day: 1, hour: 12, minute: 0, second: 0)!
         #expect(dt.daysInMonth == expectedDays)
     }
@@ -962,7 +962,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Convert to DateTime<UTC>")
     func toDateTimeUTC() {
         let plain = PlainDateTime(year: 2025, month: 12, day: 25, hour: 15, minute: 30, second: 0)!
-        let zonedUTC = plain.dateTimeUTC
+        let zonedUTC = plain.zonedDateTimeUTC
 
         // The components should match exactly because UTC has 0 offset
         #expect(zonedUTC.year == 2025)
@@ -980,13 +980,13 @@ extension PlainDateTimeTests {
         let plain = PlainDateTime(year: 2025, month: 6, day: 1, hour: 10, minute: 0, second: 0)!
         let offset = FixedOffset(seconds: offsetSeconds)
 
-        let zoned = plain.dateTime(offset: offset)
+        let zoned = plain.zonedDateTime(offset: offset)
 
         // A conversion from Plain to Zoned via its own offset
         // should result in the same "wall clock" time.
         #expect(zoned.hour == 10)
         #expect(zoned.minute == 0)
-        #expect(zoned.timezone.duration.seconds == offsetSeconds)
+        #expect(zoned.timeZone.offset(for: plain).resolve(using: .preferEarlier)?.duration == .seconds(offsetSeconds))
     }
 
     @Test("PlainDateTimeTests: Convert using complex TimeZoneProtocol")
@@ -994,7 +994,7 @@ extension PlainDateTimeTests {
         let plain = PlainDateTime(year: 2024, month: 3, day: 10, hour: 10, minute: 0, second: 0)!
         let mockTZ = MockTimeZone(offset: 3600) // UTC+1
 
-        guard let zoned = plain.dateTime(timezone: mockTZ) else {
+        guard let zoned = plain.zonedDateTime(timeZone: TimeZone(mockTZ)) else {
             Issue.record("DateTime conversion failed")
             return
         }
@@ -1012,7 +1012,7 @@ extension PlainDateTimeTests {
         let plain = PlainDateTime(year: 2024, month: 3, day: 10, hour: 2, minute: 30, second: 0)!
         let invalidTZ = MockInvalidTimeZone() // Mocking a DST gap where 2:30 doesn't exist
 
-        let zoned = plain.dateTime(timezone: invalidTZ)
+        let zoned = plain.zonedDateTime(timeZone: TimeZone(invalidTZ))
 
         #expect(zoned == nil)
     }

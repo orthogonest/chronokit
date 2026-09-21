@@ -1,6 +1,6 @@
 ---
 identifier_name:
-  allowed_symbols: []
+  allowed_symbols: ["_"]
   min_length: 1
   max_length: 40
 

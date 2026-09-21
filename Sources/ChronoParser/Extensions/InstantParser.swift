@@ -8,7 +8,7 @@ public extension Instant {
 
         guard let parsed,
               let plain = PlainDateTime(
-                  year: Int32(parsed.date.year),
+                  year: parsed.date.year,
                   month: parsed.date.month,
                   day: parsed.date.day,
                   hour: parsed.time.hour,
@@ -18,9 +18,9 @@ public extension Instant {
               )
         else { return nil }
 
-        let timezone = FixedOffset(.seconds(parsed.offset))
+        let offset = FixedOffset(.seconds(parsed.offset))
 
-        self = plain.instant(offset: timezone)
+        self = plain.instant(offset: offset)
     }
 
     @inlinable
@@ -29,7 +29,7 @@ public extension Instant {
 
         guard let parsed,
               let plain = PlainDateTime(
-                  year: Int32(parsed.date.year),
+                  year: parsed.date.year,
                   month: parsed.date.month,
                   day: parsed.date.day,
                   hour: parsed.time.hour,
@@ -39,9 +39,9 @@ public extension Instant {
               )
         else { return nil }
 
-        let timezone = FixedOffset(.seconds(parsed.offset))
+        let offset = FixedOffset(.seconds(parsed.offset))
 
-        self = plain.instant(offset: timezone)
+        self = plain.instant(offset: offset)
     }
 
     @available(

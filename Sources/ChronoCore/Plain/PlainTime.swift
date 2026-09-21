@@ -75,7 +75,8 @@ public extension PlainTime {
 public extension PlainTime {
     @inlinable
     func advanced(bySeconds seconds: Int64, nanoseconds: Int64 = 0) -> Self {
-        let deltaNanos = (seconds * NanoSeconds.perSecond64) + nanoseconds
+        let boundedSeconds = floorMod(seconds, Seconds.perDay64)
+        let deltaNanos = (boundedSeconds * NanoSeconds.perSecond64) + nanoseconds
         let totalNanos = nanosecondsSinceMidnight + deltaNanos
         let wrappedNanos = floorMod(totalNanos, NanoSeconds.perDay64)
         return Self(nanosecondsSinceMidnight: wrappedNanos)
@@ -214,7 +215,7 @@ public extension PlainTime {
     }
 
     @inlinable
-    func on(year: Int32, month: Int, day: Int) -> PlainDateTime? {
+    func on(year: Int, month: Int, day: Int) -> PlainDateTime? {
         guard let date = PlainDate(year: year, month: month, day: day) else { return nil }
         return PlainDateTime(
             date: date,

@@ -7,7 +7,7 @@ final class MockTimeZoneProvider: TimeZoneProvider {
         mockZones[name] = tz
     }
 
-    func getTimeZone(named name: String) throws -> TimeZoneInfo {
+    func timeZone(named name: String) throws -> TimeZoneInfo {
         if let zone = mockZones[name] {
             return zone
         }

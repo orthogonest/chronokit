@@ -47,7 +47,7 @@ public struct TimeZoneInfo: Equatable, Hashable, Sendable, TimeZoneProtocol {
             ))
         }
 
-        let plainNanos = plain.timestampNanosecondsChecked() ?? 0
+        let plainNanos = plain.timestampNanosecondsChecked ?? 0
         let plainSecs = plainNanos / NanoSeconds.perSecond64
 
         var candidateOffsets: Set<Int32> = uniqueOffset
@@ -110,5 +110,17 @@ public struct TimeZoneInfo: Equatable, Hashable, Sendable, TimeZoneProtocol {
                 later: sorted[1]
             )
         }
+    }
+}
+
+extension TimeZone {
+    @usableFromInline
+    static func tzif(_ timeZone: TimeZoneInfo) -> TimeZone {
+        return TimeZone(timeZone)
+    }
+
+    static func tzif(identifier: String, payload: TZDBDataPayload) -> TimeZone {
+        let timeZone = TimeZoneInfo(identifier: identifier, payload: payload)
+        return TimeZone(timeZone)
     }
 }

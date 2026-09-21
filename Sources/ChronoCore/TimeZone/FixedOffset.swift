@@ -190,3 +190,50 @@ extension FixedOffset: TimeZoneProtocol {
         .unique(.standard(duration))
     }
 }
+
+public extension TimeZone {
+    static let utc: TimeZone = {
+        let timeZone: FixedOffset = .utc
+        return TimeZone(
+            identifier: timeZone.identifier,
+            offsetByInstant: timeZone.offset(for:),
+            offsetByPlain: timeZone.offset(for:)
+        )
+    }()
+
+    static func fixedOffset(_ duration: Duration) -> TimeZone {
+        let timeZone = FixedOffset(duration)
+        return TimeZone(
+            identifier: timeZone.identifier,
+            offsetByInstant: timeZone.offset(for:),
+            offsetByPlain: timeZone.offset(for:)
+        )
+    }
+
+    static func fixedOffset(seconds: Int) -> TimeZone {
+        let timeZone = FixedOffset(seconds: seconds)
+        return TimeZone(
+            identifier: timeZone.identifier,
+            offsetByInstant: timeZone.offset(for:),
+            offsetByPlain: timeZone.offset(for:)
+        )
+    }
+
+    static func fixedOffset(isoSeconds: Int) -> TimeZone? {
+        guard let timeZone = FixedOffset(isoSeconds: isoSeconds) else { return nil }
+        return TimeZone(
+            identifier: timeZone.identifier,
+            offsetByInstant: timeZone.offset(for:),
+            offsetByPlain: timeZone.offset(for:)
+        )
+    }
+
+    static func fixedOffset(hours: Int, minutes: Int, sign: TimeZoneSign = .plus) -> TimeZone? {
+        guard let timeZone = FixedOffset(hours: hours, minutes: minutes, sign: sign) else { return nil }
+        return TimeZone(
+            identifier: timeZone.identifier,
+            offsetByInstant: timeZone.offset(for:),
+            offsetByPlain: timeZone.offset(for:)
+        )
+    }
+}

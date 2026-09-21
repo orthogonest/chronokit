@@ -89,3 +89,51 @@ public extension TimeZoneSign {
         value * T(multiplier)
     }
 }
+
+public final class TimeZone: Sendable, TimeZoneProtocol {
+    public let identifier: String
+
+    @usableFromInline let offsetByInstant: @Sendable (Instant) -> Duration
+    @usableFromInline let offsetByPlain: @Sendable (PlainDateTime) -> PlainOffset
+
+    @inlinable
+    public init(
+        identifier: String,
+        offsetByInstant: @escaping @Sendable (Instant) -> Duration,
+        offsetByPlain: @escaping @Sendable (PlainDateTime) -> PlainOffset
+    ) {
+        self.identifier = identifier
+        self.offsetByInstant = offsetByInstant
+        self.offsetByPlain = offsetByPlain
+    }
+
+    @inlinable
+    public init(_ timeZone: some TimeZoneProtocol) {
+        identifier = timeZone.identifier
+        offsetByInstant = timeZone.offset(for:)
+        offsetByPlain = timeZone.offset(for:)
+    }
+
+    @inlinable
+    public func offset(for instant: Instant) -> Duration {
+        return offsetByInstant(instant)
+    }
+
+    @inlinable
+    public func offset(for plain: PlainDateTime) -> PlainOffset {
+        return offsetByPlain(plain)
+    }
+}
+
+extension TimeZone: Equatable {
+    public static func == (lhs: TimeZone, rhs: TimeZone) -> Bool {
+        if lhs === rhs { return true }
+        return lhs.identifier == rhs.identifier
+    }
+}
+
+extension TimeZone: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        return hasher.combine(identifier)
+    }
+}

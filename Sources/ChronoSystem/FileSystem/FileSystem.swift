@@ -1,10 +1,18 @@
 #if canImport(Darwin)
     import Darwin
     import MachO
+#elseif canImport(Bionic)
+    @preconcurrency import Bionic
 #elseif canImport(Glibc)
-    import Glibc
+    @preconcurrency import Glibc
 #elseif canImport(Musl)
-    import Musl
+    @preconcurrency import Musl
+#elseif canImport(WinSDK)
+    import WinSDK
+#elseif os(WASI)
+    @preconcurrency import WASILibc
+#elseif os(Emscripten)
+    @preconcurrency import EmscriptenLibc
 #else
     #error("Unsupported platform: Standard C library not found.")
 #endif

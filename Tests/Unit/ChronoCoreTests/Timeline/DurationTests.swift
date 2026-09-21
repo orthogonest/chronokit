@@ -1,7 +1,6 @@
 @testable import ChronoCore
 import Testing
 
-@Suite("Duration Tests")
 struct DurationTests {
     // MARK: - Initialization & Normalization Tests
 
@@ -182,21 +181,47 @@ extension DurationTests {
 // MARK: - Arithmetic Tests
 
 extension DurationTests {
-    @Test("DurationTests: 0.6s + 0.6s")
+    @Test("DurationTests: Add duration and normalize the result")
     func additionNormalization() {
         let d1 = Duration(seconds: 0, nanoseconds: 600_000_000)
         let d2 = Duration(seconds: 0, nanoseconds: 600_000_000)
         let result = d1 + d2
         #expect(result.seconds == 1)
         #expect(result.nanoseconds == 200_000_000)
+
+        var duration = Duration(seconds: 0, nanoseconds: 600_000_000)
+        duration += d1
+        duration += d2
+        #expect(duration.seconds == 1)
+        #expect(duration.nanoseconds == 800_000_000)
+    }
+
+    @Test("DurationTests: Subtract duration and normalize the result")
+    func substractionNormalization() {
+        let d1 = Duration(seconds: 1, nanoseconds: 200_000_000)
+        let d2 = Duration(seconds: 0, nanoseconds: 600_000_000)
+        let result = d1 - d2
+        #expect(result.seconds == 0)
+        #expect(result.nanoseconds == 600_000_000)
+
+        var duration = Duration(seconds: 1, nanoseconds: 800_000_000)
+        duration -= d1
+        duration -= d2
+        #expect(duration.seconds == 0)
+        #expect(duration.nanoseconds == 0)
     }
 
     @Test("DurationTests: Negative Scaling")
     func negativeMultiplication() {
         let duration = Duration(seconds: 1, nanoseconds: 500_000_000) // 1.5s
-        let result = duration * -1
+        var result = duration * -1
         // Expected: -1.5s -> -2s + 500ms
         #expect(result.seconds == -2)
+        #expect(result.nanoseconds == 500_000_000)
+
+        result *= -1
+        // Expected: 1.5s -> 1s + 500ms
+        #expect(result.seconds == 1)
         #expect(result.nanoseconds == 500_000_000)
     }
 
@@ -214,17 +239,185 @@ extension DurationTests {
 
     @Test("DurationTests: Remainder Carry")
     func divisionWithRemainder() {
-        let duration = Duration(seconds: 1, nanoseconds: 0)
-        let result = duration / 4
-        #expect(result.seconds == 0)
-        #expect(result.nanoseconds == 250_000_000)
+        var duration = Duration(seconds: 1, nanoseconds: 0)
+        duration /= 4
+        #expect(duration.seconds == 0)
+        #expect(duration.nanoseconds == 250_000_000)
     }
 
     @Test("DurationTests: Large values")
     func divisionLarge() {
-        let duration = Duration(seconds: .max / 2, nanoseconds: 0)
-        // Should not overflow due to your reportingOverflow checks
-        let result = duration / 1
-        #expect(result.seconds == .max / 2)
+        var duration = Duration(seconds: .max / 2, nanoseconds: 0)
+        // Should not overflow due to reportingOverflow checks
+        duration /= 1
+        #expect(duration.seconds == .max / 2)
+    }
+
+    @Test("DurationTests: Division between durations")
+    func durationsDivision() {
+        // -1.5s stored as -2s + 500ms
+        let d1 = Duration(seconds: 1, nanoseconds: 0)
+        let d2 = Duration(seconds: 0, nanoseconds: 500_000_000)
+        #expect(d1 / d2 == 2.0)
+
+        let d3 = Duration(seconds: 9_467_077_800) // 300 years
+        let d4 = Duration(seconds: 788_923_150) // 25 years
+        #expect(d3 / d4 == 12.0)
+    }
+}
+
+// MARK: - Addition Overflow Tests
+
+extension DurationTests {
+    @Test("DurationTests: Addition positive overflow (Max bound)")
+    func additionPositiveOverflow() {
+        let d1 = Duration(seconds: Int.max)
+        let d2 = Duration(seconds: 10)
+
+        let (result, overflow) = d1.addingReportingOverflow(d2)
+
+        #expect(overflow)
+        #expect(result.seconds == .max)
+    }
+
+    @Test("DurationTests: Addition negative overflow (Min bound)")
+    func additionNegativeOverflow() {
+        let d1 = Duration(seconds: Int.min)
+        let d2 = Duration(seconds: -10)
+
+        let (result, overflow) = d1.addingReportingOverflow(d2)
+
+        #expect(overflow)
+        #expect(result.seconds == .min)
+    }
+
+    @Test("DurationTests: Addition overflow by nanoseconds carry")
+    func additionNanosecondCarryOverflow() {
+        let d1 = Duration(seconds: Int.max, nanoseconds: 600_000_000)
+        let d2 = Duration(seconds: 0, nanoseconds: 500_000_000)
+
+        let (result, overflow) = d1.addingReportingOverflow(d2)
+
+        #expect(overflow)
+        #expect(result.seconds == .max)
+        #expect(result.nanoseconds == 100_000_000)
+    }
+
+    @Test("DurationTests: Addition overflow by large nanoseconds scaling")
+    func additionNanosecondsOnlyOverflow() {
+        let d1 = Duration(seconds: .max, nanoseconds: 500_000_000)
+        let d2 = Duration(seconds: 0, nanoseconds: 600_000_000)
+
+        let (result, overflow) = d1.addingReportingOverflow(d2)
+
+        // 1. totalNanos = 500_000_000 + 600_000_000 = 1_100_000_000
+        // 2. extraSec = 1
+        // 3. remNanos = 100.000.000
+        // 4. partialSec = .max + 0 = .max (partialOverflow = false)
+        // 5. finalSec = .max + 1 (finalOverflow = true)
+
+        #expect(overflow)
+        #expect(result.seconds == .max)
+        #expect(result.nanoseconds == 100_000_000)
+    }
+}
+
+// MARK: - Substraction Overflow Tests
+
+extension DurationTests {
+    @Test("DurationTests: Subtraction positive overflow (Max bound)")
+    func subtractionPositiveOverflow() {
+        let d1 = Duration(seconds: Int.max)
+        let d2 = Duration(seconds: -10)
+
+        let (result, overflow) = d1.subtractingReportingOverflow(d2)
+
+        #expect(overflow)
+        #expect(result.seconds == .max)
+    }
+
+    @Test("DurationTests: Subtraction negative overflow (Min bound)")
+    func subtractionNegativeOverflow() {
+        let d1 = Duration(seconds: Int.min)
+        let d2 = Duration(seconds: 10)
+
+        let (result, overflow) = d1.subtractingReportingOverflow(d2)
+
+        #expect(overflow)
+        #expect(result.seconds == .min)
+    }
+
+    @Test("DurationTests: Subtraction overflow by large nanoseconds scaling")
+    func subtractionNanosecondsOnlyOverflow() {
+        let d1 = Duration(seconds: .min, nanoseconds: 100_000_000)
+        let d2 = Duration(seconds: 0, nanoseconds: 500_000_000)
+
+        let (result, overflow) = d1.subtractingReportingOverflow(d2)
+
+        // 1. totalNanos = 100_000_000 - 500_000_000 = -400_000_000
+        // 2. extraSec = -1 (from floorDiv(-400_000_000, 1_000_000_000) = -1)
+        // 3. remNanos = 600.000.000 (floorMod)
+        // 4. partialSec = .min - 0 = .min (partialOverflow = false)
+        // 5. finalSec = .min + (-1) (finalOverflow = true)
+
+        #expect(overflow)
+        #expect(result.seconds == .min)
+        #expect(result.nanoseconds == 600_000_000)
+    }
+}
+
+// MARK: - Multiplication Overflow Tests
+
+extension DurationTests {
+    @Test("DurationTests: Multiplication positive overflow (Max bound)")
+    func multiplicationPositiveOverflow() {
+        let duration = Duration(seconds: Int.max / 2 + 10)
+
+        let (result, overflow) = duration.multipliedReportingOverflow(2)
+
+        #expect(overflow)
+        #expect(result.seconds == .max)
+    }
+
+    @Test("DurationTests: Multiplication negative overflow (Min bound)")
+    func multiplicationNegativeOverflow() {
+        let duration = Duration(seconds: Int.min / 2 - 10)
+
+        let (result, overflow) = duration.multipliedReportingOverflow(-2)
+
+        #expect(overflow)
+        #expect(result.seconds == .max)
+    }
+
+    @Test("DurationTests: Positive * negative overflow")
+    func multiplicationPositiveNegativeOverflow() {
+        let duration = Duration(seconds: Int.max / 2 + 10)
+
+        let (result, overflow) = duration.multipliedReportingOverflow(-2)
+
+        #expect(overflow)
+        #expect(result.seconds == .min)
+    }
+
+    @Test("DurationTests: Multiplication overflow by large nanoseconds scaling")
+    func multiplicationNanosecondsOnlyOverflow() {
+        let duration = Duration(seconds: 0, nanoseconds: 500_000_000)
+
+        let (result, overflow) = duration.multipliedReportingOverflow(Int.max)
+
+        #expect(overflow)
+        #expect(result.seconds == .max)
+    }
+
+    @Test("DurationTests: Verify clamping behavior instead of crash")
+    func operatorClampingVerification() {
+        let d1 = Duration(seconds: Int.max)
+        let d2 = Duration(seconds: Int.max)
+
+        let sum = d1 + d2
+        #expect(sum.seconds == .max)
+
+        let product = d1 * 2
+        #expect(product.seconds == .max)
     }
 }
