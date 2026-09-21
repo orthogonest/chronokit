@@ -1,4 +1,4 @@
-.PHONY: help building cleaning build clean test test-dev td test-integration ti test-prop tp benchmark lint fmt ensure-placeholder compile-tz gen-tz update-tz clean-tz
+.PHONY: help building cleaning build clean test test-dev td test-unit tu test-integration ti test-prop tp benchmark lint fmt ensure-placeholder compile-tz gen-tz update-tz clean-tz
 
 # --- Colors ---
 
@@ -49,19 +49,27 @@ clean:
 
 # ---- Testings ----
 
-## Run all Unit Tests in Release configuration
+## Run all Tests in Release configuration
 test:
 	@clear
-	@echo "$(CYAN)>>> Running Unit Tests in Release Configuration...$(RESET)"
+	@echo "$(CYAN)>>> Running All Tests in Release Configuration...$(RESET)"
 	@swift test --configuration release
 
-## Run local Unit Tests for development (ChronoCore, ChronoTZ, etc.)
+## Run all Tests in Development configuration
 test-dev td:
+	@clear
+	@echo "$(CYAN)>>> Running All Tests in Development Configuration...$(RESET)"
+	@swift test --parallel --enable-swift-testing
+
+
+## Run local Unit Tests for development (ChronoCore, ChronoTZ, etc.)
+test-unit tu:
 	@clear
 	@echo "$(CYAN)>>> Running Unit Tests in Development Configuration...$(RESET)"
 	@swift test \
 		--filter ChronoCoreTests \
 		--filter ChronoMathTests \
+		--filter ChronoFoundationTests \
 		--filter ChronoFormatterTests \
 		--filter ChronoParserTests \
 		--filter ChronoSystemTests \
