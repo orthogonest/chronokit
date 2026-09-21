@@ -1,9 +1,9 @@
 #if canImport(Darwin)
     import Darwin
 #elseif canImport(Glibc)
-    import Glibc
+    @preconcurrency import Glibc
 #elseif canImport(Musl)
-    import Musl
+    @preconcurrency import Musl
 #else
     #error("Unsupported platform: Standard C library not found.")
 #endif
@@ -56,5 +56,16 @@ public struct SystemTimeZone: TimeZoneProtocol {
         let correctedInstant = plain.instant(offset: FixedOffset(systemOffset))
         let finalOffset = offset(for: correctedInstant)
         return .unique(.standard(finalOffset))
+    }
+}
+
+public extension TimeZone {
+    static let system: TimeZone = .init(SystemTimeZone())
+}
+
+public extension ZonedDateTime {
+    @inlinable
+    static func system(instant: Instant) -> Self {
+        self.init(instant: instant, timeZone: .system)
     }
 }

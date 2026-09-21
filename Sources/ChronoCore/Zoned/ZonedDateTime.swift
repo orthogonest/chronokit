@@ -1,26 +1,26 @@
-public struct DateTime<TZ: TimeZoneProtocol>: Sendable {
+public struct ZonedDateTime: Sendable {
     /// The exact moment in time, stored as UTC.
     public let instant: Instant
 
     /// The timezone associated with this instant.
-    public let timezone: TZ
+    public let timeZone: TimeZone
 
     @inlinable
-    public init(instant: Instant, timezone: TZ) {
+    public init(instant: Instant, timeZone: TimeZone) {
         self.instant = instant
-        self.timezone = timezone
+        self.timeZone = timeZone
     }
 
     @inlinable
     public init?(
-        year: Int32,
+        year: Int,
         month: Int,
         day: Int,
         hour: Int = 0,
         minute: Int = 0,
         second: Int = 0,
         nanosecond: Int = 0,
-        timezone: TZ
+        timeZone: TimeZone
     ) {
         guard
             let plainDateTime = PlainDateTime(
@@ -32,16 +32,16 @@ public struct DateTime<TZ: TimeZoneProtocol>: Sendable {
                 second: second,
                 nanosecond: nanosecond
             ),
-            let utcInstant = plainDateTime.instant(in: timezone)
+            let utcInstant = plainDateTime.instant(in: timeZone)
         else { return nil }
 
-        self.init(instant: utcInstant, timezone: timezone)
+        self.init(instant: utcInstant, timeZone: timeZone)
     }
 }
 
 // MARK: - Core Accessors
 
-public extension DateTime {
+public extension ZonedDateTime {
     /// Unix Timestamp (Seconds). Fast O(1).
     @inlinable
     var timestamp: Int64 {
@@ -68,7 +68,7 @@ public extension DateTime {
 
 // MARK: - Equality
 
-extension DateTime: Equatable {
+extension ZonedDateTime: Equatable {
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         // Comparison is always done on the absolute instant (UTC),
@@ -79,7 +79,7 @@ extension DateTime: Equatable {
 
 // MARK: - Hash
 
-extension DateTime: Hashable {
+extension ZonedDateTime: Hashable {
     @inlinable
     public func hash(into hasher: inout Hasher) {
         hasher.combine(instant)
@@ -88,7 +88,7 @@ extension DateTime: Hashable {
 
 // MARK: - Comparability
 
-extension DateTime: Comparable {
+extension ZonedDateTime: Comparable {
     @inlinable
     public static func < (lhs: Self, rhs: Self) -> Bool {
         // Comparison is always done on the absolute instant (UTC),
@@ -99,12 +99,12 @@ extension DateTime: Comparable {
 
 // MARK: - Arithmetic
 
-public extension DateTime {
+public extension ZonedDateTime {
     @inlinable
     func advanced(bySeconds seconds: Int64, nanoseconds: Int64 = 0) -> Self {
         Self(
             instant: instant.advanced(bySeconds: seconds, nanoseconds: nanoseconds),
-            timezone: timezone
+            timeZone: timeZone
         )
     }
 
@@ -119,7 +119,7 @@ public extension DateTime {
 
 // MARK: - Addition
 
-public extension DateTime {
+public extension ZonedDateTime {
     @inlinable
     static func + (lhs: Self, rhs: Duration) -> Self {
         lhs.advanced(by: rhs)
@@ -138,9 +138,9 @@ public extension DateTime {
 
 // MARK: - Substraction
 
-public extension DateTime {
+public extension ZonedDateTime {
     @inlinable
-    static func - (lhs: DateTime<TZ>, rhs: DateTime<some TimeZoneProtocol>) -> Duration {
+    static func - (lhs: Self, rhs: Self) -> Duration {
         let instant = lhs.instant - rhs.instant
         return Duration(seconds: instant.seconds, nanoseconds: Int64(instant.nanoseconds))
     }
@@ -161,34 +161,34 @@ public extension DateTime {
 
 // MARK: - Date Protocol
 
-extension DateTime: DateProtocol {
+extension ZonedDateTime: DateProtocol {
     @inlinable
-    public var year: Int32 {
-        plain.date.year
+    public var year: Int {
+        plainDateTime.date.year
     }
 
     @inlinable
     public var month: Int {
-        plain.date.month
+        plainDateTime.date.month
     }
 
     @inlinable
     public var day: Int {
-        plain.date.day
+        plainDateTime.date.day
     }
 
     @inlinable
     public var ordinal: Int {
-        plain.date.ordinal
+        plainDateTime.date.ordinal
     }
 
     @inlinable
     public var weekday: Int {
-        plain.date.weekday
+        plainDateTime.date.weekday
     }
 
     @inlinable
-    public func with(year: Int32) -> Self? {
+    public func with(year: Int) -> Self? {
         withPlain { $0.with(year: year) }
     }
 
@@ -203,7 +203,7 @@ extension DateTime: DateProtocol {
     }
 
     @inlinable
-    public func with(monthSymbol value: Month) -> DateTime<TZ>? {
+    public func with(monthSymbol value: Month) -> Self? {
         withPlain { $0.with(monthSymbol: value) }
     }
 
@@ -230,25 +230,25 @@ extension DateTime: DateProtocol {
 
 // MARK: - Time Protocol
 
-extension DateTime: TimeProtocol {
+extension ZonedDateTime: TimeProtocol {
     @inlinable
     public var hour: Int {
-        plain.time.hour
+        plainDateTime.time.hour
     }
 
     @inlinable
     public var minute: Int {
-        plain.time.minute
+        plainDateTime.time.minute
     }
 
     @inlinable
     public var second: Int {
-        plain.time.second
+        plainDateTime.time.second
     }
 
     @inlinable
     public var nanosecond: Int {
-        plain.time.nanosecond
+        plainDateTime.time.nanosecond
     }
 
     @inlinable
@@ -274,12 +274,12 @@ extension DateTime: TimeProtocol {
 
 // MARK: - Subsecond Rounding
 
-extension DateTime: SubsecondRoundable {
+extension ZonedDateTime: SubsecondRoundable {
     @inlinable
     public func roundSubseconds(_ digits: Int) -> Self {
         Self(
             instant: instant.roundSubseconds(digits),
-            timezone: timezone
+            timeZone: timeZone
         )
     }
 
@@ -287,21 +287,21 @@ extension DateTime: SubsecondRoundable {
     public func truncateSubseconds(_ digits: Int) -> Self {
         Self(
             instant: instant.truncateSubseconds(digits),
-            timezone: timezone
+            timeZone: timeZone
         )
     }
 }
 
 // MARK: - Duration Rounding
 
-extension DateTime: DurationRoundable {
+extension ZonedDateTime: DurationRoundable {
     public typealias RoundingError = TimeRoundingError
 
     @inlinable
     public func round(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         try Self(
             instant: instant.round(byQuantum: quantum),
-            timezone: timezone
+            timeZone: timeZone
         )
     }
 
@@ -309,7 +309,7 @@ extension DateTime: DurationRoundable {
     public func truncate(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         try Self(
             instant: instant.truncate(byQuantum: quantum),
-            timezone: timezone
+            timeZone: timeZone
         )
     }
 
@@ -317,19 +317,19 @@ extension DateTime: DurationRoundable {
     public func roundUp(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         try Self(
             instant: instant.roundUp(byQuantum: quantum),
-            timezone: timezone
+            timeZone: timeZone
         )
     }
 }
 
-// MARK: - Plain Conversion
+// MARK: - Plain Date Time Conversion
 
-extension DateTime {
+extension ZonedDateTime {
     /// The 'Wall Clock' view of the time.
     /// This applies the timezone offset to the stored UTC time.
     @inlinable
-    public var plain: PlainDateTime {
-        instant.plainDateTime(in: timezone)
+    public var plainDateTime: PlainDateTime {
+        instant.plainDateTime(in: timeZone)
     }
 
     @usableFromInline
@@ -337,13 +337,13 @@ extension DateTime {
         resolving policy: DSTResolutionPolicy = .preferEarlier,
         _ transform: (PlainDateTime) -> PlainDateTime?
     ) -> Self? {
-        guard let newPlain = transform(plain),
+        guard let newPlain = transform(plainDateTime),
               let newInstant = newPlain.instant(
-                  in: timezone,
+                  in: timeZone,
                   resolving: policy
               )
         else { return nil }
 
-        return Self(instant: newInstant, timezone: timezone)
+        return Self(instant: newInstant, timeZone: timeZone)
     }
 }
