@@ -14,45 +14,27 @@ public enum Month: Int, CaseIterable, Equatable, Hashable, Sendable {
 }
 
 extension Month: Comparable {
+    @inlinable
     public static func < (lhs: Month, rhs: Month) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 }
 
 public extension Month {
+    @usableFromInline
+    internal static let _cachedAllCases: [Self] = Array(Self.allCases)
+
     @inlinable
     func next() -> Month {
-        switch self {
-        case .january: .february
-        case .february: .march
-        case .march: .april
-        case .april: .may
-        case .may: .june
-        case .june: .july
-        case .july: .august
-        case .august: .september
-        case .september: .october
-        case .october: .november
-        case .november: .december
-        case .december: .january
-        }
+        let currentIndex = rawValue - 1
+        let nextIndex = (currentIndex + 1) % 12
+        return Self._cachedAllCases[nextIndex]
     }
 
     @inlinable
     func prev() -> Month {
-        switch self {
-        case .january: .december
-        case .february: .january
-        case .march: .february
-        case .april: .march
-        case .may: .april
-        case .june: .may
-        case .july: .june
-        case .august: .july
-        case .september: .august
-        case .october: .september
-        case .november: .october
-        case .december: .november
-        }
+        let currentIndex = rawValue - 1
+        let nextIndex = (currentIndex + 11) % 12
+        return Self._cachedAllCases[nextIndex]
     }
 }
