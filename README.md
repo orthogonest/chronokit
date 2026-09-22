@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-  A lightweight, high-performance, foundation-free, and zero-dependency date and time primitives library for Swift.
+  A lightweight, high-performance, foundation-free, and zero-dependency date and time library for Swift.
 </p>
 
 <br><br>
@@ -46,16 +46,16 @@ import ChronoFoundation
 import ChronoKit
 import Foundation
 
-// --- Outbound: ChronoKit -> Foundation ---
+// --- ChronoKit -> Foundation ---
 let plainDate = PlainDate(year: 2026, month: 9, day: 21)
 let nativeComponents = plainDate.foundation.components // Returns Foundation.DateComponents
 
 let chronoInstant = Instant(seconds: 1_790_000_000, nanoseconds: 0)
-let nativeDate = chronoInstant.foundation.date // Returns Foundation.Date (lossy conversion)
+let nativeDate = chronoInstant.foundation.date // Returns Foundation.Date
 
-// --- Inbound: Foundation -> ChronoKit ---
+// --- Foundation -> ChronoKit ---
 let systemDate = Foundation.Date()
-let instantFromApple = systemDate.chrono.instant // Returns ChronoCore.Instant
+let instantFromApple = systemDate.chrono.instant // Returns ChronoCore.Instant (lossy conversion)
 
 let systemZone = Foundation.TimeZone.current
 let chronoZone = systemZone.chrono.timeZone // Returns ChronoCore.TimeZone fully compliant
