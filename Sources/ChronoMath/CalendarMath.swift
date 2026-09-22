@@ -1,9 +1,10 @@
 @inline(__always)
-public func daysFromCivil(year: Int64, month: UInt8, day: UInt8) -> Int64 {
+@usableFromInline
+package func daysFromCivil(year: Int64, month: UInt8, day: UInt8) -> Int64 {
     precondition(month >= 1 && month <= 12, "Month must be between 1 and 12.")
     precondition(
         day >= 1 && day <= lastDayOfMonth(year, month),
-        "Day must be between 1 and end of month (generalize to 31).",
+        "Day must be between 1 and end of month (generalize to 31)."
     )
 
     let years = year - (month <= 2 ? 1 : 0)
@@ -24,7 +25,8 @@ public func daysFromCivil(year: Int64, month: UInt8, day: UInt8) -> Int64 {
 }
 
 @inline(__always)
-public func civilDate(from days: Int64) -> (year: Int64, month: UInt8, day: UInt8) {
+@usableFromInline
+package func civilDate(from days: Int64) -> (year: Int64, month: UInt8, day: UInt8) {
     let unixDay = days + CalendarConstants.marchBasedUnixEpochCivilOffset
 
     let era = floorDiv(unixDay, CalendarConstants.daysPerEra)
@@ -52,35 +54,72 @@ public func civilDate(from days: Int64) -> (year: Int64, month: UInt8, day: UInt
 }
 
 @inline(__always)
-public func isLeapYear(_ year: Int64) -> Bool {
+@usableFromInline
+package func isLeapYear(_ year: Int64) -> Bool {
     (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))
 }
 
 @inline(__always)
-public func lastDayOfMonthCommonYear(_ month: UInt8) -> UInt8 {
+@usableFromInline
+package func lastDayOfMonthCommonYear(_ month: UInt8) -> UInt8 {
     precondition(month >= 1 && month <= 12, "Month must be between 1 and 12.")
-    return CalendarConstants.daysInMonthCommonYear[Int(month - 1)]
+
+    let tuple = CalendarConstants.daysInMonthCommonYear
+
+    switch month {
+    case 1: return tuple.0
+    case 2: return tuple.1
+    case 3: return tuple.2
+    case 4: return tuple.3
+    case 5: return tuple.4
+    case 6: return tuple.5
+    case 7: return tuple.6
+    case 8: return tuple.7
+    case 9: return tuple.8
+    case 10: return tuple.9
+    case 11: return tuple.10
+    default: return tuple.11
+    }
 }
 
 @inline(__always)
-public func lastDayOfMonthLeapYear(_ month: UInt8) -> UInt8 {
+@usableFromInline
+package func lastDayOfMonthLeapYear(_ month: UInt8) -> UInt8 {
     precondition(month >= 1 && month <= 12, "Month must be between 1 and 12.")
-    return CalendarConstants.daysInMonthLeapYear[Int(month - 1)]
+
+    let tuple = CalendarConstants.daysInMonthLeapYear
+
+    switch month {
+    case 1: return tuple.0
+    case 2: return tuple.1
+    case 3: return tuple.2
+    case 4: return tuple.3
+    case 5: return tuple.4
+    case 6: return tuple.5
+    case 7: return tuple.6
+    case 8: return tuple.7
+    case 9: return tuple.8
+    case 10: return tuple.9
+    case 11: return tuple.10
+    default: return tuple.11
+    }
 }
 
 @inline(__always)
-public func lastDayOfMonth(_ year: Int64, _ month: UInt8) -> UInt8 {
+@usableFromInline
+package func lastDayOfMonth(_ year: Int64, _ month: UInt8) -> UInt8 {
     month != 2 || !isLeapYear(year) ? lastDayOfMonthCommonYear(month) : 29
 }
 
 @inline(__always)
-public func weekday(from days: Int64) -> Int {
-    let weekday = days >= -4 ? (days + 4) % 7 : (days + 5) % 7 + 6
-    return Int(weekday)
+@usableFromInline
+package func weekday(from days: Int64) -> Int {
+    return Int(floorMod(days + 4, 7))
 }
 
 @inline(__always)
-public func weekdayDifference(from lhs: Int, to rhs: Int) -> Int {
+@usableFromInline
+package func weekdayDifference(from lhs: Int, to rhs: Int) -> Int {
     precondition(lhs >= 0 && lhs <= 6, "Weekday lhs must be in range [0, 6]")
     precondition(rhs >= 0 && rhs <= 6, "Weekday rhs must be in range [0, 6]")
 
@@ -91,19 +130,21 @@ public func weekdayDifference(from lhs: Int, to rhs: Int) -> Int {
 }
 
 @inline(__always)
-public func nextWeekday(_ wd: Int) -> Int {
+@usableFromInline
+package func nextWeekday(_ wd: Int) -> Int {
     precondition(wd >= 0 && wd <= 6, "Weekday index must be in range [0, 6]")
 
     // If wd is not Saturday (6), return wd + 1.
     // If wd is Saturday (6), return Sunday (0)
-    return wd < 6 ? wd + 1 : 0
+    return (wd + 1) % 7
 }
 
 @inline(__always)
-public func prevWeekday(_ wd: Int) -> Int {
+@usableFromInline
+package func prevWeekday(_ wd: Int) -> Int {
     precondition(wd >= 0 && wd <= 6, "Weekday index must be in range [0, 6]")
 
     // If wd is not Sunday (0), return wd - 1.
     // If wd is Sunday (0), return Saturday (6).
-    return wd > 0 ? wd - 1 : 6
+    return (wd + 6) % 7
 }
