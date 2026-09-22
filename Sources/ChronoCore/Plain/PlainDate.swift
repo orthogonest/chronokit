@@ -1,6 +1,6 @@
 import ChronoMath
 
-public struct PlainDate: Equatable, Hashable, Sendable {
+public struct PlainDate: Hashable, Sendable {
     @usableFromInline package let daysSinceEpoch: Int64
     @usableFromInline package let _year: Int32
     @usableFromInline package let _month: UInt8
@@ -47,6 +47,15 @@ public struct PlainDate: Equatable, Hashable, Sendable {
         _year = Int32(year)
         _month = months
         _day = days
+    }
+}
+
+// MARK: - Equitability
+
+extension PlainDate: Equatable {
+    @inlinable
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.daysSinceEpoch == rhs.daysSinceEpoch
     }
 }
 
