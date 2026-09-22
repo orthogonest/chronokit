@@ -18,12 +18,7 @@ public extension TimeProtocol {
     @inlinable
     var hour12: (isPM: Bool, hour: Int) {
         let isPM = hour >= 12
-
-        var result = hour % 12
-        if result == 0 {
-            result = 12
-        }
-
+        let result = (hour + 11) % 12 + 1
         return (isPM: isPM, hour: result)
     }
 

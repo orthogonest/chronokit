@@ -46,7 +46,6 @@ public extension DateProtocol {
         }
     }
 
-    @inlinable
     var isLeapYear: Bool {
         ChronoMath.isLeapYear(Int64(year))
     }
@@ -81,12 +80,10 @@ public extension DateProtocol {
         Weekday(rawValue: weekday)
     }
 
-    @inlinable
     var isoWeek: ISOWeek {
         ISOWeek(year: Int64(year), month: UInt8(month), day: UInt8(day))
     }
 
-    @inlinable
     var daysSinceUnixEpoch: Int {
         Int(daysFromCivil(
             year: Int64(year),
@@ -95,7 +92,6 @@ public extension DateProtocol {
         ))
     }
 
-    @inlinable
     var daysInMonth: Int {
         Int(lastDayOfMonth(Int64(year), UInt8(month)))
     }
