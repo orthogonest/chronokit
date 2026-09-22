@@ -48,6 +48,12 @@ public extension ZonedDateTime {
         instant.timestamp
     }
 
+    /// Unix Timestamp (Milliseconds). Fast O(1).
+    @inlinable
+    var timestampMilliseconds: Int64 {
+        instant.timestampMilliseconds
+    }
+
     /// Unix Timestamp (Microseconds). Fast O(1).
     @inlinable
     var timestampMicroseconds: Int64 {

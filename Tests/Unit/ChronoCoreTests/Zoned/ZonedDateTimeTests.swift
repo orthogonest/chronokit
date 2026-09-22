@@ -127,6 +127,10 @@ extension ZonedDateTimeTests {
         #expect(dtUTC.timestamp == instant.timestamp)
         #expect(dtOffset.timestamp == instant.timestamp)
 
+        // Verify millisecond timestamp
+        #expect(dtUTC.timestampMilliseconds == instant.timestampMilliseconds)
+        #expect(dtOffset.timestampMilliseconds == instant.timestampMilliseconds)
+
         // Verify microsecond timestamp
         #expect(dtUTC.timestampMicroseconds == instant.timestampMicroseconds)
         #expect(dtOffset.timestampMicroseconds == instant.timestampMicroseconds)
