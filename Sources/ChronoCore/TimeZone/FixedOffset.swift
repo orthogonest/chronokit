@@ -3,10 +3,8 @@ import ChronoMath
 public struct FixedOffset: Equatable, Hashable, Sendable {
     /// The offset in seconds east of UTC.
     /// e.g., +02:00 is 7200. -05:00 is -18000.
-    @usableFromInline
-    let duration: Duration
+    @usableFromInline let duration: Duration
 
-    @inlinable
     public init(_ duration: Duration) {
         let totalNanos = duration.seconds * NanoSeconds.perSecond64 + Int64(duration.nanoseconds)
         precondition(
@@ -16,7 +14,6 @@ public struct FixedOffset: Equatable, Hashable, Sendable {
         self.duration = duration
     }
 
-    @inlinable
     public init(seconds: Int) {
         precondition(
             seconds >= -Seconds.perDay && seconds <= Seconds.perDay,
@@ -25,7 +22,6 @@ public struct FixedOffset: Equatable, Hashable, Sendable {
         duration = Duration(seconds: Int64(seconds))
     }
 
-    @inlinable
     public init?(isoSeconds: Int) {
         // ISO8601 bounds: -14 hours to +14 hours
         guard isoSeconds >= -(14 * Seconds.perHour),
@@ -34,13 +30,12 @@ public struct FixedOffset: Equatable, Hashable, Sendable {
     }
 
     /// Create from hours and minutes (e.g., +7 hours, 0 minutes)
-    @inlinable
     public init?(hours: Int, minutes: Int, sign: TimeZoneSign = .plus) {
         guard minutes >= 0, minutes < 60,
               hours >= 0, hours <= 24,
               !(hours == 24 && minutes != 0) else { return nil }
 
-        let seconds = sign.apply(to: abs(hours) * Seconds.perHour + abs(minutes) * Seconds.perMinute)
+        let seconds = sign.apply(to: hours * Seconds.perHour + minutes * Seconds.perMinute)
 
         self.init(seconds: seconds)
     }
