@@ -4,7 +4,6 @@ public struct Duration: Equatable, Hashable, Sendable {
     public let seconds: Int64
     public let nanoseconds: Int32
 
-    @inlinable
     public init(seconds: Int64, nanoseconds: Int64 = 0) {
         if nanoseconds >= 0, nanoseconds < NanoSeconds.perSecond64 {
             self.seconds = seconds
@@ -12,16 +11,8 @@ public struct Duration: Equatable, Hashable, Sendable {
             return
         }
 
-        var sec = seconds
-        var nano = nanoseconds
-
-        sec += floorDiv(nano, NanoSeconds.perSecond64)
-        nano = floorMod(nano, NanoSeconds.perSecond64)
-
-        if nano < 0 {
-            sec -= 1
-            nano += NanoSeconds.perSecond64
-        }
+        let sec = seconds + floorDiv(nanoseconds, NanoSeconds.perSecond64)
+        let nano = floorMod(nanoseconds, NanoSeconds.perSecond64)
 
         self.seconds = sec
         self.nanoseconds = Int32(nano)
@@ -181,11 +172,12 @@ public extension Duration {
 }
 
 extension Duration: Comparable {
+    @inlinable
     public static func < (lhs: Duration, rhs: Duration) -> Bool {
-        if lhs.seconds != rhs.seconds {
-            return lhs.seconds < rhs.seconds
+        if lhs.seconds == rhs.seconds {
+            return lhs.nanoseconds < rhs.nanoseconds
         }
-        return lhs.nanoseconds < rhs.nanoseconds
+        return lhs.seconds < rhs.seconds
     }
 }
 
@@ -231,7 +223,6 @@ public extension Duration {
         return lhsTotalNanos / rhsTotalNanos
     }
 
-    @inlinable
     static func / (lhs: Self, rhs: Int64) -> Self {
         precondition(rhs != 0, "Duration division by zero")
 
@@ -285,7 +276,6 @@ public extension Duration {
 }
 
 public extension Duration {
-    @inlinable
     func addingReportingOverflow(_ other: Self) -> (partialValue: Self, overflow: Bool) {
         let (totalNanos, nanoOverflow) = Int64(nanoseconds).addingReportingOverflow(Int64(other.nanoseconds))
         if nanoOverflow {
@@ -326,7 +316,6 @@ public extension Duration {
         )
     }
 
-    @inlinable
     func subtractingReportingOverflow(_ other: Self) -> (partialValue: Self, overflow: Bool) {
         let (totalNanos, nanoOverflow) = Int64(nanoseconds).subtractingReportingOverflow(Int64(other.nanoseconds))
         if nanoOverflow {
@@ -367,7 +356,6 @@ public extension Duration {
         )
     }
 
-    @inlinable
     func multipliedReportingOverflow(_ scale: Int64) -> (partialValue: Self, overflow: Bool) {
         let (totalNanos, nanoOverflow) = Int64(nanoseconds).multipliedReportingOverflow(by: scale)
         if nanoOverflow {
