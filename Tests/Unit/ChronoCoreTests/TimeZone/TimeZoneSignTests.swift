@@ -1,7 +1,6 @@
 @testable import ChronoCore
 import Testing
 
-@Suite("Time Zone Sign Tests")
 struct TimeZoneSignTests {
     @Test("TimeZoneSignTests: Multiplier and Apply", arguments: [
         (TimeZoneSign.plus, 1, 3600, 3600),
@@ -22,5 +21,13 @@ struct TimeZoneSignTests {
         #expect(TimeZoneSign(symbol: "-") == .minus)
         #expect(TimeZoneSign(symbol: "plus") == nil)
         #expect(TimeZoneSign(symbol: "") == nil)
+    }
+
+    @Test("TimeZoneSignTests: Character Initializer")
+    func signCharacterInit() {
+        #expect(TimeZoneSign(char: "+") == .plus)
+        #expect(TimeZoneSign(char: "-") == .minus)
+        #expect(TimeZoneSign(char: "$") == nil)
+        #expect(TimeZoneSign(char: " ") == nil)
     }
 }
