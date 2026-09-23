@@ -17,13 +17,17 @@ struct ParsedTime {
 
 @usableFromInline
 struct ParsedInterval {
-    @usableFromInline var month: Int64 = 0
-    @usableFromInline var day: Int64 = 0
-    @usableFromInline var nanosecond: Int64 = 0
+    @usableFromInline var month: Int64
+    @usableFromInline var day: Int64
+    @usableFromInline var nanosecond: Int64
 
     @usableFromInline
     @inline(__always)
-    init() {}
+    init() {
+        month = 0
+        day = 0
+        nanosecond = 0
+    }
 }
 
 extension ParsedInterval {
