@@ -6,7 +6,7 @@
     @preconcurrency import Glibc
 #elseif canImport(Musl)
     @preconcurrency import Musl
-#elseif canImport(WinSDK)
+#elseif os(Windows)
     import WinSDK
 #elseif os(WASI)
     @preconcurrency import WASILibc
@@ -18,26 +18,37 @@
 
 import ChronoCore
 
-public struct SystemClock: Clock {
+public struct SystemClock {
     public static let shared: Self = .init()
+    private init() {}
+}
 
-    @inlinable
-    public init() {}
+extension SystemClock: Clock {
+    public var now: Instant {
+        #if os(Windows)
+            var ft = FILETIME()
+            GetSystemTimePreciseAsFileTime(&ft)
 
-    @inlinable
-    public func now() -> Instant {
-        var ts = timespec()
+            let intervalsSince1601 = (UInt64(ft.dwHighDateTime) << 32) | UInt64(ft.dwLowDateTime)
+            let total100Nanos = Int64(intervalsSince1601)
+            let totalSeconds = (total100Nanos / NanoSeconds.perWindowsSecond64) - Seconds.windowsToUnixEpoch64
+            let remainingNanos = (total100Nanos % NanoSeconds.perWindowsSecond64) * NanoSeconds.perWindowsInterval64
 
-        #if os(Linux)
-            // Using the explicit clock_id_t cast ensures compatibility across different Glibc versions
-            clock_gettime(Int32(CLOCK_REALTIME), &ts)
+            return Instant(seconds: totalSeconds, nanoseconds: remainingNanos)
         #else
-            clock_gettime(CLOCK_REALTIME, &ts)
-        #endif
+            var ts = timespec()
 
-        return Instant(
-            seconds: Int64(ts.tv_sec),
-            nanoseconds: Int64(ts.tv_nsec)
-        )
+            #if os(Linux)
+                // Using the explicit clock_id_t cast ensures compatibility across different Glibc versions
+                clock_gettime(Int32(CLOCK_REALTIME), &ts)
+            #else
+                clock_gettime(CLOCK_REALTIME, &ts)
+            #endif
+
+            return Instant(
+                seconds: Int64(ts.tv_sec),
+                nanoseconds: Int64(ts.tv_nsec)
+            )
+        #endif
     }
 }
