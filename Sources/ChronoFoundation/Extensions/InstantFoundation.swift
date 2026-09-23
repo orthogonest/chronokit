@@ -3,7 +3,6 @@ import ChronoMath
 import Foundation
 
 public extension ChronoCore.Instant {
-    @inlinable
     init(foundation date: Foundation.Date) {
         let timeInterval = date.timeIntervalSince1970
         let seconds = Foundation.floor(timeInterval)
@@ -14,7 +13,6 @@ public extension ChronoCore.Instant {
 }
 
 public extension Foundation.Date {
-    @inlinable
     init(chrono instant: ChronoCore.Instant) {
         let seconds = Double(instant.seconds)
         let nanoseconds = Double(instant.nanoseconds) / ChronoCore.NanoSeconds.perSecondDouble
@@ -23,14 +21,12 @@ public extension Foundation.Date {
 }
 
 public extension FoundationInboundBridge where Base == ChronoCore.Instant {
-    @inlinable
     var date: Foundation.Date {
         return Foundation.Date(chrono: base)
     }
 }
 
 public extension FoundationOutboundBridge where Base == Foundation.Date {
-    @inlinable
     var instant: ChronoCore.Instant {
         return ChronoCore.Instant(foundation: base)
     }
