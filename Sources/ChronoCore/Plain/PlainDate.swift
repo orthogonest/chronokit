@@ -34,19 +34,9 @@ public struct PlainDate: Hashable, Sendable {
         _day = day
     }
 
+    @inlinable
     public init?(year: Int, month: Int, day: Int) {
-        guard month >= 1, month <= 12 else { return nil }
-
-        let months = UInt8(month)
-        let days = UInt8(day)
-
-        guard day >= 1, day <= lastDayOfMonth(Int64(year), months)
-        else { return nil }
-
-        daysSinceEpoch = daysFromCivil(year: Int64(year), month: months, day: days)
-        _year = Int32(year)
-        _month = months
-        _day = days
+        self.init(year: Int32(year), month: UInt8(month), day: UInt8(day))
     }
 }
 
