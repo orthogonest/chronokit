@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension Instant {
-    @inlinable
     func rfc3339(digits: Int = 0) -> String {
         let capacity = 32
         let utc = plainDateTimeUTC
@@ -34,7 +33,6 @@ public extension Instant {
         }
     }
 
-    @inlinable
     func rfc5322() -> String? {
         let capacity = 40
         let utc = plainDateTimeUTC
@@ -85,7 +83,6 @@ public extension Instant {
 }
 
 extension Instant {
-    @usableFromInline
     func formatRFC3339(
         utc: PlainDateTime,
         digits: Int,
@@ -100,7 +97,6 @@ extension Instant {
         )
     }
 
-    @usableFromInline
     func formatRFC5322(
         utc: PlainDateTime,
         weekday: Weekday?,

@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension PlainDate {
-    @inlinable
     func rfc3339() -> String {
         let capacity = 10
         if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
@@ -22,7 +21,6 @@ public extension PlainDate {
         }
     }
 
-    @inlinable
     func rfc5322() -> String? {
         let capacity = 20
 
@@ -60,7 +58,6 @@ public extension PlainDate {
 }
 
 extension PlainDate {
-    @usableFromInline
     func formatRFC3339(
         into raw: UnsafeMutableRawBufferPointer,
         at cursor: inout Int
@@ -68,7 +65,6 @@ extension PlainDate {
         raw.printDate(self, at: &cursor)
     }
 
-    @usableFromInline
     func formatRFC5322(
         weekday: Weekday?,
         month: Month,

@@ -1,8 +1,7 @@
 import ChronoCore
 import ChronoMath
 
-public extension CalendarInterval {
-    @inlinable
+extension CalendarInterval {
     @discardableResult
     func parse(_ raw: UnsafeMutableRawBufferPointer, at cursor: inout Int) -> Int {
         let start = cursor
