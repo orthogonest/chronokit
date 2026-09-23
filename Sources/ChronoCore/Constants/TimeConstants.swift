@@ -23,6 +23,9 @@ package enum NanoSeconds {
     @usableFromInline package static let perMicroSecond64: Int64 = 1000
     @usableFromInline package static let perMicroSecond32: Int32 = 1000
     @usableFromInline package static let perMicroSecond: Int = 1000
+
+    @usableFromInline package static let perWindowsSecond64: Int64 = 10_000_000
+    @usableFromInline package static let perWindowsInterval64: Int64 = 100
 }
 
 @usableFromInline
@@ -62,4 +65,6 @@ package enum Seconds {
     @usableFromInline package static let perMinute64: Int64 = 60
     @usableFromInline package static let perMinute32: Int32 = 60
     @usableFromInline package static let perMinute: Int = 60
+
+    @usableFromInline package static let windowsToUnixEpoch64: Int64 = 11_644_473_600
 }

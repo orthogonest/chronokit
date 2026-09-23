@@ -6,8 +6,8 @@
     @preconcurrency import Glibc
 #elseif canImport(Musl)
     @preconcurrency import Musl
-#elseif canImport(WinSDK)
-    import WinSDK
+#elseif os(Windows)
+    @preconcurrency import ucrt
 #elseif os(WASI)
     @preconcurrency import WASILibc
 #elseif os(Emscripten)
@@ -31,10 +31,19 @@ extension FileMode {
         }
     }
 
-    var mode: mode_t {
-        switch self {
-        case .read: return 0
-        case .writeCreateTruncate: return 0o644
+    #if os(Windows)
+        var mode: mode_t {
+            switch self {
+            case .read: return 0
+            case .writeCreateTruncate: return 0x0100 | 0x0080
+            }
         }
-    }
+    #else
+        var mode: mode_t {
+            switch self {
+            case .read: return 0
+            case .writeCreateTruncate: return 0o644
+            }
+        }
+    #endif
 }
