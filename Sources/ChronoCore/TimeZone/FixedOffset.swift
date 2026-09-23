@@ -42,120 +42,100 @@ public struct FixedOffset: Equatable, Hashable, Sendable {
 }
 
 public extension FixedOffset {
-    @inlinable
     static var utc: Self {
         Self(seconds: 0)
     }
 
-    @inlinable
     static func eastUTC(_ seconds: Int) -> Self? {
         guard seconds >= 0 else { return nil }
         return Self(seconds: seconds)
     }
 
-    @inlinable
     static func westUTC(_ seconds: Int) -> Self? {
         guard seconds >= 0 else { return nil }
         return Self(seconds: -seconds)
     }
 
-    @inlinable
     static func nanoseconds(_ value: Int) -> Self {
         let duration: Duration = .nanoseconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func nanoseconds(_ value: Int64) -> Self {
         let duration: Duration = .nanoseconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func microseconds(_ value: Int) -> Self {
         let duration: Duration = .microseconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func microseconds(_ value: Int64) -> Self {
         let duration: Duration = .microseconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func milliseconds(_ value: Int) -> Self {
         let duration: Duration = .milliseconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func milliseconds(_ value: Int64) -> Self {
         let duration: Duration = .milliseconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func seconds(_ value: Int) -> Self {
         let duration: Duration = .seconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func seconds(_ value: Int64) -> Self {
         let duration: Duration = .seconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func seconds(_ value: Double) -> Self {
         let duration: Duration = .seconds(value)
         return Self(duration)
     }
 
-    @inlinable
     static func minutes(_ value: Int) -> Self {
         let duration: Duration = .minutes(value)
         return Self(duration)
     }
 
-    @inlinable
     static func minutes(_ value: Int64) -> Self {
         let duration: Duration = .minutes(value)
         return Self(duration)
     }
 
-    @inlinable
     static func hours(_ value: Int) -> Self {
         let duration: Duration = .hours(value)
         return Self(duration)
     }
 
-    @inlinable
     static func hours(_ value: Int64) -> Self {
         let duration: Duration = .hours(value)
         return Self(duration)
     }
 
-    @inlinable
     static func days(_ value: Int) -> Self {
         let duration: Duration = .days(value)
         return Self(duration)
     }
 
-    @inlinable
     static func days(_ value: Int64) -> Self {
         let duration: Duration = .days(value)
         return Self(duration)
     }
 
-    @inlinable
     static func weeks(_ value: Int) -> Self {
         let duration: Duration = .weeks(value)
         return Self(duration)
     }
 
-    @inlinable
     static func weeks(_ value: Int64) -> Self {
         let duration: Duration = .weeks(value)
         return Self(duration)

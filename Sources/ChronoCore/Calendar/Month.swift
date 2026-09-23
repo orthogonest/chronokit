@@ -34,7 +34,7 @@ public extension Month {
     @inlinable
     func prev() -> Month {
         let currentIndex = rawValue - 1
-        let nextIndex = (currentIndex + 11) % 12
-        return Self._cachedAllCases[nextIndex]
+        let prevIndex = (currentIndex + 11) % 12
+        return Self._cachedAllCases[prevIndex]
     }
 }
