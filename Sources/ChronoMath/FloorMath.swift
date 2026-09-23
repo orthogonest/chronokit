@@ -1,5 +1,5 @@
-@inline(__always)
 @usableFromInline
+@inline(__always)
 package func floorDiv(_ numerator: Int64, _ denominator: Int64) -> Int64 {
     precondition(denominator != 0, "floorDiv: denominator must not be zero")
 
@@ -13,8 +13,8 @@ package func floorDiv(_ numerator: Int64, _ denominator: Int64) -> Int64 {
     return needAdjustment ? (truncatedQuotient - 1) : truncatedQuotient
 }
 
-@inline(__always)
 @usableFromInline
+@inline(__always)
 package func floorMod(_ numerator: Int64, _ denominator: Int64) -> Int64 {
     precondition(denominator != 0, "floorMod: denominator must not be zero")
 
