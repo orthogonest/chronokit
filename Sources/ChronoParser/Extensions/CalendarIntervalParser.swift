@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 extension CalendarInterval {
-    @usableFromInline
     static func parse(from buffer: UnsafeRawBufferPointer) -> ParsedInterval? {
         guard !buffer.isEmpty else { return nil }
 
@@ -94,7 +93,6 @@ extension CalendarInterval {
 }
 
 extension CalendarInterval {
-    @usableFromInline
     init?(from parts: ParsedInterval) {
         guard
             parts.month >= Int32.min, parts.month <= Int32.max,
@@ -110,13 +108,11 @@ extension CalendarInterval {
 }
 
 public extension CalendarInterval {
-    @inlinable
     init?(from buffer: UnsafeRawBufferPointer) {
         guard let parts = Self.parse(from: buffer) else { return nil }
         self.init(from: parts)
     }
 
-    @inlinable
     init?(_ string: String) {
         let parts = string.utf8.withContiguousStorageIfAvailable { buffer in
             Self.parse(from: UnsafeRawBufferPointer(buffer))

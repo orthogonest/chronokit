@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension PlainDate {
-    @inlinable
     init?(rfc3339 string: String) {
         var input = string
 
@@ -25,7 +24,6 @@ public extension PlainDate {
         )
     }
 
-    @inlinable
     init?(rfc5322 string: String) {
         var input = string
 
