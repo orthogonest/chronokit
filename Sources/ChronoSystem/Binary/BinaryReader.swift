@@ -1,86 +1,101 @@
+@usableFromInline
 package struct BinaryReader {
     private let ptr: UnsafeRawPointer
-    package var offset: Int = 0
-    package let capacity: Int
+    @usableFromInline package var offset: Int
+    @usableFromInline package let capacity: Int
 
+    @usableFromInline
     package init(
         ptr: UnsafeRawPointer,
         capacity: Int
     ) {
         self.ptr = ptr
+        offset = 0
         self.capacity = capacity
     }
 }
 
 package extension BinaryReader {
+    @usableFromInline
+    @inline(__always)
     var remainingBytes: Int {
         capacity - offset
     }
 
-    mutating func readBytes(count: Int) throws(BinaryError) -> [UInt8] {
-        guard offset + count <= capacity else { throw .prematureEOF }
-
+    @usableFromInline
+    @inline(__always)
+    mutating func readBytes(count: Int) throws(BinaryError) -> UnsafeBufferPointer<UInt8> {
+        guard remainingBytes >= count else { throw .prematureEOF }
         let start = ptr.advanced(by: offset).assumingMemoryBound(to: UInt8.self)
         let buffer = UnsafeBufferPointer(start: start, count: count)
-        let bytes = Array(buffer)
-
-        offset += count
-        return bytes
+        offset &+= count
+        return buffer
     }
 
+    @usableFromInline
+    @inline(__always)
     mutating func readByte() throws(BinaryError) -> UInt8 {
-        guard offset + 1 <= capacity else { throw .prematureEOF }
+        guard remainingBytes >= 1 else { throw .prematureEOF }
         let value = ptr.load(fromByteOffset: offset, as: UInt8.self)
-        offset += 1
+        offset &+= 1
         return value
     }
 
+    @usableFromInline
+    @inline(__always)
     mutating func read<T>(_: T.Type) throws(BinaryError) -> T {
         let size = MemoryLayout<T>.size
-        guard offset + size <= capacity else { throw .prematureEOF }
+        guard remainingBytes >= size else { throw .prematureEOF }
         let value = ptr.loadUnaligned(fromByteOffset: offset, as: T.self)
-        offset += size
+        offset &+= size
         return value
     }
 
+    @usableFromInline
+    @inline(__always)
     mutating func readBigEndian<T: FixedWidthInteger>(_: T.Type) throws(BinaryError) -> T {
         let value = try read(T.self)
         return T(bigEndian: value)
     }
 
+    @usableFromInline
+    @inline(__always)
     mutating func readString(length: Int) throws(BinaryError) -> String {
-        guard offset + length <= capacity else { throw .prematureEOF }
+        guard remainingBytes >= length else { throw .prematureEOF }
         let start = ptr.advanced(by: offset).assumingMemoryBound(to: UInt8.self)
         let buffer = UnsafeBufferPointer(start: start, count: length)
         let value = String(decoding: buffer, as: UTF8.self)
-        offset += length
+        offset &+= length
         return value
     }
 
+    @usableFromInline
+    @inline(__always)
     mutating func readString(length: UInt32) throws(BinaryError) -> String {
         try readString(length: Int(length))
     }
 
-    func peekBytes(count: Int) throws(BinaryError) -> [UInt8] {
-        guard offset + count <= capacity else { throw .prematureEOF }
+    @usableFromInline
+    @inline(__always)
+    func peekBytes(count: Int) throws(BinaryError) -> UnsafeBufferPointer<UInt8> {
+        guard remainingBytes >= count else { throw .prematureEOF }
         let start = ptr.advanced(by: offset).assumingMemoryBound(to: UInt8.self)
-        let buffer = UnsafeBufferPointer(start: start, count: count)
-        return Array(buffer)
+        return UnsafeBufferPointer(start: start, count: count)
     }
 
+    @usableFromInline
+    @inline(__always)
     mutating func skip(bytes: Int) throws(BinaryError) {
-        guard offset + bytes <= capacity else { throw .prematureEOF }
-        offset += bytes
+        guard remainingBytes >= bytes else { throw .prematureEOF }
+        offset &+= bytes
     }
 
-    mutating func skipUntil(
-        bytes: [UInt8]
-    ) throws(BinaryError) -> Bool {
+    mutating func skipUntil(bytes: [UInt8]) throws(BinaryError) -> Bool {
         let count = bytes.count
 
         while remainingBytes >= count {
             let next = try peekBytes(count: count)
-            if next == bytes {
+            if next.elementsEqual(bytes) {
                 return true
             }
             try skip(bytes: 1)

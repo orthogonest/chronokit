@@ -14,6 +14,16 @@ package struct TZDBHeader: Equatable, Hashable {
     }
 
     package init(
+        magic: UnsafeBufferPointer<UInt8>,
+        version: UInt32,
+        count: UInt32
+    ) {
+        self.magic = FixedMagic(buffer: magic)
+        self.version = version
+        self.count = count
+    }
+
+    package init(
         magic: [UInt8],
         version: UInt32,
         count: UInt32

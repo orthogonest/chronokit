@@ -14,6 +14,16 @@ package struct TZDBIndexEntry: Equatable, Hashable {
     }
 
     package init(
+        name: UnsafeBufferPointer<UInt8>,
+        offset: UInt32,
+        size: UInt32
+    ) {
+        self.name = FixedName(buffer: name)
+        self.offset = offset
+        self.size = size
+    }
+
+    package init(
         name: String,
         offset: UInt32,
         size: UInt32

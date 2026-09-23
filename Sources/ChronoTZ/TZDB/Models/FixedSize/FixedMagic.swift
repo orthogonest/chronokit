@@ -10,6 +10,19 @@ package struct FixedMagic {
     }
 
     package init(
+        buffer: UnsafeBufferPointer<UInt8>
+    ) {
+        var data = (UInt8(0), UInt8(0), UInt8(0), UInt8(0))
+
+        withUnsafeMutableBytes(of: &data) { ptr in
+            let count = min(buffer.count, Self.size)
+            ptr.copyBytes(from: buffer.prefix(count))
+        }
+
+        self.data = data
+    }
+
+    package init(
         bytes: [UInt8]
     ) {
         var data = (UInt8(0), UInt8(0), UInt8(0), UInt8(0))
