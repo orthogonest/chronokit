@@ -73,9 +73,10 @@ enum FixedWriter {
     ) {
         guard cursor + 5 < raw.count else { return }
 
-        let val = Int(value)
+        let val = Int64(value)
         let isNegative = val < 0
-        let absVal = abs(val)
+
+        let absVal = Int(val.magnitude)
         let hours = absVal / Seconds.perHour
         let minutes = (absVal % Seconds.perHour) / Seconds.perMinute
 
@@ -109,7 +110,7 @@ enum FixedWriter {
         to raw: UnsafeMutableRawBufferPointer,
         at cursor: inout Int
     ) {
-        var val = Int(value)
+        let val = Int64(value)
 
         if val == 0 {
             guard cursor < raw.count else { return }
@@ -119,10 +120,10 @@ enum FixedWriter {
         }
 
         let isNegative = val < 0
-        if isNegative { val = -val }
+        var remaining = UInt64(val.magnitude)
 
         // Find length of the number
-        var temp = val
+        var temp = remaining
         var digitLength = 0
         while temp > 0 {
             temp /= 10
@@ -134,7 +135,6 @@ enum FixedWriter {
 
         // Write digits backwards
         var writeIndex = cursor + totalLength - 1
-        var remaining = val
         while remaining > 0 {
             raw[writeIndex] = ASCII.zero + UInt8(remaining % 10)
             remaining /= 10

@@ -65,10 +65,12 @@ enum ChronoPrinter {
         to raw: UnsafeMutableRawBufferPointer,
         at cursor: inout Int
     ) {
-        let isNegative = value < 0
-        let absSeconds = abs(Int64(value))
-        let hours = absSeconds / Seconds.perHour64
-        let minutes = (absSeconds % Seconds.perHour64) / Seconds.perMinute64
+        let val = Int64(value)
+        let isNegative = val < 0
+
+        let absSeconds = val.magnitude
+        let hours = Int(absSeconds / Seconds.perHourU64)
+        let minutes = Int((absSeconds % Seconds.perHourU64) / Seconds.perMinuteU64)
 
         raw.writeByte(isNegative ? ASCII.dash : ASCII.plus, at: &cursor)
         raw.write2(hours, at: &cursor)

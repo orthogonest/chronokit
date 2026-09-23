@@ -52,11 +52,13 @@ package enum Seconds {
     @usableFromInline package static let perDay32: Int32 = 86400
     @usableFromInline package static let perDay: Int = 86400
 
+    @usableFromInline package static let perHourU64: UInt64 = 3600
     @usableFromInline package static let perHour64: Int64 = 3600
     @usableFromInline package static let perHour32: Int32 = 3600
     @usableFromInline package static let perHour: Int = 3600
     @usableFromInline package static let perHourDouble: Double = 3600.0
 
+    @usableFromInline package static let perMinuteU64: UInt64 = 60
     @usableFromInline package static let perMinute64: Int64 = 60
     @usableFromInline package static let perMinute32: Int32 = 60
     @usableFromInline package static let perMinute: Int = 60
