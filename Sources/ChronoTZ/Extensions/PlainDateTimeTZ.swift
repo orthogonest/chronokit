@@ -7,8 +7,8 @@ public extension PlainDateTime {
         resolving policy: DSTResolutionPolicy = .preferEarlier,
         provider: some TimeZoneProvider = IANAProvider.shared
     ) throws -> Instant {
-        let timezone = try provider.timeZone(named: name)
-        guard let instant = instant(in: timezone, resolving: policy) else {
+        let timeZone = try provider.timeZone(named: name)
+        guard let instant = instant(in: timeZone, resolving: policy) else {
             throw TimeZoneError.zoneNotFound(name)
         }
         return instant
