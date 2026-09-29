@@ -1,7 +1,8 @@
 @frozen
 package struct FixedName {
-    package static let size: Int = 64
+    @usableFromInline package static let size: Int = 64
 
+    @usableFromInline
     package let data: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
                        UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
                        UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
@@ -11,6 +12,8 @@ package struct FixedName {
                        UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
                        UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 
+    @usableFromInline
+    @inline(__always)
     package init() {
         data = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -18,6 +21,8 @@ package struct FixedName {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
     }
 
+    @usableFromInline
+    @inline(__always)
     package init(
         buffer: UnsafeBufferPointer<UInt8>
     ) {
@@ -38,6 +43,8 @@ package struct FixedName {
         self.data = data
     }
 
+    @usableFromInline
+    @inline(__always)
     package init(
         bytes: [UInt8]
     ) {
@@ -60,6 +67,8 @@ package struct FixedName {
 }
 
 extension FixedName: Equatable {
+    @usableFromInline
+    @inline(__always)
     package static func == (lhs: Self, rhs: Self) -> Bool {
         withUnsafeBytes(of: lhs.data) { lhsData in
             withUnsafeBytes(of: rhs.data) { rhsData in
@@ -70,6 +79,8 @@ extension FixedName: Equatable {
 }
 
 extension FixedName: Hashable {
+    @usableFromInline
+    @inline(__always)
     package func hash(into hasher: inout Hasher) {
         withUnsafeBytes(of: data) { buffer in
             hasher.combine(bytes: buffer)
