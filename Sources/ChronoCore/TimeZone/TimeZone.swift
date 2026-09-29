@@ -41,6 +41,7 @@ public enum DSTResolutionPolicy: Equatable, Hashable, Sendable {
 public enum PlainOffset: Equatable, Hashable, Sendable {
     case unique(PlainOffsetMetadata)
     case ambiguous(earlier: PlainOffsetMetadata, later: PlainOffsetMetadata)
+    case gap
     case invalid
 }
 
@@ -61,7 +62,7 @@ public extension PlainOffset {
                 nil
             }
 
-        case .invalid:
+        case .gap, .invalid:
             nil
         }
     }
