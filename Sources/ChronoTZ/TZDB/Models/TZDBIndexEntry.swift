@@ -1,8 +1,10 @@
 package struct TZDBIndexEntry: Equatable, Hashable {
-    package var name: FixedName
-    package var offset: UInt32
-    package var size: UInt32
+    @usableFromInline package var name: FixedName
+    @usableFromInline package var offset: UInt32
+    @usableFromInline package var size: UInt32
 
+    @usableFromInline
+    @inline(__always)
     package init(
         name: [UInt8],
         offset: UInt32,
@@ -13,6 +15,8 @@ package struct TZDBIndexEntry: Equatable, Hashable {
         self.size = size
     }
 
+    @usableFromInline
+    @inline(__always)
     package init(
         name: UnsafeBufferPointer<UInt8>,
         offset: UInt32,
@@ -23,6 +27,8 @@ package struct TZDBIndexEntry: Equatable, Hashable {
         self.size = size
     }
 
+    @usableFromInline
+    @inline(__always)
     package init(
         name: String,
         offset: UInt32,
@@ -35,8 +41,8 @@ package struct TZDBIndexEntry: Equatable, Hashable {
 }
 
 package extension TZDBIndexEntry {
-    static let nameSize: Int = FixedName.size
-    static let fixedSize: Int = nameSize + 4 + 4
+    @usableFromInline static let nameSize: Int = FixedName.size
+    @usableFromInline static let fixedSize: Int = nameSize + 4 + 4
 }
 
 extension TZDBIndexEntry {
