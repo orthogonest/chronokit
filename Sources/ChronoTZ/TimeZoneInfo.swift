@@ -114,7 +114,6 @@ public struct TimeZoneInfo: Equatable, Hashable, Sendable, TimeZoneProtocol {
 }
 
 extension TimeZone {
-    @usableFromInline
     static func tzif(_ timeZone: TimeZoneInfo) -> TimeZone {
         return TimeZone(timeZone)
     }

@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension PlainDateTime {
-    @inlinable
     func instant(
         in name: String,
         resolving policy: DSTResolutionPolicy = .preferEarlier,
@@ -15,7 +14,6 @@ public extension PlainDateTime {
         return instant
     }
 
-    @inlinable
     func zonedDateTime(
         timeZone name: String,
         provider: some TimeZoneProvider = IANAProvider.shared
