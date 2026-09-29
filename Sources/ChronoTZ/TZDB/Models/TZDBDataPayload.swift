@@ -1,13 +1,14 @@
 package struct TZDBDataPayload: Equatable, Hashable {
-    package let transitionCount: UInt32
-    package let typeCount: UInt32
-    package let transitions: [TZDBTransition]
-    package let types: [TZDBTypeDefinition]
-    package let posixRule: String?
-    package let compiledPosixRule: POSIXRule?
-    package let stdType: TZDBTypeDefinition?
-    package let dstType: TZDBTypeDefinition?
+    @usableFromInline package let transitionCount: UInt32
+    @usableFromInline package let typeCount: UInt32
+    @usableFromInline package let transitions: [TZDBTransition]
+    @usableFromInline package let types: [TZDBTypeDefinition]
+    @usableFromInline package let posixRule: String?
+    @usableFromInline package let compiledPosixRule: POSIXRule?
+    @usableFromInline package let stdType: TZDBTypeDefinition?
+    @usableFromInline package let dstType: TZDBTypeDefinition?
 
+    @usableFromInline
     package init(
         transitionCount: UInt32,
         typeCount: UInt32,
@@ -21,7 +22,7 @@ package struct TZDBDataPayload: Equatable, Hashable {
         self.types = types
         self.posixRule = posixRule
 
-        let rule = posixRule.flatMap { POSIXRule(rawValue: $0) }
+        let rule = posixRule.flatMap(POSIXRule.init(rawValue:))
         compiledPosixRule = rule
 
         if let rule {
@@ -36,8 +37,22 @@ package struct TZDBDataPayload: Equatable, Hashable {
 
 extension TZDBDataPayload {
     func resolve(at timestamp: Int64) -> ResolvedOffset {
-        // Resolve from transitions
-        if let lastTransition = transitions.last,
+        // Resolve transitions is empty
+        if transitions.isEmpty {
+            if let rule = compiledPosixRule,
+               let std = stdType,
+               let dst = dstType
+            {
+                return resolvePOSIXState(at: timestamp, rule: rule, std: std, dst: dst)
+            }
+
+            return types.first.map { .unique($0) } ?? .invalid
+        }
+
+        // Resolve within transitions range
+        if let firstTransition = transitions.first,
+           let lastTransition = transitions.last,
+           timestamp >= firstTransition.unixTime,
            timestamp <= lastTransition.unixTime,
            let index = findTransitionIndex(for: timestamp)
         {
@@ -45,37 +60,46 @@ extension TZDBDataPayload {
             return .unique(types[Int(typeIndex)])
         }
 
-        // Resolve from POSIX rule
-        if let rule = compiledPosixRule,
-           let std = stdType,
-           let dst = dstType
+        // Resolve after last transition (with POSIX rule)
+        if let lastTransition = transitions.last,
+           timestamp > lastTransition.unixTime
         {
-            let state = POSIXRuleResolver.resolveState(at: timestamp, rule: rule)
-
-            switch state {
-            case .ambiguous:
-                return .ambiguous(earlier: dst, later: std)
-
-            case .gap:
-                return .gap
-
-            case .standard:
-                return .unique(std)
-
-            case .dst:
-                return .unique(dst)
+            if let rule = compiledPosixRule,
+               let std = stdType,
+               let dst = dstType
+            {
+                return resolvePOSIXState(at: timestamp, rule: rule, std: std, dst: dst)
             }
+
+            let idx = Int(lastTransition.typeIndex)
+            if idx < types.count {
+                return .unique(types[idx])
+            }
+
+            return types.last.map { .unique($0) } ?? .invalid
         }
 
-        if let lastIndex = transitions.last?.typeIndex {
-            return .unique(types[Int(lastIndex)])
-        }
+        // Resolve before first transition range
+        return types.first.map { .unique($0) } ?? .invalid
+    }
 
-        if let firstType = types.first {
-            return .unique(firstType)
+    private func resolvePOSIXState(
+        at timestamp: Int64,
+        rule: POSIXRule,
+        std: TZDBTypeDefinition,
+        dst: TZDBTypeDefinition
+    ) -> ResolvedOffset {
+        let state = POSIXRuleResolver.resolveState(at: timestamp, rule: rule)
+        switch state {
+        case .ambiguous:
+            return .ambiguous(earlier: dst, later: std)
+        case .gap:
+            return .gap
+        case .standard:
+            return .unique(std)
+        case .dst:
+            return .unique(dst)
         }
-
-        return .invalid
     }
 
     func findTransitionIndex(for timestamp: Int64) -> Int? {
@@ -84,7 +108,7 @@ extension TZDBDataPayload {
         var candidateIndex: Int?
 
         while low <= high {
-            let mid = low + (high - low) / 2
+            let mid = low &+ ((high &- low) &>> 1)
 
             if transitions[mid].unixTime <= timestamp {
                 candidateIndex = mid
@@ -99,14 +123,16 @@ extension TZDBDataPayload {
 }
 
 package struct TZDBTransition: Equatable, Hashable {
-    package let unixTime: Int64
-    package let typeIndex: UInt8
+    @usableFromInline package let unixTime: Int64
+    @usableFromInline package let typeIndex: UInt8
 
     /// RFC 8536 Section 3.2.: unixTime SHOULD be at lease -2^59
     ///
     /// -2**59 is the greatest negated power of 2 that predates the Big
     /// Bang, and avoiding earlier timestamps works around known TZif
     /// reader bugs relating to outlandishly negative timestamps
+    @usableFromInline
+    @inline(__always)
     package init(
         unixTime: Int64,
         typeIndex: UInt8
@@ -123,14 +149,16 @@ package struct TZDBTransition: Equatable, Hashable {
 }
 
 extension TZDBTransition {
-    static let size: Int = 8 + 1
+    @usableFromInline static let size: Int = 8 + 1
 }
 
 package struct TZDBTypeDefinition: Equatable, Hashable {
-    package let offset: Int32 // Second from UTC
-    package let isDST: UInt8 // Standard = 0; DST = 1
+    @usableFromInline package let offset: Int32 // Second from UTC
+    @usableFromInline package let isDST: UInt8 // Standard = 0; DST = 1
 
     /// RFC 8536 Section 3.2.: utoff MUST NOT be -2^31 (Int32.min) and SHOULD be in range [-89999, 93599]
+    @usableFromInline
+    @inline(__always)
     package init(
         offset: Int32,
         isDST: UInt8
@@ -149,7 +177,7 @@ package struct TZDBTypeDefinition: Equatable, Hashable {
 }
 
 extension TZDBTypeDefinition {
-    static let size: Int = 4 + 1
+    @usableFromInline static let size: Int = 4 + 1
 }
 
 package enum ResolvedOffset {
