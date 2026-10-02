@@ -1,3 +1,6 @@
 [submodule "Tools/tzdb"]
 	path = Tools/tzdb
 	url = git@github.com:eggert/tz.git
+[submodule "Tools/cldr"]
+	path = Tools/cldr
+	url = git@github.com:unicode-org/cldr-json.git
