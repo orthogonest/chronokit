@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-  A lightweight, high-performance, foundation-free, and zero-dependency date and time primitives library for Swift.
+  A lightweight, high-performance, foundation-free, and zero-dependency date and time library for Swift.
 </p>
 
 <br><br>
@@ -46,16 +46,16 @@ import ChronoFoundation
 import ChronoKit
 import Foundation
 
-// --- Outbound: ChronoKit -> Foundation ---
+// --- ChronoKit -> Foundation ---
 let plainDate = PlainDate(year: 2026, month: 9, day: 21)
 let nativeComponents = plainDate.foundation.components // Returns Foundation.DateComponents
 
 let chronoInstant = Instant(seconds: 1_790_000_000, nanoseconds: 0)
-let nativeDate = chronoInstant.foundation.date // Returns Foundation.Date (lossy conversion)
+let nativeDate = chronoInstant.foundation.date // Returns Foundation.Date
 
-// --- Inbound: Foundation -> ChronoKit ---
+// --- Foundation -> ChronoKit ---
 let systemDate = Foundation.Date()
-let instantFromApple = systemDate.chrono.instant // Returns ChronoCore.Instant
+let instantFromApple = systemDate.chrono.instant // Returns ChronoCore.Instant (lossy conversion)
 
 let systemZone = Foundation.TimeZone.current
 let chronoZone = systemZone.chrono.timeZone // Returns ChronoCore.TimeZone fully compliant
@@ -81,6 +81,21 @@ let chronoZone = systemZone.chrono.timeZone // Returns ChronoCore.TimeZone fully
 
 ChronoKit completely avoids `Foundation`'s heavy runtime overhead and transitive baggage by manipulating direct memory buffers for parsing, formatting, and resource handling.
 It is designed to be embedded in low-level systems, CLI tools, and performance-sensitive services.
+
+## Roadmap & Evolution
+
+The development milestone of ChronoKit follows a strict, sequential evolution path to systematically expand native localization, custom parsing flexibility,
+compile-time error hardening, validation coverage, and multi-calendar layout extensions.
+
+| Step  | Milestone                  | Scope Description                                                                                                            | Status      |
+| :---- | :------------------------- | :--------------------------------------------------------------------------------------------------------------------------- | :---------- |
+| **1** | **Locale Support**         | Introduce zero-dependency, packed binary Common Locale Data Repository (CLDR) tables for localized month and day naming.     | In Progress |
+| **2** | **Custom DateTime Format** | Expose a high-performance, non-allocating custom string parsing and formatting token pattern engine.                         | Planned     |
+| **3** | **Unify Error Type**       | Standardize compile-time static error patterns across core modules to eliminate dynamic existential boxing overhead.         | Planned     |
+| **4** | **Fuzz Test for Parser**   | Implement automated fuzzing suites via LibFuzzer to stress-test stream tokenizers against malformed binary injections.       | Planned     |
+| **5** | **Property-Based Tests**   | Deploy randomized invariant check suites to validate calendrical calculations and boundary stability over extended eras.     | Planned     |
+| **6** | **DocC Documentation**     | Generate fully comprehensive inline API reference documentation using native Swift DocC markup syntax.                       | Planned     |
+| **7** | **Other Calendar Support** | Expand the underlying infrastructure layout to support non-Gregorian operations (e.g., Islamic, Hebrew, Japanese calendars). | Planned     |
 
 ## Acknowledgments
 

@@ -1,5 +1,6 @@
+@usableFromInline
 @inline(__always)
-public func floorDiv(_ numerator: Int64, _ denominator: Int64) -> Int64 {
+package func floorDiv(_ numerator: Int64, _ denominator: Int64) -> Int64 {
     precondition(denominator != 0, "floorDiv: denominator must not be zero")
 
     let truncatedQuotient = numerator / denominator
@@ -12,8 +13,9 @@ public func floorDiv(_ numerator: Int64, _ denominator: Int64) -> Int64 {
     return needAdjustment ? (truncatedQuotient - 1) : truncatedQuotient
 }
 
+@usableFromInline
 @inline(__always)
-public func floorMod(_ numerator: Int64, _ denominator: Int64) -> Int64 {
+package func floorMod(_ numerator: Int64, _ denominator: Int64) -> Int64 {
     precondition(denominator != 0, "floorMod: denominator must not be zero")
 
     let rawRemainder = numerator % denominator

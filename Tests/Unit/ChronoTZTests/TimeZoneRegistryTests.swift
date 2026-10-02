@@ -23,8 +23,9 @@ struct TimeZoneRegistryTests {
         #expect(entry.nameString == targetName)
 
         // Test getPayload
-        let buffer = try registry.getPayload(for: entry)
-        let payloadString = String(decoding: buffer, as: UTF8.self)
+        let payloadString = try registry.getPayload(for: entry) { buffer in
+            String(decoding: buffer, as: UTF8.self)
+        }
         #expect(payloadString == payload)
     }
 }

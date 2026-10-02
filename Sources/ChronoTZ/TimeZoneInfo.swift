@@ -97,14 +97,26 @@ public struct TimeZoneInfo: Equatable, Hashable, Sendable, TimeZoneProtocol {
 
         switch candidates.count {
         case 0:
+            if let rule = payload.compiledPosixRule {
+                let probeUTC = plainSecs - Int64(rule.stdOffset)
+                let state = POSIXRuleResolver.resolveState(at: probeUTC, rule: rule)
+                if state == .gap { return .gap }
+            }
+
             return .invalid
+
         case 1:
             guard let candidate = candidates.first else { return .invalid }
             return .unique(candidate)
+
         default:
-            let sorted = Array(candidates)
-                .sorted { $0.duration < $1.duration }
-                .sorted { $0.isDST && !$1.isDST }
+            let sorted = Array(candidates).sorted { lhs, rhs in
+                if lhs.isDST != rhs.isDST {
+                    return lhs.isDST && !rhs.isDST
+                }
+                return lhs.duration > rhs.duration
+            }
+
             return .ambiguous(
                 earlier: sorted[0],
                 later: sorted[1]
@@ -114,7 +126,6 @@ public struct TimeZoneInfo: Equatable, Hashable, Sendable, TimeZoneProtocol {
 }
 
 extension TimeZone {
-    @usableFromInline
     static func tzif(_ timeZone: TimeZoneInfo) -> TimeZone {
         return TimeZone(timeZone)
     }

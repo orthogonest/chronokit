@@ -10,7 +10,6 @@ public struct PlainDateTime: Equatable, Hashable, Sendable {
         self.time = time
     }
 
-    @inlinable
     public init?(
         year: Int,
         month: Int,
@@ -52,7 +51,6 @@ public extension PlainDateTime {
 // MARK: - Arithmetic
 
 public extension PlainDateTime {
-    @inlinable
     func advanced(bySeconds seconds: Int64, nanoseconds: Int64 = 0) -> Self {
         let totalNanos = time.nanosecondsSinceMidnight + nanoseconds
 
@@ -94,7 +92,6 @@ public extension PlainDateTime {
         rhs.advanced(by: lhs)
     }
 
-    @inlinable
     static func + (lhs: Self, rhs: CalendarInterval) -> Self {
         let newDate = lhs.date + rhs
 
@@ -124,7 +121,6 @@ public extension PlainDateTime {
 // MARK: - Substraction
 
 public extension PlainDateTime {
-    @inlinable
     static func - (lhs: Self, rhs: Self) -> Duration {
         let dayDiff = lhs.date.daysSinceEpoch - rhs.date.daysSinceEpoch
         let nanoDiff = lhs.time.nanosecondsSinceMidnight - rhs.time.nanosecondsSinceMidnight
@@ -317,7 +313,6 @@ package extension PlainDateTime {
 // MARK: - Subsecond Rounding
 
 extension PlainDateTime: SubsecondRoundable {
-    @inlinable
     public func roundSubseconds(_ digits: Int) -> Self {
         if digits >= 9 { return self }
 
@@ -336,7 +331,6 @@ extension PlainDateTime: SubsecondRoundable {
         return Self.fromTimestampNanoseconds(rounded)
     }
 
-    @inlinable
     public func truncateSubseconds(_ digits: Int) -> Self {
         if digits >= 9 { return self }
 
@@ -357,7 +351,6 @@ extension PlainDateTime: SubsecondRoundable {
 extension PlainDateTime: DurationRoundable {
     public typealias RoundingError = TimeRoundingError
 
-    @inlinable
     public func round(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
@@ -375,7 +368,6 @@ extension PlainDateTime: DurationRoundable {
         return Self.fromTimestampNanoseconds(rounded)
     }
 
-    @inlinable
     public func truncate(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
@@ -389,7 +381,6 @@ extension PlainDateTime: DurationRoundable {
         return Self.fromTimestampNanoseconds(truncated)
     }
 
-    @inlinable
     public func roundUp(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
@@ -412,25 +403,22 @@ public extension PlainDateTime {
         instant(offset: .utc)
     }
 
-    @inlinable
     func instant(
         in timeZone: some TimeZoneProtocol,
         resolving policy: DSTResolutionPolicy = .preferEarlier
     ) -> Instant? {
-        guard let offset = timeZone
-            .offset(for: self)
-            .resolve(using: policy)
-        else { return nil }
+        guard let offset = timeZone.offset(for: self).resolve(using: policy) else { return nil }
 
         let daysInSecs = date.daysSinceEpoch * Seconds.perDay64
 
-        let rawSecs = daysInSecs.subtractingReportingOverflow(offset.duration.seconds).partialValue
+        let (rawSecs, overflow) = daysInSecs.subtractingReportingOverflow(offset.duration.seconds)
+        if overflow { return nil }
+
         let rawNanos = time.nanosecondsSinceMidnight - Int64(offset.duration.nanoseconds)
 
         return Instant(seconds: rawSecs, nanoseconds: rawNanos)
     }
 
-    @inlinable
     func instant(offset: FixedOffset) -> Instant {
         let daysInSecs = date.daysSinceEpoch * Seconds.perDay64
 
@@ -449,13 +437,11 @@ public extension PlainDateTime {
         instantUTC.zonedDateTimeUTC
     }
 
-    @inlinable
     func zonedDateTime(timeZone: TimeZone) -> ZonedDateTime? {
         guard let instant = instant(in: timeZone) else { return nil }
         return instant.zonedDateTime(in: timeZone)
     }
 
-    @inlinable
     func zonedDateTime(offset: FixedOffset) -> ZonedDateTime {
         let timeZone = TimeZone(offset)
         return instant(offset: offset).zonedDateTime(in: timeZone)

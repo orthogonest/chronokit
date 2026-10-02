@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension ZonedDateTime {
-    @inlinable
     init?(rfc3339 string: String) {
         let parsed: (date: ParsedDate, time: ParsedTime, offset: Int)? = Instant.parsedRFC3339(string)
 
@@ -20,7 +19,6 @@ public extension ZonedDateTime {
         )
     }
 
-    @inlinable
     init?(rfc5322 string: String) {
         let parsed: (date: ParsedDate, time: ParsedTime, offset: Int)? = Instant.parsedRFC5322(string)
 

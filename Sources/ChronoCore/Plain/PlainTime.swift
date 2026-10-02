@@ -1,13 +1,7 @@
 import ChronoMath
 
 public struct PlainTime: Equatable, Hashable, Sendable {
-    @usableFromInline
-    package let nanosecondsSinceMidnight: Int64
-
-    public let hour: Int
-    public let minute: Int
-    public let second: Int
-    public let nanosecond: Int
+    @usableFromInline package let nanosecondsSinceMidnight: Int64
 
     @inlinable
     public init(nanosecondsSinceMidnight: Int64) {
@@ -15,22 +9,7 @@ public struct PlainTime: Equatable, Hashable, Sendable {
             nanosecondsSinceMidnight >= 0 && nanosecondsSinceMidnight < NanoSeconds.perDay64,
             "Time out of bounds"
         )
-
         self.nanosecondsSinceMidnight = nanosecondsSinceMidnight
-
-        let hour = nanosecondsSinceMidnight / NanoSeconds.perHour64
-        let remAfterHours = nanosecondsSinceMidnight % NanoSeconds.perHour64
-
-        let minute = remAfterHours / NanoSeconds.perMinute64
-        let remAfterMinutes = remAfterHours % NanoSeconds.perMinute64
-
-        let second = remAfterMinutes / NanoSeconds.perSecond64
-        let nanosecond = remAfterMinutes % NanoSeconds.perSecond64
-
-        self.hour = Int(hour)
-        self.minute = Int(minute)
-        self.second = Int(second)
-        self.nanosecond = Int(nanosecond)
     }
 
     @inlinable
@@ -40,11 +19,6 @@ public struct PlainTime: Equatable, Hashable, Sendable {
               second >= 0, second < 60,
               nanosecond >= 0, nanosecond < NanoSeconds.perSecond64
         else { return nil }
-
-        self.hour = hour
-        self.minute = minute
-        self.second = second
-        self.nanosecond = nanosecond
 
         nanosecondsSinceMidnight = Int64(hour) * NanoSeconds.perHour64
             + Int64(minute) * NanoSeconds.perMinute64
@@ -130,31 +104,60 @@ public extension PlainTime {
 // MARK: - Time Protocol
 
 extension PlainTime: TimeProtocol {
+    @inlinable public var hour: Int {
+        Int(nanosecondsSinceMidnight / NanoSeconds.perHour64)
+    }
+
+    @inlinable public var minute: Int {
+        Int((nanosecondsSinceMidnight % NanoSeconds.perHour64) / NanoSeconds.perMinute64)
+    }
+
+    @inlinable public var second: Int {
+        Int((nanosecondsSinceMidnight % NanoSeconds.perMinute64) / NanoSeconds.perSecond64)
+    }
+
+    @inlinable public var nanosecond: Int {
+        Int(nanosecondsSinceMidnight % NanoSeconds.perSecond64)
+    }
+
     @inlinable
     public func with(hour: Int) -> Self? {
-        Self(hour: hour, minute: minute, second: second, nanosecond: nanosecond)
+        guard hour >= 0, hour < 24 else { return nil }
+        let remainder = nanosecondsSinceMidnight % NanoSeconds.perHour64
+        let newNanos = (Int64(hour) * NanoSeconds.perHour64) + remainder
+        return Self(nanosecondsSinceMidnight: newNanos)
     }
 
     @inlinable
     public func with(minute: Int) -> Self? {
-        Self(hour: hour, minute: minute, second: second, nanosecond: nanosecond)
+        guard minute >= 0, minute < 60 else { return nil }
+        let currentHour = (nanosecondsSinceMidnight / NanoSeconds.perHour64) * NanoSeconds.perHour64
+        let currentSecondAndNano = nanosecondsSinceMidnight % NanoSeconds.perMinute64
+        let newNanos = currentHour + (Int64(minute) * NanoSeconds.perMinute64) + currentSecondAndNano
+        return Self(nanosecondsSinceMidnight: newNanos)
     }
 
     @inlinable
     public func with(second: Int) -> Self? {
-        Self(hour: hour, minute: minute, second: second, nanosecond: nanosecond)
+        guard second >= 0, second < 60 else { return nil }
+        let currentMinute = (nanosecondsSinceMidnight / NanoSeconds.perMinute64) * NanoSeconds.perMinute64
+        let currentNano = nanosecondsSinceMidnight / NanoSeconds.perSecond64
+        let newNanos = currentMinute + (Int64(second) * NanoSeconds.perSecond64) + currentNano
+        return Self(nanosecondsSinceMidnight: newNanos)
     }
 
     @inlinable
     public func with(nanosecond: Int) -> Self? {
-        Self(hour: hour, minute: minute, second: second, nanosecond: nanosecond)
+        guard nanosecond >= 0, nanosecond < NanoSeconds.perSecond64 else { return nil }
+        let currentSecond = (nanosecondsSinceMidnight / NanoSeconds.perSecond64) * NanoSeconds.perSecond64
+        let newNanos = currentSecond + Int64(nanosecond)
+        return Self(nanosecondsSinceMidnight: newNanos)
     }
 }
 
 // MARK: - Subsecond Rounding
 
 extension PlainTime: SubsecondRoundable {
-    @inlinable
     public func roundSubseconds(_ digits: Int) -> PlainTime {
         if digits >= 9 { return self }
 
@@ -175,7 +178,6 @@ extension PlainTime: SubsecondRoundable {
         return Self(nanosecondsSinceMidnight: finalNanos)
     }
 
-    @inlinable
     public func truncateSubseconds(_ digits: Int) -> Self {
         if digits >= 9 { return self }
 

@@ -46,9 +46,8 @@ extension IANAProvider: TimeZoneProvider {
             throw TimeZoneError.zoneNotFound(name)
         }
 
-        let buffer = try registry.getPayload(for: entry)
-        guard let payload = try? TZDBCodec.decode(from: buffer) else {
-            throw TZDBError.corruptionError("Failed to decode: \(name)")
+        let payload = try registry.getPayload(for: entry) { buffer in
+            try TZDBCodec.decode(from: buffer)
         }
 
         return TimeZoneInfo(identifier: name, payload: payload)

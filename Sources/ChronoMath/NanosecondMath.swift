@@ -1,28 +1,6 @@
 @usableFromInline
 package enum NanosecondMath {
     @usableFromInline
-    static let powersOf10: [Int] = [
-        1,
-        10,
-        100,
-        1000,
-        10000,
-        100_000,
-        1_000_000,
-        10_000_000,
-        100_000_000,
-        1_000_000_000,
-    ]
-
-    @usableFromInline
-    package static func pow10(_ n: Int) -> Int {
-        guard n >= 0, n <= 9 else {
-            preconditionFailure("pow10 out of supported range (0-9)")
-        }
-        return powersOf10[n]
-    }
-
-    @usableFromInline
     package static func span(forDigits digits: Int) -> Int64 {
         switch digits {
         case 0: 1_000_000_000

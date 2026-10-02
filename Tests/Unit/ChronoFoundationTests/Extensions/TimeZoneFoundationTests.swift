@@ -53,7 +53,7 @@ extension TimeZoneFoundationTests {
         case let .unique(metadata):
             #expect(metadata.duration.seconds == -18000, "New York standard offset must be -5 hours")
             #expect(metadata.isDST == false, "December must be Standard Time, not DST")
-        case .ambiguous, .invalid:
+        case .ambiguous, .gap, .invalid:
             Issue.record("Expected a unique offset for a standard winter date")
         }
     }

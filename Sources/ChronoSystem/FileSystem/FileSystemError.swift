@@ -6,8 +6,8 @@
     @preconcurrency import Glibc
 #elseif canImport(Musl)
     @preconcurrency import Musl
-#elseif canImport(WinSDK)
-    import WinSDK
+#elseif os(Windows)
+    @preconcurrency import ucrt
 #elseif os(WASI)
     @preconcurrency import WASILibc
 #elseif os(Emscripten)
@@ -53,9 +53,19 @@ public extension FileSystemError {
     var message: String {
         func getErrnoMessage(_ code: Int32) -> String {
             var buffer = [Int8](repeating: 0, count: 256)
-            _ = strerror_r(code, &buffer, buffer.count)
-            let messageBytes = buffer.prefix { $0 != 0 }
-            return String(decoding: messageBytes.map(UInt8.init), as: UTF8.self)
+
+            #if os(Linux) && !canImport(Musl)
+                let resPtr = strerror_r(code, &buffer, buffer.count)
+                return String(cString: resPtr)
+            #elseif os(Windows)
+                _ = strerror_s(&buffer, buffer.count, code)
+                let messageBytes = buffer.prefix { $0 != 0 }
+                return String(decoding: messageBytes.map(UInt8.init), as: UTF8.self)
+            #else
+                _ = strerror_r(code, &buffer, buffer.count)
+                let messageBytes = buffer.prefix { $0 != 0 }
+                return String(decoding: messageBytes.map(UInt8.init), as: UTF8.self)
+            #endif
         }
 
         switch self {

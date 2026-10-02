@@ -6,7 +6,7 @@ struct SystemClockTests {
     @Test("SystemClockTests: Basic Functionality")
     func nowReturnsValidTime() {
         let clock = SystemClock.shared
-        let time = clock.now()
+        let time = clock.now
 
         // Sanity Check: Ensure the time is not in the past (e.g., before 2020)
         // 1.7B seconds is roughly the epoch for 2024
@@ -19,8 +19,8 @@ struct SystemClockTests {
     @Test("SystemClockTests: Monotonicity")
     func monotonicity() {
         let clock = SystemClock.shared
-        let t1 = clock.now()
-        let t2 = clock.now()
+        let t1 = clock.now
+        let t2 = clock.now
 
         // Time should never go backwards
         // (t2.seconds, t2.nanoseconds) must be >= (t1.seconds, t1.nanoseconds)

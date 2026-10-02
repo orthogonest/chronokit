@@ -2,13 +2,15 @@ import ChronoSystem
 
 package enum TZDBCodec {
     package static func encode(_ payload: TZDBDataPayload) throws -> [UInt8] {
-        let ruleBytes = Array(payload.posixRule?.utf8 ?? "".utf8)
+        let rule = payload.posixRule ?? ""
+        let ruleByteCount = rule.utf8.count
+
         // 8 (counts) + transitions + types + 4 (rule len) + rule bytes
         let size = 8
             + (payload.transitions.count * TZDBTransition.size)
             + (payload.types.count * TZDBTypeDefinition.size)
             + 4
-            + ruleBytes.count
+            + ruleByteCount
 
         var data = [UInt8](repeating: 0, count: size)
 
@@ -30,9 +32,9 @@ package enum TZDBCodec {
                 try writer.writeByte(type.isDST)
             }
 
-            try writer.writeBigEndian(UInt32(ruleBytes.count))
-            if !ruleBytes.isEmpty {
-                try writer.writeBytes(ruleBytes)
+            try writer.writeBigEndian(UInt32(ruleByteCount))
+            if ruleByteCount > 0 {
+                try writer.writeBytes(Array(rule.utf8))
             }
         }
 

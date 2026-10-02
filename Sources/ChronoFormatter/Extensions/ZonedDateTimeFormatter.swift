@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension ZonedDateTime {
-    @inlinable
     func rfc3339(digits: Int = 0) -> String {
         let capacity = 48
         let duration = timeZone.offset(for: instant)
@@ -34,7 +33,6 @@ public extension ZonedDateTime {
         }
     }
 
-    @inlinable
     func rfc5322() -> String? {
         let capacity = 48
 
@@ -85,7 +83,6 @@ public extension ZonedDateTime {
 }
 
 extension ZonedDateTime {
-    @usableFromInline
     func formatRFC3339(
         digits: Int,
         offset: Duration?,
@@ -100,7 +97,6 @@ extension ZonedDateTime {
         )
     }
 
-    @usableFromInline
     func formatRFC5322(
         weekday: Weekday?,
         month: Month,

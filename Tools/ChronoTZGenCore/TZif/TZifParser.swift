@@ -50,7 +50,7 @@ enum TZifParser {
             // +---------------+---------------+---------------+
 
             let magic = try reader.readBytes(count: 4)
-            if magic != tzifMagic { throw TZifError.invalidHeader }
+            if !magic.elementsEqual(tzifMagic) { throw TZifError.invalidHeader }
 
             try reader.skip(bytes: 1) // Version
             try reader.skip(bytes: 15) // Reserved
@@ -218,11 +218,9 @@ enum TZifParser {
             var posixRule: String?
             if reader.remainingBytes > 0 {
                 let remainingBytes = try reader.readBytes(count: reader.remainingBytes)
-
-                if let fullString = String(bytes: remainingBytes, encoding: .utf8) {
-                    let trimmed = fullString.trimmingCharacters(in: .whitespacesAndNewlines)
-                    posixRule = trimmed.isEmpty ? nil : trimmed
-                }
+                let fullString = String(decoding: remainingBytes, as: UTF8.self)
+                let trimmed = fullString.trimmingCharacters(in: .whitespacesAndNewlines)
+                posixRule = trimmed.isEmpty ? nil : trimmed
             }
 
             return TZDBDataPayload(

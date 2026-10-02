@@ -2,7 +2,6 @@ import ChronoCore
 import Foundation
 
 public extension Foundation.TimeZone {
-    @inlinable
     init?(chrono timeZone: ChronoCore.TimeZone) {
         let id = timeZone.identifier
 
@@ -17,14 +16,12 @@ public extension Foundation.TimeZone {
 }
 
 extension Foundation.TimeZone: ChronoCore.TimeZoneProtocol {
-    @inlinable
     public func offset(for instant: ChronoCore.Instant) -> ChronoCore.Duration {
         let date = instant.foundation.date
         let offsetSeconds = Int64(secondsFromGMT(for: date))
         return ChronoCore.Duration(seconds: offsetSeconds)
     }
 
-    @inlinable
     public func offset(for plain: ChronoCore.PlainDateTime) -> ChronoCore.PlainOffset {
         var components = plain.foundation.components
         components.timeZone = self
@@ -67,14 +64,12 @@ extension Foundation.TimeZone: ChronoCore.TimeZoneProtocol {
 }
 
 public extension FoundationInboundBridge where Base == ChronoCore.TimeZone {
-    @inlinable
     var timeZone: Foundation.TimeZone? {
         Foundation.TimeZone(chrono: base)
     }
 }
 
 public extension FoundationOutboundBridge where Base == Foundation.TimeZone {
-    @inlinable
     var timeZone: ChronoCore.TimeZone {
         ChronoCore.TimeZone(base)
     }

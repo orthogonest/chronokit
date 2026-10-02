@@ -225,7 +225,8 @@ extension ScannerTests {
 
 extension ScannerTests {
     @Test("ScannerTests: Weekday Names (Case Insensitive)", arguments: [
-        ("Mon", 1), ("tue", 2), ("WED", 3), ("SUN", 7),
+        ("sun", 0), ("Mon", 1), ("tUe", 2), ("weD", 3),
+        ("THu", 4), ("fRI", 5), ("SaT", 6), ("SUN", 0),
     ])
     func scanWeekdays(input: String, expected: Int) {
         var input = input

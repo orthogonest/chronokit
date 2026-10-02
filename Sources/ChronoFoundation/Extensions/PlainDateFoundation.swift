@@ -2,7 +2,6 @@ import ChronoCore
 import Foundation
 
 public extension ChronoCore.PlainDate {
-    @inlinable
     init?(foundation components: Foundation.DateComponents) {
         guard let year = components.year,
               let month = components.month,
@@ -12,7 +11,6 @@ public extension ChronoCore.PlainDate {
 }
 
 public extension Foundation.DateComponents {
-    @inlinable
     init(chrono date: ChronoCore.PlainDate) {
         var components = Self()
         components.year = date.year
@@ -23,14 +21,12 @@ public extension Foundation.DateComponents {
 }
 
 public extension FoundationInboundBridge where Base == ChronoCore.PlainDate {
-    @inlinable
     var components: Foundation.DateComponents {
         return Foundation.DateComponents(chrono: base)
     }
 }
 
 public extension FoundationOutboundBridge where Base == Foundation.DateComponents {
-    @inlinable
     var plainDate: ChronoCore.PlainDate? {
         return ChronoCore.PlainDate(foundation: base)
     }

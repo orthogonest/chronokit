@@ -6,8 +6,8 @@
     @preconcurrency import Glibc
 #elseif canImport(Musl)
     @preconcurrency import Musl
-#elseif canImport(WinSDK)
-    import WinSDK
+#elseif os(Windows)
+    @preconcurrency import ucrt
 #elseif os(WASI)
     @preconcurrency import WASILibc
 #elseif os(Emscripten)
@@ -17,6 +17,8 @@
 #endif
 
 package enum System {
+    @usableFromInline
+    @inline(__always)
     package static func terminate(_ code: Int32) -> Never {
         exit(code)
     }

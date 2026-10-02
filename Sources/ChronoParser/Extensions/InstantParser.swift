@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension Instant {
-    @inlinable
     init?(rfc3339 string: String) {
         let parsed: (date: ParsedDate, time: ParsedTime, offset: Int)? = Self.parsedRFC3339(string)
 
@@ -23,7 +22,6 @@ public extension Instant {
         self = plain.instant(offset: offset)
     }
 
-    @inlinable
     init?(rfc5322 string: String) {
         let parsed: (date: ParsedDate, time: ParsedTime, offset: Int)? = Self.parsedRFC5322(string)
 
@@ -58,7 +56,6 @@ public extension Instant {
 }
 
 extension Instant {
-    @inlinable
     static func parsedRFC3339(_ string: String) -> (date: ParsedDate, time: ParsedTime, offset: Int)? {
         var input = string
 
@@ -86,7 +83,6 @@ extension Instant {
         }
     }
 
-    @inlinable
     static func parsedRFC5322(_ string: String) -> (date: ParsedDate, time: ParsedTime, offset: Int)? {
         var input = string
 

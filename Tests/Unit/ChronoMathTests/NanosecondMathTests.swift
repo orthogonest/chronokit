@@ -1,24 +1,7 @@
 @testable import ChronoMath
 import Testing
 
-@Suite("Nanosecond Math Tests")
 struct NanosecondMathTests {
-    @Test("NanosecondMathTests: Calculates correct power of 10 for all valid digits", arguments: [
-        (0, 1),
-        (1, 10),
-        (2, 100),
-        (3, 1000),
-        (4, 10000),
-        (5, 100_000),
-        (6, 1_000_000),
-        (7, 10_000_000),
-        (8, 100_000_000),
-        (9, 1_000_000_000),
-    ])
-    func pow10Mapping(n: Int, expected: Int) {
-        #expect(NanosecondMath.pow10(n) == expected)
-    }
-
     @Test("NanosecondMathTests: Span for digits mapping", arguments: [
         (0, 1_000_000_000), // 0 digits = 1 second
         (3, 1_000_000), // 3 digits = 1 millisecond

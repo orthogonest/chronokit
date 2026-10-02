@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension PlainDateTime {
-    @inlinable
     func rfc3339(digits: Int = 0, offset: FixedOffset? = nil) -> String {
         let capacity = 48
         let duration = offset?.offset(for: self).resolve(using: .preferEarlier)?.duration
@@ -34,7 +33,6 @@ public extension PlainDateTime {
         }
     }
 
-    @inlinable
     func rfc5322(offset: FixedOffset? = nil) -> String? {
         let capacity = 32
         let duration = offset?.offset(for: self).resolve(using: .preferEarlier)?.duration
@@ -85,7 +83,6 @@ public extension PlainDateTime {
 }
 
 extension PlainDateTime {
-    @usableFromInline
     func formatRFC3339(
         digits: Int,
         offset: Duration?,
@@ -105,7 +102,6 @@ extension PlainDateTime {
         }
     }
 
-    @usableFromInline
     func formatRFC5322(
         weekday: Weekday?,
         month: Month,

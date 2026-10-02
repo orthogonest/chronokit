@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoSystem
 
 public extension ZonedDateTime {
-    @inlinable
     init(
         instant: Instant,
         timeZone name: String,
@@ -12,7 +11,6 @@ public extension ZonedDateTime {
         self.init(instant: instant, timeZone: .tzif(tz))
     }
 
-    @inlinable
     static func now(
         in name: String,
         provider: some TimeZoneProvider = IANAProvider.shared

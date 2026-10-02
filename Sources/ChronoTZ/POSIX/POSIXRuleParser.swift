@@ -165,18 +165,23 @@ enum POSIXRuleParser {
 
     private static func parseOffset(_ str: String) -> Int32 {
         let parts = str.split(separator: ":")
+        guard !parts.isEmpty else { return 0 }
 
-        var seconds: Int32 = 0
-        var multiplier: Int32 = Seconds.perHour32
+        var totalSeconds: Int32 = 0
 
-        for part in parts {
-            if let val = Int32(part) {
-                seconds += val * multiplier
-                multiplier /= Seconds.perMinute32
-            }
+        if let hours = Int32(parts[0]) {
+            totalSeconds += hours * Seconds.perHour32
         }
 
-        return seconds
+        if parts.count > 1, let minutes = Int32(parts[1]) {
+            totalSeconds += minutes * Seconds.perMinute32
+        }
+
+        if parts.count > 2, let seconds = Int32(parts[2]) {
+            totalSeconds += seconds
+        }
+
+        return totalSeconds
     }
 
     private static func parseTransition(_ str: String) -> POSIXRule.RuleTransition? {
@@ -185,11 +190,10 @@ enum POSIXRuleParser {
 
         let rulePart = timeParts[0]
 
-        let timeSeconds: Int32
-        if timeParts.count > 1 {
-            timeSeconds = parseOffset(String(timeParts[1]))
+        let timeSeconds: Int32 = if timeParts.count > 1 {
+            parseOffset(String(timeParts[1]))
         } else {
-            timeSeconds = 7200 // Default 2:00:00
+            7200 // Default 2:00:00
         }
 
         // Handle J format (Skip Feb 29)

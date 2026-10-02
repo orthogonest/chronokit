@@ -41,11 +41,12 @@ public enum DSTResolutionPolicy: Equatable, Hashable, Sendable {
 public enum PlainOffset: Equatable, Hashable, Sendable {
     case unique(PlainOffsetMetadata)
     case ambiguous(earlier: PlainOffsetMetadata, later: PlainOffsetMetadata)
+    case gap
     case invalid
 }
 
 public extension PlainOffset {
-    @inline(__always)
+    @inlinable
     func resolve(using policy: DSTResolutionPolicy) -> PlainOffsetMetadata? {
         switch self {
         case let .unique(offset):
@@ -61,19 +62,23 @@ public extension PlainOffset {
                 nil
             }
 
-        case .invalid:
+        case .gap, .invalid:
             nil
         }
     }
 }
 
-public enum TimeZoneSign: Character, Equatable, Hashable, Sendable {
-    case minus = "-"
-    case plus = "+"
+public enum TimeZoneSign: UInt8, Equatable, Hashable, Sendable {
+    case minus = 45
+    case plus = 43
 
-    @inlinable
+    public init?(char: Character) {
+        guard let char = char.utf8.first else { return nil }
+        self.init(rawValue: char)
+    }
+
     public init?(symbol: String) {
-        guard let char = symbol.first, symbol.count == 1 else { return nil }
+        guard symbol.count == 1, let char = symbol.utf8.first else { return nil }
         self.init(rawValue: char)
     }
 }
@@ -96,7 +101,6 @@ public final class TimeZone: Sendable, TimeZoneProtocol {
     @usableFromInline let offsetByInstant: @Sendable (Instant) -> Duration
     @usableFromInline let offsetByPlain: @Sendable (PlainDateTime) -> PlainOffset
 
-    @inlinable
     public init(
         identifier: String,
         offsetByInstant: @escaping @Sendable (Instant) -> Duration,
@@ -107,7 +111,6 @@ public final class TimeZone: Sendable, TimeZoneProtocol {
         self.offsetByPlain = offsetByPlain
     }
 
-    @inlinable
     public init(_ timeZone: some TimeZoneProtocol) {
         identifier = timeZone.identifier
         offsetByInstant = timeZone.offset(for:)

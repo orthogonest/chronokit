@@ -1,8 +1,10 @@
 package struct TZDBHeader: Equatable, Hashable {
-    package var magic: FixedMagic
-    package var version: UInt32
-    package var count: UInt32
+    @usableFromInline package var magic: FixedMagic
+    @usableFromInline package var version: UInt32
+    @usableFromInline package var count: UInt32
 
+    @usableFromInline
+    @inline(__always)
     package init(
         magic: FixedMagic,
         version: UInt32,
@@ -13,6 +15,20 @@ package struct TZDBHeader: Equatable, Hashable {
         self.count = count
     }
 
+    @usableFromInline
+    @inline(__always)
+    package init(
+        magic: UnsafeBufferPointer<UInt8>,
+        version: UInt32,
+        count: UInt32
+    ) {
+        self.magic = FixedMagic(buffer: magic)
+        self.version = version
+        self.count = count
+    }
+
+    @usableFromInline
+    @inline(__always)
     package init(
         magic: [UInt8],
         version: UInt32,
@@ -25,11 +41,13 @@ package struct TZDBHeader: Equatable, Hashable {
 }
 
 package extension TZDBHeader {
-    static let ianaMagicSize: Int = FixedMagic.size
-    static let ianaVersionSize: Int = 4
-    static let ianaCountSize: Int = 4
-    static let ianaSize: Int = ianaMagicSize + ianaVersionSize + ianaCountSize
+    @usableFromInline static let ianaMagicSize: Int = FixedMagic.size
+    @usableFromInline static let ianaVersionSize: Int = 4
+    @usableFromInline static let ianaCountSize: Int = 4
+    @usableFromInline static let ianaSize: Int = ianaMagicSize + ianaVersionSize + ianaCountSize
 
+    @usableFromInline
+    @inline(__always)
     static func iana(tableSize: Int) -> Self {
         Self(
             magic: .tzdb,

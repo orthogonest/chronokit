@@ -8,13 +8,8 @@ package enum AttoSeconds {
 @usableFromInline
 package enum NanoSeconds {
     @usableFromInline package static let perDay64: Int64 = 86_400_000_000_000
-    @usableFromInline package static let perDay: Int = 86_400_000_000_000
-
     @usableFromInline package static let perHour64: Int64 = 3_600_000_000_000
-    @usableFromInline package static let perHour: Int = 3_600_000_000_000
-
     @usableFromInline package static let perMinute64: Int64 = 60_000_000_000
-    @usableFromInline package static let perMinute: Int = 60_000_000_000
 
     @usableFromInline package static let perSecond64: Int64 = 1_000_000_000
     @usableFromInline package static let perSecond32: Int32 = 1_000_000_000
@@ -26,8 +21,11 @@ package enum NanoSeconds {
     @usableFromInline package static let perMilliSecond: Int = 1_000_000
 
     @usableFromInline package static let perMicroSecond64: Int64 = 1000
-    @usableFromInline package static let perMicroSecond32: Int64 = 1000
+    @usableFromInline package static let perMicroSecond32: Int32 = 1000
     @usableFromInline package static let perMicroSecond: Int = 1000
+
+    @usableFromInline package static let perWindowsSecond64: Int64 = 10_000_000
+    @usableFromInline package static let perWindowsInterval64: Int64 = 100
 }
 
 @usableFromInline
@@ -57,12 +55,16 @@ package enum Seconds {
     @usableFromInline package static let perDay32: Int32 = 86400
     @usableFromInline package static let perDay: Int = 86400
 
+    @usableFromInline package static let perHourU64: UInt64 = 3600
     @usableFromInline package static let perHour64: Int64 = 3600
     @usableFromInline package static let perHour32: Int32 = 3600
     @usableFromInline package static let perHour: Int = 3600
     @usableFromInline package static let perHourDouble: Double = 3600.0
 
+    @usableFromInline package static let perMinuteU64: UInt64 = 60
     @usableFromInline package static let perMinute64: Int64 = 60
     @usableFromInline package static let perMinute32: Int32 = 60
     @usableFromInline package static let perMinute: Int = 60
+
+    @usableFromInline package static let windowsToUnixEpoch64: Int64 = 11_644_473_600
 }

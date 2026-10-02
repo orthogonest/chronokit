@@ -53,20 +53,36 @@ extension TimeZoneRegistry {
         indexEntries = decodedEntries
     }
 
+    @usableFromInline
+    @inline(__always)
     func getEntry(named name: String) -> TZDBIndexEntry? {
         return indexEntries.first {
             $0.nameString == name
         }
     }
 
-    func getPayload(for entry: TZDBIndexEntry) throws -> [UInt8] {
+    @usableFromInline
+    @inline(__always)
+    func getPayload<Result>(
+        for entry: TZDBIndexEntry,
+        _ decode: (UnsafeRawBufferPointer) throws -> Result
+    ) throws -> Result {
         let offset = Int(entry.offset)
         let size = Int(entry.size)
 
-        guard offset + size <= buffer.count else {
+        guard size <= buffer.count - offset else {
             throw FileSystemError.outOfBounds
         }
 
-        return Array(buffer[offset ..< (offset + size)])
+        return try buffer.withUnsafeBytes { rawBuffer in
+            guard let baseAddress = rawBuffer.baseAddress else {
+                throw FileSystemError.outOfBounds
+            }
+
+            let start = baseAddress.advanced(by: offset)
+            let slice = UnsafeRawBufferPointer(start: start, count: size)
+
+            return try decode(slice)
+        }
     }
 }

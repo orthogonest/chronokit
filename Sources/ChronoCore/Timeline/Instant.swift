@@ -4,7 +4,6 @@ public struct Instant: Equatable, Hashable, Sendable {
     public let seconds: Int64
     public let nanoseconds: Int32
 
-    @inlinable
     public init(seconds: Int64, nanoseconds: Int64 = 0) {
         if nanoseconds >= 0, nanoseconds < NanoSeconds.perSecond64 {
             self.seconds = seconds
@@ -61,17 +60,17 @@ public extension Instant {
 
     @inlinable
     var timestampMilliseconds: Int64 {
-        seconds * MilliSeconds.perSecond64 + Int64(nanoseconds) / NanoSeconds.perMilliSecond64
+        seconds &* MilliSeconds.perSecond64 &+ Int64(nanoseconds) / NanoSeconds.perMilliSecond64
     }
 
     @inlinable
     var timestampMicroseconds: Int64 {
-        seconds * MicroSeconds.perSecond64 + Int64(nanoseconds) / NanoSeconds.perMicroSecond64
+        seconds &* MicroSeconds.perSecond64 &+ Int64(nanoseconds) / NanoSeconds.perMicroSecond64
     }
 
     @inlinable
     var timestampNanoseconds: Int64 {
-        seconds * NanoSeconds.perSecond64 + Int64(nanoseconds)
+        seconds &* NanoSeconds.perSecond64 &+ Int64(nanoseconds)
     }
 
     @inlinable
@@ -89,7 +88,6 @@ public extension Instant {
 // MARK: - Arithmetic
 
 public extension Instant {
-    @inlinable
     func advanced(bySeconds secs: Int64, nanoseconds nanos: Int64 = 0) -> Self {
         let targetSeconds = seconds.addingReportingOverflow(secs).partialValue
         let targetNanoseconds = Int64(nanoseconds).addingReportingOverflow(nanos).partialValue
@@ -131,7 +129,6 @@ public extension Instant {
 // MARK: - Substraction
 
 public extension Instant {
-    @inlinable
     static func - (lhs: Self, rhs: Self) -> Duration {
         let secDiff = lhs.seconds.subtractingReportingOverflow(rhs.seconds).partialValue
         let nanoDiff = Int64(lhs.nanoseconds) - Int64(rhs.nanoseconds)
@@ -155,7 +152,6 @@ public extension Instant {
 // MARK: - Subsecond Rounding
 
 extension Instant: SubsecondRoundable {
-    @inlinable
     public func roundSubseconds(_ digits: Int) -> Self {
         if digits >= 9 { return self }
 
@@ -174,7 +170,6 @@ extension Instant: SubsecondRoundable {
         }
     }
 
-    @inlinable
     public func truncateSubseconds(_ digits: Int) -> Self {
         if digits >= 9 { return self }
 
@@ -193,7 +188,6 @@ extension Instant: SubsecondRoundable {
 extension Instant: DurationRoundable {
     public typealias RoundingError = TimeRoundingError
 
-    @inlinable
     public func round(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
@@ -211,7 +205,6 @@ extension Instant: DurationRoundable {
         }
     }
 
-    @inlinable
     public func truncate(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
@@ -223,7 +216,6 @@ extension Instant: DurationRoundable {
         return advanced(bySeconds: 0, nanoseconds: -deltaDown)
     }
 
-    @inlinable
     public func roundUp(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         guard let span = quantum.timestampNanosecondsChecked else { throw .quantumExceedsLimit }
         guard span > 0 else { throw .invalidQuantum }
@@ -239,7 +231,6 @@ extension Instant: DurationRoundable {
 // MARK: - Plain Date Time Conversion
 
 public extension Instant {
-    @inlinable
     func plainDateTime(in timeZone: some TimeZoneProtocol) -> PlainDateTime {
         let offset = timeZone.offset(for: self)
 
@@ -262,7 +253,6 @@ public extension Instant {
         )
     }
 
-    @inlinable
     var plainDateTimeUTC: PlainDateTime {
         plainDateTime(in: FixedOffset.utc)
     }
@@ -271,12 +261,10 @@ public extension Instant {
 // MARK: - Zoned Date Time Conversion
 
 public extension Instant {
-    @inlinable
     func zonedDateTime(in timeZone: TimeZone) -> ZonedDateTime {
         ZonedDateTime(instant: self, timeZone: timeZone)
     }
 
-    @inlinable
     var zonedDateTimeUTC: ZonedDateTime {
         zonedDateTime(in: .utc)
     }

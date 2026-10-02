@@ -37,10 +37,10 @@ enum ChronoScanner {
         guard let day = raw.readVarInt(&cursor),
               (cursor - dayPos) <= 2 else { return nil }
 
-        scanFWS(from: raw, at: &cursor)
-        guard let month = scanMonth(from: raw, at: &cursor) else { return nil }
+        raw.scanFWS(at: &cursor)
+        guard let month = raw.scanMonth(at: &cursor) else { return nil }
 
-        scanFWS(from: raw, at: &cursor)
+        raw.scanFWS(at: &cursor)
         guard let year = raw.read4(&cursor) else { return nil }
 
         return ParsedDate(year: year, month: month, day: Int(day))
@@ -75,26 +75,26 @@ enum ChronoScanner {
 
         // Handle UTC 'Z' or 'z'
         if char == ASCII.charZ || char == ASCII.lowerZ {
-            cursor += 1
+            cursor &+= 1
             return 0
         }
 
-        if cursor + 1 < raw.count {
-            let pair = (UInt16(raw[cursor]) << 8) | UInt16(raw[cursor + 1])
+        if cursor &+ 1 < raw.count {
+            let pair = (UInt16(raw[cursor]) << 8) | UInt16(raw[cursor &+ 1])
             let lowerPair = pair | 0x2020
 
-            // Check for ut
+            // Check for "ut"
             if lowerPair == 0x7574 {
-                cursor += 2
+                cursor &+= 2
                 return 0
             }
 
-            // Check for gmt
+            // Check for "gmt"
             if lowerPair == 0x676D,
-               cursor + 2 < raw.count,
-               (raw[cursor + 2] | 0x20) == 0x74
+               cursor &+ 2 < raw.count,
+               (raw[cursor &+ 2] | 0x20) == 0x74
             {
-                cursor += 3
+                cursor &+= 3
                 return 0
             }
         }
@@ -103,7 +103,7 @@ enum ChronoScanner {
         let isNegative = char == ASCII.dash
         let isPositive = char == ASCII.plus
         guard isNegative || isPositive else { return nil }
-        cursor += 1
+        cursor &+= 1
 
         // Must have at least ±HH
         guard let hour = raw.read2(&cursor) else { return nil }
@@ -121,8 +121,8 @@ enum ChronoScanner {
             }
         }
 
-        let totalSeconds = hour * Seconds.perHour + minute * Seconds.perMinute
-        return isNegative ? -totalSeconds : totalSeconds
+        let totalSeconds = hour &* Seconds.perHour &+ minute &* Seconds.perMinute
+        return isNegative ? (0 &- totalSeconds) : totalSeconds
     }
 
     @usableFromInline
@@ -131,11 +131,11 @@ enum ChronoScanner {
         while cursor < raw.count {
             let char = raw[cursor]
             if char == ASCII.space || char == ASCII.tab {
-                cursor += 1
-            } else if char == ASCII.cr, cursor + 2 < raw.count, raw[cursor + 1] == ASCII.lf {
-                let next = raw[cursor + 2]
+                cursor &+= 1
+            } else if char == ASCII.cr, cursor &+ 2 < raw.count, raw[cursor &+ 1] == ASCII.lf {
+                let next = raw[cursor &+ 2]
                 if next == ASCII.space || next == ASCII.tab {
-                    cursor += 3
+                    cursor &+= 3
                 } else {
                     break
                 }
@@ -177,13 +177,13 @@ enum ChronoScanner {
         guard let triple = raw.pack3(&cursor) else { return nil }
 
         switch triple {
+        case 0x73756E: return 0 // 'sun'
         case 0x6D6F6E: return 1 // 'mon'
         case 0x747565: return 2 // 'tue'
         case 0x776564: return 3 // 'wed'
         case 0x746875: return 4 // 'thu'
         case 0x667269: return 5 // 'fri'
         case 0x736174: return 6 // 'sat'
-        case 0x73756E: return 7 // 'sun'
         default:
             cursor = start // Backtrack
             return nil

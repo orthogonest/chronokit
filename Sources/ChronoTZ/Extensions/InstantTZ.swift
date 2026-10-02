@@ -2,7 +2,6 @@ import ChronoCore
 import ChronoMath
 
 public extension Instant {
-    @inlinable
     func plainDateTime(
         in name: String,
         provider: some TimeZoneProvider = IANAProvider.shared
@@ -11,7 +10,6 @@ public extension Instant {
         return plainDateTime(in: timeZone)
     }
 
-    @inlinable
     func zonedDateTime(
         in name: String,
         provider: some TimeZoneProvider = IANAProvider.shared

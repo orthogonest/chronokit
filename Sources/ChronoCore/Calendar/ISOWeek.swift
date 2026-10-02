@@ -4,13 +4,11 @@ public struct ISOWeek: Equatable, Hashable, Sendable {
     public let year: Int64
     public let week: Int
 
-    @inline(__always)
     public init(year: Int64, week: Int) {
         self.year = year
         self.week = week
     }
 
-    @inline(__always)
     public init(year civilYear: Int64, month: UInt8, day: UInt8) {
         let days = daysFromCivil(year: civilYear, month: month, day: day)
 
@@ -33,7 +31,7 @@ public struct ISOWeek: Equatable, Hashable, Sendable {
 
         assert(
             week >= 1 && week <= Self.isoWeeksInYear(isoYear),
-            "Invalid ISO week computed",
+            "Invalid ISO week computed"
         )
 
         year = isoYear
@@ -52,14 +50,12 @@ extension ISOWeek: Comparable {
 }
 
 extension ISOWeek {
-    @inline(__always)
     private static func isoWeekday(from weekday: Int) -> Int {
         // Convert 0=Sunday ... 6=Saturday
         // To ISO: 1=Monday ... 7=Sunday
         weekday == 0 ? 7 : weekday
     }
 
-    @inline(__always)
     public static func isoWeeksInYear(_ year: Int64) -> Int {
         // Jan 1 decides
         let jan1 = daysFromCivil(year: year, month: 1, day: 1)

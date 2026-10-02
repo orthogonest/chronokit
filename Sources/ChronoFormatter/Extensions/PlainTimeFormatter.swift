@@ -1,7 +1,6 @@
 import ChronoCore
 
 public extension PlainTime {
-    @inlinable
     func rfc3339(digits: Int = 0) -> String {
         let capacity = 8 + (digits > 0 ? 1 + digits : 0)
         if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
@@ -21,7 +20,6 @@ public extension PlainTime {
         }
     }
 
-    @inlinable
     func rfc5322() -> String {
         let capacity = 8
         if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
@@ -55,7 +53,6 @@ public extension PlainTime {
 }
 
 extension PlainTime {
-    @usableFromInline
     func formatRFC3339(
         digits: Int,
         into raw: UnsafeMutableRawBufferPointer,
@@ -65,7 +62,6 @@ extension PlainTime {
         raw.printFraction(nanosecond, digits: digits, at: &cursor)
     }
 
-    @usableFromInline
     func formatRFC5322(
         into raw: UnsafeMutableRawBufferPointer,
         at cursor: inout Int

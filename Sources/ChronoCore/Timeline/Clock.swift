@@ -1,3 +1,3 @@
 public protocol Clock: Sendable {
-    func now() -> Instant
+    var now: Instant { get }
 }

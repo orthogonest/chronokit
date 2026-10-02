@@ -52,7 +52,7 @@ private extension POSIXRuleResolver {
         _ timestamp: Int64,
         transition: Int64
     ) -> Bool {
-        return timestamp >= transition && timestamp < (transition - Seconds.perHour64)
+        return timestamp >= transition && timestamp < (transition + Seconds.perHour64)
     }
 
     private static func isAmbiguousWindow(
@@ -75,27 +75,6 @@ private extension POSIXRuleResolver {
         }
     }
 
-    private static func isInDST(
-        at unixTimestamp: Int64,
-        rule: POSIXRule,
-        offset: Int64
-    ) -> Bool {
-        let instantDays = unixTimestamp / Seconds.perDay64
-        let (year, _, _) = civilDate(from: instantDays)
-
-        // Resolve the specific start/end timestamps for this year
-        let startEpoch = resolveTransition(rule.startRule, in: year, offset: offset)
-        let endEpoch = resolveTransition(rule.endRule, in: year, offset: offset)
-
-        // Compare (Standard Hemisphere logic vs Southern Hemisphere wrap-around)
-        if startEpoch < endEpoch {
-            return unixTimestamp >= startEpoch && unixTimestamp < endEpoch
-        } else {
-            return unixTimestamp >= startEpoch || unixTimestamp < endEpoch
-        }
-    }
-
-    @inline(__always)
     private static func resolveTransition(
         _ rule: POSIXRule.RuleTransition,
         in year: Int64,
