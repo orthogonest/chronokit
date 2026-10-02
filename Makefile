@@ -1,4 +1,4 @@
-.PHONY: help building cleaning build clean test test-dev td test-unit tu test-integration ti test-prop tp benchmark lint fmt ensure-placeholder compile-tz gen-tz update-tz clean-tz
+.PHONY: help building cleaning build clean test test-dev td test-unit tu test-integration ti test-prop tp benchmark lint fmt init-submodules pin-tags submodules ensure-placeholder compile-tz gen-tz update-tz clean-tz
 
 # --- Colors ---
 
@@ -14,7 +14,6 @@ RESET := \033[0m
 ## Display this help menu with descriptions of each command
 help:
 	@echo "$(YELLOW)ChronoKit Makefile Commands:$(RESET)"
-	@echo ""
 	@awk '/^[a-zA-Z\-_0-9\s]+:/ { \
 		helpMessage = match(lastLine, /^## (.*)/); \
 		if (helpMessage) { \
@@ -112,10 +111,35 @@ fmt:
 	@echo "$(YELLOW)>>> Running SwiftFormat for Code Style Check...$(RESET)"
 	@swiftformat --swift-version 6.2 .
 
+# --- Submodule ---
+
+TZDB_TAG = 2026e
+CLDR_TAG = 48.2.3
+
+TOOLS_DIR = ./Tools
+TZDB_DIR = $(TOOLS_DIR)/tzdb
+CLDR_DIR = $(TOOLS_DIR)/cldr
+
+## Init and download submodules if the directories are empty
+init-submodules:
+	@echo "Initialize git Submodules"
+	@git submodule update --init --recursive --depth 1
+
+## Fetch tags and pin submodules into release tag
+pin-tags:
+	@echo "Pin tzdb into tag $(TZDB_TAG)"
+	@cd $(TZDB_DIR) && git fetch --tags && git checkout -q tags/$(TZDB_TAG)
+	@echo "Pin cldr into tag $(CLDR_TAG)"
+	@cd $(CLDR_DIR) && git fetch --tags && git checkout -q tags/$(CLDR_TAG)
+
+## Prepare submodules directory
+submodules:
+	@echo "$(CYAN)>>> Setup Submodules...$(RESET)"
+	@$(MAKE) init-submodules
+	@$(MAKE) pin-tags
+
 # ---- TZ ----
 
-TZDB_DIR = ./Tools/tzdb
-ZIC = $(TZDB_DIR)/zic
 COMPILED_TZDB = .build/compiled_tzdb
 
 TZ_SOURCE_FILES = \
@@ -179,7 +203,7 @@ gen-tz:
 ## Pull latest database updates from IANA git submodule and recompile binary asset
 update-tz:
 	@echo "$(CYAN)>>> Fetching latest IANA data...$(RESET)"
-	@git submodule update --remote $(TZDB_DIR)
+	@$(MAKE) submodules
 	@$(MAKE) clean-tz
 	@$(MAKE) gen-tz FORMAT=bin
 	@echo "$(CYAN)>>> TZDB updated and recompiled.$(RESET)"
