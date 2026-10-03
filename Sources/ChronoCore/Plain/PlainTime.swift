@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct PlainTime: Equatable, Hashable, Sendable {
     @usableFromInline package let nanosecondsSinceMidnight: Int64
@@ -159,13 +159,17 @@ extension PlainTime: TimeProtocol {
 
 extension PlainTime: SubsecondRoundable {
     public func roundSubseconds(_ digits: Int) -> PlainTime {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         let nanos = nanosecondsSinceMidnight
 
         let deltaDown = floorMod(nanos, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -179,13 +183,17 @@ extension PlainTime: SubsecondRoundable {
     }
 
     public func truncateSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         let nanos = nanosecondsSinceMidnight
 
         let deltaDown = floorMod(nanos, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         return Self(nanosecondsSinceMidnight: nanos - deltaDown)
     }

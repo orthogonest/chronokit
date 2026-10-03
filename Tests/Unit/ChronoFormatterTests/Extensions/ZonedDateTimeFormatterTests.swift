@@ -1,6 +1,6 @@
-import ChronoCore
+@testable import ChronoCore
 @testable import ChronoFormatter
-import ChronoSystem
+@testable import ChronoSystem
 import Testing
 
 // MARK: - RFC 3339 Tests

@@ -1,6 +1,6 @@
-import ChronoCore
-import ChronoMath
-import ChronoTZ
+@testable import ChronoCalendar
+@testable import ChronoCore
+@testable import ChronoTZ
 import Testing
 
 struct PlainDateTimeTZIntegrationTests {

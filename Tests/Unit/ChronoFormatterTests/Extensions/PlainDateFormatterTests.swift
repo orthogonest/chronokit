@@ -1,4 +1,4 @@
-import ChronoCore
+@testable import ChronoCore
 @testable import ChronoFormatter
 import Testing
 
@@ -94,7 +94,7 @@ extension PlainDateFormatterTests {
 
     @Test("PlainDateFormatterTests: RFC 5322 weekday logic")
     func weekdayLogic_rfc5322() throws {
-        // Checking specific known days to ensure ChronoMath calculation is right
+        // Checking specific known days to ensure ChronoCalendar calculation is right
         let mon = try #require(PlainDate(year: 2025, month: 4, day: 14))
         #expect(mon.rfc5322()?.hasPrefix("Mon") == true)
 

@@ -1,5 +1,5 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
-import ChronoMath
 import Testing
 
 struct PlainDateTests {
@@ -51,13 +51,13 @@ struct PlainDateTests {
     func invalidYMDInitialization(year: Int32, month: UInt8, day: UInt8) {
         #expect(
             PlainDate(year: year, month: month, day: day) != nil,
-            "Dates should be valid",
+            "Dates should be valid"
         )
     }
 
     @Test("PlainDateTests: Component to daysSinceEpoch round-trip")
-    func roundTrip() {
-        let leapDay = PlainDate(year: 2024, month: 2, day: 29)!
+    func roundTrip() throws {
+        let leapDay = try #require(PlainDate(year: 2024, month: 2, day: 29))
         let roundTrip = PlainDate(daysSinceEpoch: leapDay.daysSinceEpoch)
         #expect(roundTrip == leapDay)
     }
@@ -99,9 +99,9 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Equality and reflexive properties")
-    func equality() {
-        let lhs = PlainDate(year: 2025, month: 5, day: 1)!
-        let rhs = PlainDate(year: 2025, month: 5, day: 1)!
+    func equality() throws {
+        let lhs = try #require(PlainDate(year: 2025, month: 5, day: 1))
+        let rhs = try #require(PlainDate(year: 2025, month: 5, day: 1))
 
         #expect(lhs == rhs)
         #expect(lhs <= rhs)
@@ -111,11 +111,11 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Sorting a collection of dates")
-    func sorting() {
-        let d1 = PlainDate(year: 1990, month: 1, day: 1)!
-        let d2 = PlainDate(year: 2000, month: 5, day: 10)!
-        let d3 = PlainDate(year: 2024, month: 2, day: 29)!
-        let d4 = PlainDate(year: 2024, month: 12, day: 31)!
+    func sorting() throws {
+        let d1 = try #require(PlainDate(year: 1990, month: 1, day: 1))
+        let d2 = try #require(PlainDate(year: 2000, month: 5, day: 10))
+        let d3 = try #require(PlainDate(year: 2024, month: 2, day: 29))
+        let d4 = try #require(PlainDate(year: 2024, month: 12, day: 31))
 
         let unsorted = [d3, d1, d4, d2]
         let sorted = unsorted.sorted()
@@ -124,29 +124,29 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Range and boundary check")
-    func ranges() {
-        let start = PlainDate(year: 2025, month: 1, day: 1)!
-        let mid = PlainDate(year: 2025, month: 5, day: 10)!
-        let end = PlainDate(year: 2025, month: 12, day: 31)!
+    func ranges() throws {
+        let start = try #require(PlainDate(year: 2025, month: 1, day: 1))
+        let mid = try #require(PlainDate(year: 2025, month: 5, day: 10))
+        let end = try #require(PlainDate(year: 2025, month: 12, day: 31))
 
         let yearRange = start ... end
 
         #expect(yearRange.contains(mid))
         #expect(yearRange.contains(start))
         #expect(yearRange.contains(end))
-        #expect(!yearRange.contains(PlainDate(year: 2024, month: 12, day: 31)!))
-        #expect(!yearRange.contains(PlainDate(year: 2026, month: 1, day: 1)!))
+        #expect(try !yearRange.contains(#require(PlainDate(year: 2024, month: 12, day: 31))))
+        #expect(try !yearRange.contains(#require(PlainDate(year: 2026, month: 1, day: 1))))
     }
 
     @Test("PlainDateTests: Extreme boundaries (Min/Max)")
-    func extremeBoundaries() {
+    func extremeBoundaries() throws {
         let minDate: PlainDate = .min
         let maxDate: PlainDate = .max
 
         #expect(minDate < maxDate)
         #expect(minDate != maxDate)
 
-        let middle = PlainDate(year: 2000, month: 1, day: 1)!
+        let middle = try #require(PlainDate(year: 2000, month: 1, day: 1))
         #expect(minDate < middle)
         #expect(maxDate > middle)
     }
@@ -156,8 +156,8 @@ extension PlainDateTests {
 
 extension PlainDateTests {
     @Test("PlainDateTests: Within the same month")
-    func standardAdvance() {
-        let base = PlainDate(year: 2025, month: 1, day: 1)!
+    func standardAdvance() throws {
+        let base = try #require(PlainDate(year: 2025, month: 1, day: 1))
         let result = base.advanced(byDays: 10)
 
         #expect(result.year == 2025)
@@ -166,8 +166,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Across month boundary")
-    func monthBoundary() {
-        let base = PlainDate(year: 2025, month: 1, day: 31)!
+    func monthBoundary() throws {
+        let base = try #require(PlainDate(year: 2025, month: 1, day: 31))
         let result = base.advanced(byDays: 1)
 
         #expect(result.year == 2025)
@@ -176,8 +176,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Across year boundary")
-    func yearBoundary() {
-        let base = PlainDate(year: 2025, month: 12, day: 31)!
+    func yearBoundary() throws {
+        let base = try #require(PlainDate(year: 2025, month: 12, day: 31))
         let result = base.advanced(byDays: 1)
 
         #expect(result.year == 2026)
@@ -186,9 +186,9 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Leap year Feb 28 to 29")
-    func leapYearAdvance() {
+    func leapYearAdvance() throws {
         // 2024 was a leap year
-        let base = PlainDate(year: 2024, month: 2, day: 28)!
+        let base = try #require(PlainDate(year: 2024, month: 2, day: 28))
         let result = base.advanced(byDays: 1)
 
         #expect(result.month == 2)
@@ -200,9 +200,9 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Common year Feb 28 to March 1")
-    func commonYearAdvance() {
+    func commonYearAdvance() throws {
         // 2025 is not a leap year
-        let base = PlainDate(year: 2025, month: 2, day: 28)!
+        let base = try #require(PlainDate(year: 2025, month: 2, day: 28))
         let result = base.advanced(byDays: 1)
 
         #expect(result.month == 3)
@@ -210,8 +210,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Negative days (Backward)")
-    func negativeAdvance() {
-        let base = PlainDate(year: 2025, month: 1, day: 1)!
+    func negativeAdvance() throws {
+        let base = try #require(PlainDate(year: 2025, month: 1, day: 1))
         let result = base.advanced(byDays: -1)
 
         #expect(result.year == 2024)
@@ -231,10 +231,10 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Chained mutations")
-    func chainedMutations() {
-        var dt = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 1)!,
-            time: PlainTime(hour: 0, minute: 0, second: 0)!,
+    func chainedMutations() throws {
+        var dt = try PlainDateTime(
+            date: #require(PlainDate(year: 2025, month: 1, day: 1)),
+            time: #require(PlainTime(hour: 0, minute: 0, second: 0))
         )
 
         dt += CalendarInterval.days(1)
@@ -251,8 +251,8 @@ extension PlainDateTests {
 
 extension PlainDateTests {
     @Test("PlainDateTests: Date + Int64")
-    func datePlusInt() {
-        let base = PlainDate(year: 2025, month: 1, day: 1)!
+    func datePlusInt() throws {
+        let base = try #require(PlainDate(year: 2025, month: 1, day: 1))
         let result = base + 31 // Move forward 31 days
 
         #expect(result.month == 2)
@@ -261,9 +261,9 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Int64 + Date (Commutative)")
-    func intPlusDate() {
+    func intPlusDate() throws {
         let days: Int64 = 7
-        let base = PlainDate(year: 2025, month: 12, day: 25)!
+        let base = try #require(PlainDate(year: 2025, month: 12, day: 25))
 
         // This tests the (Int64, Self) overload
         let result = days + base
@@ -274,8 +274,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Large additions")
-    func largeAddition() {
-        let base = PlainDate(year: 2024, month: 1, day: 1)!
+    func largeAddition() throws {
+        let base = try #require(PlainDate(year: 2024, month: 1, day: 1))
         let result = base + 366 // 2024 is a leap year
 
         #expect(result.year == 2025)
@@ -284,8 +284,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: In-place mutation")
-    func compoundAddition() {
-        var date = PlainDate(year: 2025, month: 5, day: 20)!
+    func compoundAddition() throws {
+        var date = try #require(PlainDate(year: 2025, month: 5, day: 20))
         date += 11 // Should move to May 31
 
         #expect(date.day == 31)
@@ -297,8 +297,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Multiple chain mutations")
-    func multipleMutations() {
-        var date = PlainDate(year: 2000, month: 1, day: 1)!
+    func multipleMutations() throws {
+        var date = try #require(PlainDate(year: 2000, month: 1, day: 1))
         let increments: Int64 = 366 // 2000 was a leap year
 
         date += increments
@@ -319,7 +319,7 @@ extension PlainDateTests {
         // Negative month: Jan - 1 month -> Dec previous year
         (y: 2025, m: 1, d: 1, addM: -1, addD: 0, expY: 2024, expM: 12, expD: 1),
         // Deep negative: Jan 2025 - 24 months -> Jan 2023
-        (y: 2025, m: 1, d: 1, addM: -24, addD: 0, expY: 2023, expM: 1, expD: 1)
+        (y: 2025, m: 1, d: 1, addM: -24, addD: 0, expY: 2023, expM: 1, expD: 1),
     ])
     // swiftlint:disable:next function_parameter_count
     func monthNormalization(
@@ -330,9 +330,9 @@ extension PlainDateTests {
         addD: Int32,
         expY: Int32,
         expM: Int,
-        expD: Int,
-    ) {
-        let date = PlainDate(year: y, month: m, day: d)!
+        expD: Int
+    ) throws {
+        let date = try #require(PlainDate(year: y, month: m, day: d))
         let interval = CalendarInterval(month: addM, day: addD)
         let result = date + interval
 
@@ -349,7 +349,7 @@ extension PlainDateTests {
         // Aug 31 - 1 month -> July 31 (No clamping needed)
         (y: 2025, m: 8, d: 31, addM: -1, expM: 7, expD: 31),
         // May 31 - 1 month -> April 30 (Clamping)
-        (y: 2025, m: 5, d: 31, addM: -1, expM: 4, expD: 30)
+        (y: 2025, m: 5, d: 31, addM: -1, expM: 4, expD: 30),
     ])
     // swiftlint:disable:next function_parameter_count
     func dayClamping(
@@ -358,9 +358,9 @@ extension PlainDateTests {
         d: Int,
         addM: Int32,
         expM: Int,
-        expD: Int,
-    ) {
-        let date = PlainDate(year: y, month: m, day: d)!
+        expD: Int
+    ) throws {
+        let date = try #require(PlainDate(year: y, month: m, day: d))
         let interval = CalendarInterval.months(addM)
         let result = date + interval
 
@@ -374,7 +374,7 @@ extension PlainDateTests {
         // Dec 31 + 1 day -> Jan 1 next year
         (y: 2025, m: 12, d: 31, addD: 1, expY: 2026, expM: 1, expD: 1),
         // Jan 1 + 40 days -> Feb 10
-        (y: 2025, m: 1, d: 1, addD: 40, expY: 2025, expM: 2, expD: 10)
+        (y: 2025, m: 1, d: 1, addD: 40, expY: 2025, expM: 2, expD: 10),
     ])
     // swiftlint:disable:next function_parameter_count
     func dayOverflow(
@@ -384,9 +384,9 @@ extension PlainDateTests {
         addD: Int32,
         expY: Int32,
         expM: Int,
-        expD: Int,
-    ) {
-        let date = PlainDate(year: y, month: m, day: d)!
+        expD: Int
+    ) throws {
+        let date = try #require(PlainDate(year: y, month: m, day: d))
         let interval = CalendarInterval.days(addD)
         let result = date + interval
 
@@ -396,12 +396,12 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Order of Operations (Months then Days)")
-    func orderOfOperations() {
+    func orderOfOperations() throws {
         // Start: Jan 30
         // If we add 1 Month then 1 Day:
         // 1. Jan 30 + 1 Month = Feb 28 (Clamped)
         // 2. Feb 28 + 1 Day = March 1
-        let date = PlainDate(year: 2025, month: 1, day: 30)!
+        let date = try #require(PlainDate(year: 2025, month: 1, day: 30))
         let interval = CalendarInterval(month: 1, day: 1)
 
         let result = date + interval
@@ -411,11 +411,11 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: In-place addition (+=) correctly updates state")
-    func inPlaceAddition() {
+    func inPlaceAddition() throws {
         // Start at 2025-01-31 23:00
-        var dt = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 31)!,
-            time: PlainTime(hour: 23, minute: 0, second: 0)!,
+        var dt = try PlainDateTime(
+            date: #require(PlainDate(year: 2025, month: 1, day: 31)),
+            time: #require(PlainTime(hour: 23, minute: 0, second: 0))
         )
 
         // Add 1 month and 2 hours
@@ -437,8 +437,8 @@ extension PlainDateTests {
 
 extension PlainDateTests {
     @Test("PlainDateTests: Subtract days within same month")
-    func subtractDays() {
-        let base = PlainDate(year: 2025, month: 1, day: 15)!
+    func subtractDays() throws {
+        let base = try #require(PlainDate(year: 2025, month: 1, day: 15))
         let result = base - 10
 
         #expect(result.day == 5)
@@ -446,8 +446,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Subtract across month and year boundaries")
-    func subtractAcrossBoundaries() {
-        let jan1 = PlainDate(year: 2025, month: 1, day: 1)!
+    func subtractAcrossBoundaries() throws {
+        let jan1 = try #require(PlainDate(year: 2025, month: 1, day: 1))
         let result = jan1 - 1 // Should be Dec 31, 2024
 
         #expect(result.year == 2024)
@@ -456,9 +456,9 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Distance between dates")
-    func dateDistance() {
-        let start = PlainDate(year: 2025, month: 1, day: 1)!
-        let end = PlainDate(year: 2025, month: 1, day: 11)!
+    func dateDistance() throws {
+        let start = try #require(PlainDate(year: 2025, month: 1, day: 1))
+        let end = try #require(PlainDate(year: 2025, month: 1, day: 11))
 
         let diff = end - start
         #expect(diff == 10)
@@ -468,17 +468,17 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Leap year distance")
-    func leapYearDistance() {
-        let feb28 = PlainDate(year: 2024, month: 2, day: 28)!
-        let march1 = PlainDate(year: 2024, month: 3, day: 1)!
+    func leapYearDistance() throws {
+        let feb28 = try #require(PlainDate(year: 2024, month: 2, day: 28))
+        let march1 = try #require(PlainDate(year: 2024, month: 3, day: 1))
 
         // 2024 is a leap year, so there is Feb 29 in between
         #expect(march1 - feb28 == 2)
     }
 
     @Test("PlainDateTests: Mutating subtraction")
-    func compoundSubtraction() {
-        var date = PlainDate(year: 2025, month: 2, day: 1)!
+    func compoundSubtraction() throws {
+        var date = try #require(PlainDate(year: 2025, month: 2, day: 1))
         date -= 1 // Move to Jan 31
 
         #expect(date.month == 1)
@@ -487,8 +487,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Large backward mutation")
-    func largeMutation() {
-        var date = PlainDate(year: 2024, month: 12, day: 31)!
+    func largeMutation() throws {
+        var date = try #require(PlainDate(year: 2024, month: 12, day: 31))
         date -= 366 // Move back one leap year's worth of days
 
         #expect(date.year == 2023)
@@ -497,11 +497,11 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: In-place subtraction (-=) correctly updates state")
-    func inPlaceSubtraction() {
+    func inPlaceSubtraction() throws {
         // Start at 2025-03-01 01:00
-        var dt = PlainDateTime(
-            date: PlainDate(year: 2025, month: 3, day: 1)!,
-            time: PlainTime(hour: 1, minute: 0, second: 0)!,
+        var dt = try PlainDateTime(
+            date: #require(PlainDate(year: 2025, month: 3, day: 1)),
+            time: #require(PlainTime(hour: 1, minute: 0, second: 0))
         )
 
         // Subtract 1 month and 2 hours
@@ -527,8 +527,8 @@ extension PlainDateTests {
         (-1, false, 2), // 2 BCE
         (-99, false, 100), // 100 BCE
     ])
-    func yearCE(inputYear: Int32, expectedIsCE: Bool, expectedYear: UInt32) {
-        let date = PlainDate(year: inputYear, month: 1, day: 1)!
+    func yearCE(inputYear: Int32, expectedIsCE: Bool, expectedYear: UInt32) throws {
+        let date = try #require(PlainDate(year: inputYear, month: 1, day: 1))
         #expect(date.yearCE.isCE == expectedIsCE)
         #expect(date.yearCE.year == expectedYear)
     }
@@ -537,10 +537,10 @@ extension PlainDateTests {
         (2024, true), // Normal leap
         (2000, true), // Century leap
         (2100, false), // Century non-leap
-        (2023, false) // Normal year
+        (2023, false), // Normal year
     ])
-    func leapYear(year: Int32, expected: Bool) {
-        let date = PlainDate(year: year, month: 1, day: 1)!
+    func leapYear(year: Int32, expected: Bool) throws {
+        let date = try #require(PlainDate(year: year, month: 1, day: 1))
         #expect(date.isLeapYear == expected)
     }
 }
@@ -554,8 +554,8 @@ extension PlainDateTests {
         (7, 3), (9, 3), // Q3
         (10, 4), (12, 4), // Q4
     ])
-    func quarters(month: Int, expectedQuarter: Int) {
-        let date = PlainDate(year: 2025, month: month, day: 1)!
+    func quarters(month: Int, expectedQuarter: Int) throws {
+        let date = try #require(PlainDate(year: 2025, month: month, day: 1))
         #expect(date.quarter == expectedQuarter)
     }
 }
@@ -577,8 +577,8 @@ extension PlainDateTests {
         (11, 11, 10),
         (12, 12, 11),
     ])
-    func months(inputMonth: Int, expected: Int, expectedZeroBased: Int) {
-        let date = PlainDate(year: 2025, month: inputMonth, day: 1)!
+    func months(inputMonth: Int, expected: Int, expectedZeroBased: Int) throws {
+        let date = try #require(PlainDate(year: 2025, month: inputMonth, day: 1))
         #expect(date.month == expected)
         #expect(date.month - 1 == expectedZeroBased)
     }
@@ -597,8 +597,8 @@ extension PlainDateTests {
         (11, Month.november),
         (12, Month.december),
     ])
-    func symbols(month: Int, symbol: Month) {
-        let date = PlainDate(year: 2025, month: month, day: 10)!
+    func symbols(month: Int, symbol: Month) throws {
+        let date = try #require(PlainDate(year: 2025, month: month, day: 10))
         #expect(date.monthSymbol == symbol)
     }
 }
@@ -607,19 +607,19 @@ extension PlainDateTests {
 
 extension PlainDateTests {
     @Test("PlainDateTests: Weekday Symbol Calculation", arguments: [1, 2, 3, 4, 5, 6, 7])
-    func weekdaySymbolCheck(day: Int) {
-        let date = PlainDate(year: 2023, month: 5, day: day)!
-        #expect(date.weekdaySymbol!.rawValue == date.weekday)
+    func weekdaySymbolCheck(day: Int) throws {
+        let date = try #require(PlainDate(year: 2023, month: 5, day: day))
+        #expect(date.weekdaySymbol?.rawValue == date.weekday)
     }
 
     @Test("PlainDateTests: ISO Week Consistency")
-    func isoWeekCheck() {
+    func isoWeekCheck() throws {
         // Thursday, Jan 1, 2026 is Week 1 of 2026
-        let date = PlainDate(year: 2026, month: 1, day: 1)!
+        let date = try #require(PlainDate(year: 2026, month: 1, day: 1))
         #expect(date.isoWeek.year == 2026)
 
         // Monday, Dec 29, 2025 is also Week 1 of 2026
-        let isoDate = PlainDate(year: 2025, month: 12, day: 29)!
+        let isoDate = try #require(PlainDate(year: 2025, month: 12, day: 29))
         #expect(isoDate.isoWeek.week == 1)
     }
 }
@@ -628,17 +628,17 @@ extension PlainDateTests {
 
 extension PlainDateTests {
     @Test("PlainDateTests: Day zero-based components")
-    func zeroBasedProperties() {
-        let date = PlainDate(year: 2025, month: 12, day: 25)!
+    func zeroBasedProperties() throws {
+        let date = try #require(PlainDate(year: 2025, month: 12, day: 25))
         #expect(date.monthZeroBased == 11)
     }
 
     @Test("PlainDateTests: Unix Epoch Alignment")
-    func unixEpoch() {
-        let epoch = PlainDate(year: 1970, month: 1, day: 1)!
+    func unixEpoch() throws {
+        let epoch = try #require(PlainDate(year: 1970, month: 1, day: 1))
         #expect(epoch.daysSinceEpoch == 0)
 
-        let beforeEpoch = PlainDate(year: 1969, month: 12, day: 31)!
+        let beforeEpoch = try #require(PlainDate(year: 1969, month: 12, day: 31))
         #expect(beforeEpoch.daysSinceEpoch == -1)
     }
 
@@ -646,10 +646,10 @@ extension PlainDateTests {
         (2024, 2, 29), // Leap Feb
         (2025, 2, 28), // Standard Feb
         (2025, 4, 30), // April
-        (2025, 1, 31) // January
+        (2025, 1, 31), // January
     ])
-    func daysInMonth(year: Int, month: Int, expectedDays: Int) {
-        let date = PlainDate(year: year, month: month, day: 1)!
+    func daysInMonth(year: Int, month: Int, expectedDays: Int) throws {
+        let date = try #require(PlainDate(year: year, month: month, day: 1))
         #expect(date.daysInMonth == expectedDays)
     }
 }
@@ -658,20 +658,20 @@ extension PlainDateTests {
 
 extension PlainDateTests {
     @Test("PlainDateTests: Ordinal day calculation")
-    func ordinalDayCalculation() {
-        let jan1 = PlainDate(year: 2025, month: 1, day: 1)!
+    func ordinalDayCalculation() throws {
+        let jan1 = try #require(PlainDate(year: 2025, month: 1, day: 1))
         #expect(jan1.ordinal == 1, "Jan 1 ordinal should be 1")
 
-        let feb1 = PlainDate(year: 2025, month: 2, day: 1)!
+        let feb1 = try #require(PlainDate(year: 2025, month: 2, day: 1))
         #expect(feb1.ordinal == 32, "Feb 1 ordinal should be 32")
 
-        let dec31 = PlainDate(year: 2024, month: 12, day: 31)!
+        let dec31 = try #require(PlainDate(year: 2024, month: 12, day: 31))
         #expect(dec31.ordinal == 366, "Dec 31 on leap year ordinal should be 366")
     }
 
     @Test("PlainDateTests: Ordinal day zero-based calculation")
-    func ordinalDayZeroBasedCalculation() {
-        let jan1 = PlainDate(year: 2025, month: 1, day: 1)!
+    func ordinalDayZeroBasedCalculation() throws {
+        let jan1 = try #require(PlainDate(year: 2025, month: 1, day: 1))
         #expect(jan1.ordinal == 1)
         #expect(jan1.ordinalZeroBased == 0)
     }
@@ -681,24 +681,24 @@ extension PlainDateTests {
 
 extension PlainDateTests {
     @Test("PlainDateTests: Modify components using 'with'")
-    func modificationWith() {
-        let base = PlainDate(year: 2023, month: 5, day: 1)!
+    func modificationWith() throws {
+        let base = try #require(PlainDate(year: 2023, month: 5, day: 1))
 
-        #expect(base.with(year: 2025)!.year == 2025)
-        #expect(base.with(month: 10)!.month == 10)
-        #expect(base.with(monthZeroBased: 11)!.month == 12)
-        #expect(base.with(monthSymbol: .january)!.month == 1)
-        #expect(base.with(day: 31)!.day == 31)
-        #expect(base.with(dayZeroBased: 10)!.day == 11)
+        #expect(base.with(year: 2025)?.year == 2025)
+        #expect(base.with(month: 10)?.month == 10)
+        #expect(base.with(monthZeroBased: 11)?.month == 12)
+        #expect(base.with(monthSymbol: .january)?.month == 1)
+        #expect(base.with(day: 31)?.day == 31)
+        #expect(base.with(dayZeroBased: 10)?.day == 11)
 
-        let leapDay = PlainDate(year: 2024, month: 2, day: 29)!
+        let leapDay = try #require(PlainDate(year: 2024, month: 2, day: 29))
         #expect(leapDay.with(year: 2025) == nil)
     }
 
     @Test("PlainDateTests: Ordinal modifications and leap years")
-    func ordinalModifications() {
-        let commonYear = PlainDate(year: 2023, month: 1, day: 1)!
-        let leapYear = PlainDate(year: 2024, month: 1, day: 1)!
+    func ordinalModifications() throws {
+        let commonYear = try #require(PlainDate(year: 2023, month: 1, day: 1))
+        let leapYear = try #require(PlainDate(year: 2024, month: 1, day: 1))
 
         // Day 60 in common year is March 1
         let mar1 = commonYear.with(ordinal: 60)
@@ -719,10 +719,10 @@ extension PlainDateTests {
         // Trying to set April 31
         (2025, 4, 31),
         // Invalid month indices
-        (2025, 13, 1)
+        (2025, 13, 1),
     ])
-    func invalidModifications(year: Int, month: Int, day: Int) {
-        let base = PlainDate(year: 2024, month: 1, day: 1)!
+    func invalidModifications(year: Int, month: Int, day: Int) throws {
+        let base = try #require(PlainDate(year: 2024, month: 1, day: 1))
 
         // We test multiple paths to these invalid states
         #expect(base.with(year: year)?.with(month: month)?.with(day: day) == nil)
@@ -733,9 +733,9 @@ extension PlainDateTests {
 
 extension PlainDateTests {
     @Test("PlainDateTests: Convert using PlainTime object")
-    func toDateTimeWithTimeObject() {
-        let baseDate = PlainDate(year: 2025, month: 12, day: 25)!
-        let time = PlainTime(hour: 15, minute: 30, second: 0)!
+    func toDateTimeWithTimeObject() throws {
+        let baseDate = try #require(PlainDate(year: 2025, month: 12, day: 25))
+        let time = try #require(PlainTime(hour: 15, minute: 30, second: 0))
         let dt = baseDate.at(time)
 
         #expect(dt.date == baseDate)
@@ -745,10 +745,10 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Convert using nanoseconds since midnight")
-    func toDateTimeWithNanos() {
+    func toDateTimeWithNanos() throws {
         // 1 hour = 3,600,000,000,000 nanoseconds
         let nanos: Int64 = 3_600_000_000_000
-        let baseDate = PlainDate(year: 2025, month: 12, day: 25)!
+        let baseDate = try #require(PlainDate(year: 2025, month: 12, day: 25))
         let dt = baseDate.at(nanosecondsSinceMidnight: nanos)
 
         #expect(dt.date == baseDate)
@@ -757,8 +757,8 @@ extension PlainDateTests {
     }
 
     @Test("PlainDateTests: Convert using valid components")
-    func toDateTimeWithValidComponents() {
-        let baseDate = PlainDate(year: 2025, month: 12, day: 25)!
+    func toDateTimeWithValidComponents() throws {
+        let baseDate = try #require(PlainDate(year: 2025, month: 12, day: 25))
         let dt = baseDate.at(hour: 23, minute: 59, second: 59, nanosecond: 999)
 
         #expect(dt != nil)
@@ -770,17 +770,17 @@ extension PlainDateTests {
     @Test("PlainDateTests: Convert using invalid components returns nil", arguments: [
         (24, 0, 0), // Invalid hour
         (12, 60, 0), // Invalid minute
-        (12, 0, -1) // Invalid second
+        (12, 0, -1), // Invalid second
     ])
-    func toDateTimeWithInvalidComponents(h: Int, m: Int, s: Int) {
-        let baseDate = PlainDate(year: 2025, month: 12, day: 25)!
+    func toDateTimeWithInvalidComponents(h: Int, m: Int, s: Int) throws {
+        let baseDate = try #require(PlainDate(year: 2025, month: 12, day: 25))
         let result = baseDate.at(hour: h, minute: m, second: s)
         #expect(result == nil)
     }
 
     @Test("PlainDateTests: Default nanosecond value")
-    func toDateTimeDefaultNanos() {
-        let baseDate = PlainDate(year: 2025, month: 12, day: 25)!
+    func toDateTimeDefaultNanos() throws {
+        let baseDate = try #require(PlainDate(year: 2025, month: 12, day: 25))
         let dt = baseDate.at(hour: 10, minute: 0, second: 0)
         #expect(dt?.nanosecond == 0)
     }

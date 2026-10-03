@@ -1,4 +1,4 @@
-import ChronoSystem
+@testable import ChronoSystem
 @testable import ChronoTZGenCore
 import Foundation
 import Testing

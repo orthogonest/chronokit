@@ -1,4 +1,4 @@
-import ChronoCore
+@testable import ChronoCore
 @testable import ChronoFormatter
 import Testing
 

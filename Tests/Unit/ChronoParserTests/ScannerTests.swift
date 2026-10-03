@@ -1,5 +1,5 @@
-import ChronoCore
-import ChronoMath
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoParser
 import Testing
 
@@ -81,7 +81,9 @@ extension ScannerTests {
             let raw = UnsafeRawBufferPointer(buffer)
             var cursor = 0
             // skip initial space if present for testing convenience
-            if raw[0] == ASCII.space { cursor += 1 }
+            if raw[0] == ASCII.space {
+                cursor += 1
+            }
 
             let result = ChronoScanner.scanDateRFC5322(from: raw, at: &cursor)
             #expect(result != nil)

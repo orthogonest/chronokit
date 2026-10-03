@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct Instant: Equatable, Hashable, Sendable {
     public let seconds: Int64
@@ -76,10 +76,14 @@ public extension Instant {
     @inlinable
     var timestampNanosecondsChecked: Int64? {
         let (secPart, overflowMul) = seconds.multipliedReportingOverflow(by: NanoSeconds.perSecond64)
-        if overflowMul { return nil }
+        if overflowMul {
+            return nil
+        }
 
         let (total, overflowSum) = secPart.addingReportingOverflow(Int64(nanoseconds))
-        if overflowSum { return nil }
+        if overflowSum {
+            return nil
+        }
 
         return total
     }
@@ -153,13 +157,17 @@ public extension Instant {
 
 extension Instant: SubsecondRoundable {
     public func roundSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         let nanos = Int64(nanoseconds)
 
         let deltaDown = floorMod(nanos, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -171,13 +179,17 @@ extension Instant: SubsecondRoundable {
     }
 
     public func truncateSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         let nanos = Int64(nanoseconds)
 
         let deltaDown = floorMod(nanos, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         return advanced(bySeconds: 0, nanoseconds: -deltaDown)
     }
@@ -194,7 +206,9 @@ extension Instant: DurationRoundable {
         guard let stamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(stamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -211,7 +225,9 @@ extension Instant: DurationRoundable {
         guard let stamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(stamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         return advanced(bySeconds: 0, nanoseconds: -deltaDown)
     }
@@ -222,7 +238,9 @@ extension Instant: DurationRoundable {
         guard let stamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(stamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         return advanced(bySeconds: 0, nanoseconds: span - deltaDown)
     }

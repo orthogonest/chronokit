@@ -1,5 +1,5 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
-import ChronoMath
 import Testing
 
 struct InstantTests {

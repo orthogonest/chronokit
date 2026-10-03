@@ -1,5 +1,5 @@
-import ChronoCore
-import ChronoMath
+@testable import ChronoCalendar
+@testable import ChronoCore
 
 public extension ZonedDateTime {
     init?(rfc3339 string: String) {

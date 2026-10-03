@@ -1,5 +1,4 @@
 import ChronoCore
-import ChronoMath
 
 public extension Instant {
     func plainDateTime(

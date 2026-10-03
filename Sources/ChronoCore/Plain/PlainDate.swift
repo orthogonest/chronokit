@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct PlainDate: Hashable, Sendable {
     @usableFromInline package let daysSinceEpoch: Int64
@@ -163,7 +163,7 @@ extension PlainDate: DateProtocol {
 
     @inlinable
     public var weekday: Int {
-        ChronoMath.weekday(from: daysSinceEpoch)
+        ChronoCalendar.weekday(from: daysSinceEpoch)
     }
 
     @inlinable

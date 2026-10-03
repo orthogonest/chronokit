@@ -1,4 +1,4 @@
-import ChronoCore
+@testable import ChronoCore
 @testable import ChronoFoundation
 import Foundation
 import Testing

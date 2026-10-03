@@ -1,7 +1,7 @@
-import ChronoCore
-import ChronoMath
-import ChronoSystem
-import ChronoTZ
+@testable import ChronoCalendar
+@testable import ChronoCore
+@testable import ChronoSystem
+@testable import ChronoTZ
 import Testing
 
 struct InstantTZIntegrationTests {

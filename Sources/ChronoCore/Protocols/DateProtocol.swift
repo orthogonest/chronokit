@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public protocol DateProtocol: Equatable, Comparable {
     var year: Int { get }
@@ -47,7 +47,7 @@ public extension DateProtocol {
     }
 
     var isLeapYear: Bool {
-        ChronoMath.isLeapYear(Int64(year))
+        ChronoCalendar.isLeapYear(Int64(year))
     }
 
     @inlinable

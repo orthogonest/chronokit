@@ -1,5 +1,5 @@
-import ChronoCore
-import ChronoTZ
+@testable import ChronoCore
+@testable import ChronoTZ
 import Testing
 
 struct ZonedDateTimeIntegrationTests {

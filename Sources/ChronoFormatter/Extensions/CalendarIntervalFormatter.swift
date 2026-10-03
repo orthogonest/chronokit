@@ -1,5 +1,5 @@
+import ChronoCalendar
 import ChronoCore
-import ChronoMath
 
 extension CalendarInterval {
     @discardableResult

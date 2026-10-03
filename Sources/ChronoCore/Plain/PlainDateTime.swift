@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct PlainDateTime: Equatable, Hashable, Sendable {
     public let date: PlainDate
@@ -314,13 +314,17 @@ package extension PlainDateTime {
 
 extension PlainDateTime: SubsecondRoundable {
     public func roundSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         guard let timestamp = timestampNanosecondsChecked else { return self }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -332,13 +336,17 @@ extension PlainDateTime: SubsecondRoundable {
     }
 
     public func truncateSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         guard let timestamp = timestampNanosecondsChecked else { return self }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let truncated = timestamp - deltaDown
 
@@ -357,7 +365,9 @@ extension PlainDateTime: DurationRoundable {
         guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -374,7 +384,9 @@ extension PlainDateTime: DurationRoundable {
         guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let truncated = timestamp - deltaDown
 
@@ -387,7 +399,9 @@ extension PlainDateTime: DurationRoundable {
         guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let roundedUp = timestamp + (span - deltaDown)
 
@@ -412,7 +426,9 @@ public extension PlainDateTime {
         let daysInSecs = date.daysSinceEpoch * Seconds.perDay64
 
         let (rawSecs, overflow) = daysInSecs.subtractingReportingOverflow(offset.duration.seconds)
-        if overflow { return nil }
+        if overflow {
+            return nil
+        }
 
         let rawNanos = time.nanosecondsSinceMidnight - Int64(offset.duration.nanoseconds)
 

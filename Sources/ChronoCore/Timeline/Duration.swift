@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct Duration: Equatable, Hashable, Sendable {
     public let seconds: Int64
@@ -162,10 +162,14 @@ public extension Duration {
     @inlinable
     var timestampNanosecondsChecked: Int64? {
         let (secPart, overflowMul) = seconds.multipliedReportingOverflow(by: NanoSeconds.perSecond64)
-        if overflowMul { return nil }
+        if overflowMul {
+            return nil
+        }
 
         let (total, overflowSum) = secPart.addingReportingOverflow(Int64(nanoseconds))
-        if overflowSum { return nil }
+        if overflowSum {
+            return nil
+        }
 
         return total
     }

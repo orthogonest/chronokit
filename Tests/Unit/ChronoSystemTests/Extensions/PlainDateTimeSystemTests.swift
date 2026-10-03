@@ -1,5 +1,5 @@
-import ChronoCore
-import ChronoMath
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoSystem
 import Testing
 

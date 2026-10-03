@@ -1,5 +1,5 @@
+import ChronoCalendar
 import ChronoCore
-import ChronoMath
 
 extension CalendarInterval {
     static func parse(from buffer: UnsafeRawBufferPointer) -> ParsedInterval? {
@@ -85,7 +85,9 @@ extension CalendarInterval {
             sawAnyComponent = true
 
             // ISO 8601: If a fraction is used, it MUST be the last component
-            if fractionUsed, cursor < buffer.count { return nil }
+            if fractionUsed, cursor < buffer.count {
+                return nil
+            }
         }
 
         return sawAnyComponent ? parts : nil

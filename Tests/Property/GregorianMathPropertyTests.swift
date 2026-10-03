@@ -1,4 +1,4 @@
-import ChronoMath
+@testable import ChronoCalendar
 import Testing
 
 struct CalendarMathPropertyTests {

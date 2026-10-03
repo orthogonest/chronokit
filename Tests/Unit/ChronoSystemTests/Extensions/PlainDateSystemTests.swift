@@ -1,5 +1,5 @@
-import ChronoCore
-import ChronoMath
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoSystem
 import Testing
 
@@ -13,7 +13,7 @@ struct PlainDateSystemTests {
         // Sanity check: Should be a realistic year in the current era
         #expect(date.year >= 2025)
         #expect(date.month >= 1 && date.month <= 12)
-        #expect(date.day >= 1 && date.day <= ChronoMath.lastDayOfMonth(Int64(date.year), UInt8(date.month)))
+        #expect(date.day >= 1 && date.day <= ChronoCalendar.lastDayOfMonth(Int64(date.year), UInt8(date.month)))
     }
 
     @Test("PlainDateSystemTests: now(in:) respects large offsets (Midnight Crossing)")
