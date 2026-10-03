@@ -1,9 +1,10 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoTZ
 import Testing
 
 struct PlainDateTimeTZTests {
-    let sample = PlainDateTime(year: 2026, month: 4, day: 24, hour: 10, minute: 0, second: 0)
+    let sample = PlainDateTime(year: 2026, month: 4, day: 24, hour: 10, minute: 0, second: 0, calendar: .gregorian)
 
     @Test("PlainDateTimeTZTests: instant() conversion succeeds with valid provider")
     func instantConversionSuccess() throws {

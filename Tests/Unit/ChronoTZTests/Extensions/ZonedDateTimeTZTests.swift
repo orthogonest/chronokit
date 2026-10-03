@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoSystem
 @testable import ChronoTZ
@@ -18,7 +19,7 @@ struct ZonedDateTimeTZTests {
         mock.insertZones(tzName, tz: tz)
 
         let instant = Instant(seconds: 0, nanoseconds: 0)
-        let dt = try ZonedDateTime(instant: instant, timeZone: tzName, provider: mock)
+        let dt = try ZonedDateTime(instant: instant, timeZone: tzName, provider: mock, calendar: .gregorian)
 
         #expect(dt.timeZone.identifier == tzName)
     }
@@ -28,7 +29,7 @@ struct ZonedDateTimeTZTests {
         let failingMock = MockTimeZoneProvider()
 
         #expect(throws: TimeZoneError.zoneNotFound("Bad/Zone")) {
-            _ = try ZonedDateTime(instant: .now, timeZone: "Bad/Zone", provider: failingMock)
+            _ = try ZonedDateTime(instant: .now, timeZone: "Bad/Zone", provider: failingMock, calendar: .gregorian)
         }
     }
 }
