@@ -15,7 +15,8 @@ public extension ZonedDateTime {
             minute: parsed.time.minute,
             second: parsed.time.second,
             nanosecond: Int(parsed.time.nanosecond),
-            timeZone: .fixedOffset(seconds: parsed.offset)
+            timeZone: .fixedOffset(seconds: parsed.offset),
+            calendar: .gregorian
         )
     }
 
@@ -32,7 +33,8 @@ public extension ZonedDateTime {
             minute: parsed.time.minute,
             second: parsed.time.second,
             nanosecond: Int(parsed.time.nanosecond),
-            timeZone: .fixedOffset(seconds: parsed.offset)
+            timeZone: .fixedOffset(seconds: parsed.offset),
+            calendar: .gregorian
         )
     }
 

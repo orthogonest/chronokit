@@ -39,7 +39,8 @@ public extension PlainDateTime {
             hour: parsed.time.hour,
             minute: parsed.time.minute,
             second: parsed.time.second,
-            nanosecond: Int(parsed.time.nanosecond)
+            nanosecond: Int(parsed.time.nanosecond),
+            calendar: .gregorian
         )
     }
 
@@ -73,7 +74,8 @@ public extension PlainDateTime {
             hour: parsed.time.hour,
             minute: parsed.time.minute,
             second: parsed.time.second,
-            nanosecond: Int(parsed.time.nanosecond)
+            nanosecond: Int(parsed.time.nanosecond),
+            calendar: .gregorian
         )
     }
 
