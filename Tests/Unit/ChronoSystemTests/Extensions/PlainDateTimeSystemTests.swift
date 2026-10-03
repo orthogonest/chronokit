@@ -17,8 +17,8 @@ struct PlainDateTimeSystemTests {
         let plus12 = FixedOffset(.hours(12))
         let minus12 = FixedOffset(.hours(-12))
 
-        let timePlus: PlainDateTime = .now(in: plus12)
-        let timeMinus: PlainDateTime = .now(in: minus12)
+        let timePlus: PlainDateTime = .now(in: plus12, calendar: .gregorian)
+        let timeMinus: PlainDateTime = .now(in: minus12, calendar: .gregorian)
 
         // The difference between these two wall clocks should be 24 hours
         // We convert them to a simple hour count for comparison
@@ -35,10 +35,10 @@ struct PlainDateTimeSystemTests {
         let tz = SystemTimeZone()
 
         // Manual conversion
-        let manualPlain = instant.plainDateTime(in: tz)
+        let manualPlain = instant.plainDateTime(in: tz, calendar: .gregorian)
 
         // Method conversion
-        let autoPlain: PlainDateTime = .now(in: tz)
+        let autoPlain: PlainDateTime = .now(in: tz, calendar: .gregorian)
 
         // They should be extremely close (likely identical in seconds)
         #expect(manualPlain.date == autoPlain.date)
@@ -47,9 +47,9 @@ struct PlainDateTimeSystemTests {
 
     @Test("PlainDateTimeSystemTests: UTC absolute consistency")
     func utcAlignment() {
-        let now: PlainDateTime = .now(in: FixedOffset.utc)
+        let now: PlainDateTime = .now(in: FixedOffset.utc, calendar: .gregorian)
         let instant: Instant = .now
-        let manual = instant.plainDateTime(in: FixedOffset.utc)
+        let manual = instant.plainDateTime(in: FixedOffset.utc, calendar: .gregorian)
 
         #expect(now.date == manual.date, "PlainDateTime(in: .utc) must align with manual Instant conversion")
         #expect(now.time.hour == manual.time.hour, "Hour must match UTC reference")
@@ -62,8 +62,8 @@ struct PlainDateTimeSystemTests {
         let zoneA = FixedOffset(.hours(5))
         let zoneB = FixedOffset(.hours(-5))
 
-        let timeA = PlainDateTime.now(in: zoneA)
-        let timeB = PlainDateTime.now(in: zoneB)
+        let timeA = PlainDateTime.now(in: zoneA, calendar: .gregorian)
+        let timeB = PlainDateTime.now(in: zoneB, calendar: .gregorian)
 
         // They should have different time components despite being called at the same instant
         #expect(timeA.time.hour != timeB.time.hour)

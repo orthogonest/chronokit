@@ -21,7 +21,7 @@ struct PlainTimeSystemTests {
         let zone = FixedOffset(.hours(5))
 
         for _ in 0 ..< 100 {
-            let t = PlainTime.now(in: zone)
+            let t = PlainTime.now(in: zone, calendar: .gregorian)
 
             // Validate that we never break standard clock constraints
             #expect(t.hour < 24)
@@ -33,7 +33,7 @@ struct PlainTimeSystemTests {
     @Test("PlainTimeSystemTests: Deterministic UTC Initialization")
     func utcDeterminism() {
         let tz: FixedOffset = .utc
-        let nowUTC: PlainTime = .now(in: tz)
+        let nowUTC: PlainTime = .now(in: tz, calendar: .gregorian)
 
         // Ensure that explicit UTC handling doesn't produce weird artifacts
         #expect(nowUTC.hour >= 0 && nowUTC.hour < 24)
@@ -46,8 +46,8 @@ struct PlainTimeSystemTests {
         let utc = FixedOffset.utc
         let plusOne = FixedOffset(.hours(1))
 
-        let timeUTC: PlainTime = .now(in: utc)
-        let timePlus1: PlainTime = .now(in: plusOne)
+        let timeUTC: PlainTime = .now(in: utc, calendar: .gregorian)
+        let timePlus1: PlainTime = .now(in: plusOne, calendar: .gregorian)
 
         // Convert to total seconds for easy comparison
         let totalSecondsUTC = Int64(timeUTC.hour) * 3600 + Int64(timeUTC.minute) * 60 + Int64(timeUTC.second)
@@ -65,7 +65,7 @@ struct PlainTimeSystemTests {
 
         // The two calls should produce virtually identical results
         let time1: PlainTime = .now // uses default internal SystemTimeZone
-        let time2: PlainTime = .now(in: systemZone) // uses explicit protocol
+        let time2: PlainTime = .now(in: systemZone, calendar: .gregorian) // uses explicit protocol
 
         // We allow for a 1-second drift in case the clock ticked during execution
         let total1 = time1.nanosecondsSinceMidnight
@@ -78,8 +78,8 @@ struct PlainTimeSystemTests {
     @Test("PlainTimeSystemTests: Contract alignment with PlainDateTime")
     func contractAlignment() {
         let tz: FixedOffset = .utc
-        let time: PlainTime = .now(in: tz)
-        let dt: PlainDateTime = .now(in: tz)
+        let time: PlainTime = .now(in: tz, calendar: .gregorian)
+        let dt: PlainDateTime = .now(in: tz, calendar: .gregorian)
 
         #expect(time.hour == dt.time.hour)
         #expect(time.minute == dt.time.minute)

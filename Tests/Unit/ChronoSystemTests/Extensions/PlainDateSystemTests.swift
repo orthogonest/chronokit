@@ -22,8 +22,8 @@ struct PlainDateSystemTests {
         let plus14 = FixedOffset(.hours(14))
         let minus12 = FixedOffset(.hours(-12))
 
-        let datePlus: PlainDate = .now(in: plus14)
-        let dateMinus: PlainDate = .now(in: minus12)
+        let datePlus: PlainDate = .now(in: plus14, calendar: .gregorian)
+        let dateMinus: PlainDate = .now(in: minus12, calendar: .gregorian)
 
         // Logic: The date in the furthest east zone (+14) must be equal to
         // or up to 2 days ahead of the furthest west zone (-12),
@@ -37,7 +37,7 @@ struct PlainDateSystemTests {
         // This test ensures that the parameterless .now()
         // is indeed calling the .now(in: SystemTimeZone()) implementation.
         let date1 = PlainDate.now
-        let date2 = PlainDate.now(in: SystemTimeZone())
+        let date2 = PlainDate.now(in: SystemTimeZone(), calendar: .gregorian)
 
         #expect(date1 == date2, "Default .now() should match SystemTimeZone implementation")
     }
@@ -47,8 +47,8 @@ struct PlainDateSystemTests {
         // Prove that PlainDate.now(in:) is strictly derived
         // from the PlainDateTime.now(in:)'s date component.
         let tz = FixedOffset.utc
-        let date = PlainDate.now(in: tz)
-        let dateTime = PlainDateTime.now(in: tz)
+        let date = PlainDate.now(in: tz, calendar: .gregorian)
+        let dateTime = PlainDateTime.now(in: tz, calendar: .gregorian)
 
         #expect(date == dateTime.date, "PlainDate.now(in:) must match PlainDateTime's date component")
         #expect(date.year == dateTime.date.year)
@@ -61,7 +61,7 @@ struct PlainDateSystemTests {
         // Verifying that the 'some TimeZoneProtocol' constraint
         // accepts our types correctly.
         let tz = FixedOffset.hours(5)
-        let date = PlainDate.now(in: tz)
+        let date = PlainDate.now(in: tz, calendar: .gregorian)
 
         // Ensure the date is valid for this specific timezone
         // This implicitly tests that the generic constraint works
