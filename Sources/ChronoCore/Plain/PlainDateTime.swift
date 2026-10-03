@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct PlainDateTime: Equatable, Hashable, Sendable {
     public let date: PlainDate
@@ -17,9 +17,10 @@ public struct PlainDateTime: Equatable, Hashable, Sendable {
         hour: Int = 0,
         minute: Int = 0,
         second: Int = 0,
-        nanosecond: Int = 0
+        nanosecond: Int = 0,
+        calendar: Calendar = .gregorian
     ) {
-        guard let date = PlainDate(year: year, month: month, day: day),
+        guard let date = PlainDate(year: year, month: month, day: day, calendar: calendar),
               let time = PlainTime(hour: hour, minute: minute, second: second, nanosecond: nanosecond)
         else { return nil }
 
@@ -70,7 +71,6 @@ public extension PlainDateTime {
         )
     }
 
-    @inlinable
     func advanced(by duration: Duration) -> Self {
         advanced(
             bySeconds: duration.seconds,
@@ -82,12 +82,10 @@ public extension PlainDateTime {
 // MARK: - Addition
 
 public extension PlainDateTime {
-    @inlinable
     static func + (lhs: Self, rhs: Duration) -> Self {
         lhs.advanced(by: rhs)
     }
 
-    @inlinable
     static func + (lhs: Duration, rhs: Self) -> Self {
         rhs.advanced(by: lhs)
     }
@@ -101,18 +99,18 @@ public extension PlainDateTime {
         let dayAdjustment = floorDiv(totalNanos, NanoSeconds.perDay64)
         let finalNanos = floorMod(totalNanos, NanoSeconds.perDay64)
 
-        let finalDate = PlainDate(daysSinceEpoch: newDate.daysSinceEpoch + dayAdjustment)
+        let epochDays = newDate.daysSinceEpoch + dayAdjustment
+
+        let finalDate = PlainDate(daysSinceEpoch: epochDays, calendar: lhs.date.calendar)
         let finalTime = PlainTime(nanosecondsSinceMidnight: finalNanos)
 
         return Self(date: finalDate, time: finalTime)
     }
 
-    @inlinable
     static func += (lhs: inout Self, rhs: Duration) {
         lhs = lhs + rhs
     }
 
-    @inlinable
     static func += (lhs: inout Self, rhs: CalendarInterval) {
         lhs = lhs + rhs
     }
@@ -136,7 +134,6 @@ public extension PlainDateTime {
         )
     }
 
-    @inlinable
     static func - (lhs: Self, rhs: Duration) -> Self {
         lhs.advanced(
             bySeconds: -rhs.seconds,
@@ -144,17 +141,14 @@ public extension PlainDateTime {
         )
     }
 
-    @inlinable
     static func - (lhs: Self, rhs: CalendarInterval) -> Self {
         lhs + -rhs
     }
 
-    @inlinable
     static func -= (lhs: inout Self, rhs: Duration) {
         lhs = lhs - rhs
     }
 
-    @inlinable
     static func -= (lhs: inout Self, rhs: CalendarInterval) {
         lhs = lhs - rhs
     }
@@ -183,56 +177,64 @@ extension PlainDateTime: DateProtocol {
         date.ordinal
     }
 
-    @inlinable
     public var weekday: Int {
         date.weekday
     }
 
-    @inlinable
+    public var isLeapYear: Bool {
+        date.isLeapYear
+    }
+
+    public var daysSinceUnixEpoch: Int {
+        date.daysSinceUnixEpoch
+    }
+
+    public var daysInMonth: Int {
+        date.daysInMonth
+    }
+
     public func with(year: Int) -> Self? {
         guard let newDate = date.with(year: year) else { return nil }
         return Self(date: newDate, time: time)
     }
 
-    @inlinable
     public func with(month: Int) -> Self? {
         guard let newDate = date.with(month: month) else { return nil }
         return Self(date: newDate, time: time)
     }
 
-    @inlinable
     public func with(monthZeroBased value: Int) -> Self? {
         guard let newDate = date.with(monthZeroBased: value) else { return nil }
         return Self(date: newDate, time: time)
     }
 
-    @inlinable
     public func with(monthSymbol value: Month) -> Self? {
         guard let newDate = date.with(monthSymbol: value) else { return nil }
         return Self(date: newDate, time: time)
     }
 
-    @inlinable
     public func with(day: Int) -> Self? {
         guard let newDate = date.with(day: day) else { return nil }
         return Self(date: newDate, time: time)
     }
 
-    @inlinable
     public func with(dayZeroBased value: Int) -> Self? {
         guard let newDate = date.with(dayZeroBased: value) else { return nil }
         return Self(date: newDate, time: time)
     }
 
-    @inlinable
     public func with(ordinal: Int) -> Self? {
         guard let newDate = date.with(ordinal: ordinal) else { return nil }
         return Self(date: newDate, time: time)
     }
 
-    @inlinable
     public func with(ordinalZeroBased value: Int) -> Self? {
         guard let newDate = date.with(ordinalZeroBased: value) else { return nil }
+        return Self(date: newDate, time: time)
+    }
+
+    public func with(calendar: Calendar) -> Self? {
+        guard let newDate = date.with(calendar: calendar) else { return nil }
         return Self(date: newDate, time: time)
     }
 }
@@ -298,13 +300,15 @@ package extension PlainDateTime {
         return (daysOverflow || stampOverflow) ? nil : stamp
     }
 
-    @inlinable
-    static func fromTimestampNanoseconds(_ timestamp: Int64) -> Self {
+    static func fromTimestampNanoseconds(
+        _ timestamp: Int64,
+        calendar: Calendar = .gregorian
+    ) -> Self {
         let days = floorDiv(timestamp, NanoSeconds.perDay64)
         let nanos = floorMod(timestamp, NanoSeconds.perDay64)
 
         return Self(
-            date: PlainDate(daysSinceEpoch: days),
+            date: PlainDate(daysSinceEpoch: days, calendar: calendar),
             time: PlainTime(nanosecondsSinceMidnight: nanos)
         )
     }
@@ -314,13 +318,17 @@ package extension PlainDateTime {
 
 extension PlainDateTime: SubsecondRoundable {
     public func roundSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         guard let timestamp = timestampNanosecondsChecked else { return self }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -328,21 +336,25 @@ extension PlainDateTime: SubsecondRoundable {
             ? timestamp + deltaUp
             : timestamp - deltaDown
 
-        return Self.fromTimestampNanoseconds(rounded)
+        return Self.fromTimestampNanoseconds(rounded, calendar: date.calendar)
     }
 
     public func truncateSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         guard let timestamp = timestampNanosecondsChecked else { return self }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let truncated = timestamp - deltaDown
 
-        return Self.fromTimestampNanoseconds(truncated)
+        return Self.fromTimestampNanoseconds(truncated, calendar: date.calendar)
     }
 }
 
@@ -357,7 +369,9 @@ extension PlainDateTime: DurationRoundable {
         guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -365,7 +379,7 @@ extension PlainDateTime: DurationRoundable {
             ? timestamp + deltaUp
             : timestamp - deltaDown
 
-        return Self.fromTimestampNanoseconds(rounded)
+        return Self.fromTimestampNanoseconds(rounded, calendar: date.calendar)
     }
 
     public func truncate(byQuantum quantum: Duration) throws(RoundingError) -> Self {
@@ -374,11 +388,13 @@ extension PlainDateTime: DurationRoundable {
         guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let truncated = timestamp - deltaDown
 
-        return Self.fromTimestampNanoseconds(truncated)
+        return Self.fromTimestampNanoseconds(truncated, calendar: date.calendar)
     }
 
     public func roundUp(byQuantum quantum: Duration) throws(RoundingError) -> Self {
@@ -387,11 +403,13 @@ extension PlainDateTime: DurationRoundable {
         guard let timestamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(timestamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let roundedUp = timestamp + (span - deltaDown)
 
-        return Self.fromTimestampNanoseconds(roundedUp)
+        return Self.fromTimestampNanoseconds(roundedUp, calendar: date.calendar)
     }
 }
 
@@ -412,7 +430,9 @@ public extension PlainDateTime {
         let daysInSecs = date.daysSinceEpoch * Seconds.perDay64
 
         let (rawSecs, overflow) = daysInSecs.subtractingReportingOverflow(offset.duration.seconds)
-        if overflow { return nil }
+        if overflow {
+            return nil
+        }
 
         let rawNanos = time.nanosecondsSinceMidnight - Int64(offset.duration.nanoseconds)
 
@@ -439,11 +459,11 @@ public extension PlainDateTime {
 
     func zonedDateTime(timeZone: TimeZone) -> ZonedDateTime? {
         guard let instant = instant(in: timeZone) else { return nil }
-        return instant.zonedDateTime(in: timeZone)
+        return instant.zonedDateTime(in: timeZone, calendar: date.calendar)
     }
 
     func zonedDateTime(offset: FixedOffset) -> ZonedDateTime {
         let timeZone = TimeZone(offset)
-        return instant(offset: offset).zonedDateTime(in: timeZone)
+        return instant(offset: offset).zonedDateTime(in: timeZone, calendar: date.calendar)
     }
 }

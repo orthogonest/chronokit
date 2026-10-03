@@ -16,6 +16,7 @@
     #error("Unsupported platform: Standard C library not found.")
 #endif
 
+import ChronoCalendar
 import ChronoCore
 
 public struct SystemTimeZone: TimeZoneProtocol {
@@ -32,7 +33,9 @@ public struct SystemTimeZone: TimeZoneProtocol {
             var utf16Bytes: [UInt16] = []
             for child in mirror.children {
                 if let val = child.value as? UInt16 {
-                    if val == 0 { break } // Null terminator
+                    if val == 0 {
+                        break
+                    } // Null terminator
                     utf16Bytes.append(val)
                 }
             }
@@ -40,7 +43,9 @@ public struct SystemTimeZone: TimeZoneProtocol {
         }
     #else
         public var identifier: String {
-            if let tzEnv = getenv("TZ") { return String(cString: tzEnv) }
+            if let tzEnv = getenv("TZ") {
+                return String(cString: tzEnv)
+            }
 
             let path = "/etc/localtime"
             var buffer = [Int8](repeating: 0, count: 1024)
@@ -111,7 +116,10 @@ public extension TimeZone {
 }
 
 public extension ZonedDateTime {
-    static func system(instant: Instant) -> Self {
-        self.init(instant: instant, timeZone: .system)
+    static func system(
+        instant: Instant,
+        calendar: Calendar = .gregorian
+    ) -> Self {
+        self.init(instant: instant, timeZone: .system, calendar: calendar)
     }
 }

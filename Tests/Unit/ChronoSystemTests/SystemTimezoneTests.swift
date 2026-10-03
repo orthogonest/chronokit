@@ -1,4 +1,5 @@
-import ChronoCore
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoSystem
 import Testing
 
@@ -19,7 +20,7 @@ struct SystemTimeZoneTests {
         let instant = Instant(seconds: 1_777_636_800, nanoseconds: 0)
 
         let offset = tz.offset(for: instant)
-        let plain = instant.plainDateTime(in: FixedOffset(offset))
+        let plain = instant.plainDateTime(in: FixedOffset(offset), calendar: .gregorian)
         let resolvedOffset = tz.offset(for: plain)
 
         if case let .unique(metadata) = resolvedOffset {
@@ -32,7 +33,7 @@ struct SystemTimeZoneTests {
         let tz = SystemTimeZone()
         // Use a known 'safe' date (not near DST changes)
         let plain = try PlainDateTime(
-            date: #require(.init(year: 2026, month: 6, day: 1)),
+            date: #require(.init(year: 2026, month: 6, day: 1, calendar: .gregorian)),
             time: #require(.init(hour: 12, minute: 0, second: 0))
         )
 

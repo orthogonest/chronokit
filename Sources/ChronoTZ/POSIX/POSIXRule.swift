@@ -1,5 +1,5 @@
+import ChronoCalendar
 import ChronoCore
-import ChronoMath
 
 package struct POSIXRule: Equatable, Hashable {
     package let stdOffset: Int32

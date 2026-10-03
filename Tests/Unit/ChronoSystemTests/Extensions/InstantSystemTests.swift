@@ -1,5 +1,5 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
-import ChronoMath
 import Testing
 
 struct InstantSystemTests {
@@ -10,7 +10,7 @@ struct InstantSystemTests {
         let now: Instant = .now
 
         // Nanoseconds must always be within [0, 999_999_999]
-        // If this fails, ChronoMath logic produce incorrect results.
+        // If this fails, ChronoCalendar logic produce incorrect results.
         #expect(now.nanoseconds >= 0, "Nanoseconds must be positive")
         #expect(now.nanoseconds < 1_000_000_000, "Nanoseconds must be less than 1 second")
     }

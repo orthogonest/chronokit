@@ -1,4 +1,4 @@
-import ChronoMath
+@testable import ChronoCalendar
 import Testing
 
 struct FloorMathPropertyTests {
@@ -25,7 +25,9 @@ struct FloorMathPropertyTests {
         for num: Int64 in criticalNumerators {
             for denom: Int64 in criticalDenominators where denom != 0 {
                 // Skip overflow
-                if num == .min, denom == -1 { continue }
+                if num == .min, denom == -1 {
+                    continue
+                }
 
                 let div = floorDiv(num, denom)
                 let mod = floorMod(num, denom)

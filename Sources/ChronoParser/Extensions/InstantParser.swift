@@ -1,5 +1,5 @@
+import ChronoCalendar
 import ChronoCore
-import ChronoMath
 
 public extension Instant {
     init?(rfc3339 string: String) {
@@ -13,7 +13,8 @@ public extension Instant {
                   hour: parsed.time.hour,
                   minute: parsed.time.minute,
                   second: parsed.time.second,
-                  nanosecond: Int(parsed.time.nanosecond)
+                  nanosecond: Int(parsed.time.nanosecond),
+                  calendar: .gregorian
               )
         else { return nil }
 
@@ -33,7 +34,8 @@ public extension Instant {
                   hour: parsed.time.hour,
                   minute: parsed.time.minute,
                   second: parsed.time.second,
-                  nanosecond: Int(parsed.time.nanosecond)
+                  nanosecond: Int(parsed.time.nanosecond),
+                  calendar: .gregorian
               )
         else { return nil }
 

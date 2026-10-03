@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct ISOWeek: Equatable, Hashable, Sendable {
     public let year: Int64

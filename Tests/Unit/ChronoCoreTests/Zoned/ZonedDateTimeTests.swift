@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 import Testing
 
@@ -10,7 +11,7 @@ struct ZonedDateTimeTests {
         let offset: Duration = .seconds(3600) // UTC+1
         let timeZone: TimeZone = .fixedOffset(offset)
 
-        let dt = ZonedDateTime(instant: instant, timeZone: timeZone)
+        let dt = ZonedDateTime(instant: instant, timeZone: timeZone, calendar: .gregorian)
 
         #expect(dt.instant == instant)
         #expect(dt.timeZone == timeZone)
@@ -21,16 +22,16 @@ struct ZonedDateTimeTests {
         let instant = Instant(seconds: 0, nanoseconds: 0)
 
         // Test with UTC
-        let utcDT = ZonedDateTime(instant: instant, timeZone: TimeZone.utc)
+        let utcDT = ZonedDateTime(instant: instant, timeZone: TimeZone.utc, calendar: .gregorian)
         #expect(utcDT.timeZone.identifier == "UTC")
 
         // Test with FixedOffset
-        let offsetDT = ZonedDateTime(instant: instant, timeZone: .fixedOffset(.hours(-5)))
+        let offsetDT = ZonedDateTime(instant: instant, timeZone: .fixedOffset(.hours(-5)), calendar: .gregorian)
         #expect(offsetDT.timeZone.offset(for: offsetDT.instant) == .hours(-5))
 
         // Test with a Mock
         let mockTZ = MockTimeZone(offset: 3600)
-        let mockDT = ZonedDateTime(instant: instant, timeZone: TimeZone(mockTZ))
+        let mockDT = ZonedDateTime(instant: instant, timeZone: TimeZone(mockTZ), calendar: .gregorian)
         #expect(mockDT.timeZone.identifier == "MockTZ")
     }
 }
@@ -46,9 +47,9 @@ extension ZonedDateTimeTests {
         let instant2 = Instant(seconds: 3600 * 13, nanoseconds: 0)
 
         // London (UTC+0) at 12:00
-        let london = ZonedDateTime(instant: instant1, timeZone: .utc)
+        let london = ZonedDateTime(instant: instant1, timeZone: .utc, calendar: .gregorian)
         // Berlin (UTC+1) at 14:00 (which is 13:00 UTC)
-        let berlin = ZonedDateTime(instant: instant2, timeZone: .fixedOffset(seconds: 3600))
+        let berlin = ZonedDateTime(instant: instant2, timeZone: .fixedOffset(seconds: 3600), calendar: .gregorian)
 
         // Even though Berlin's "wall clock" says 14:00 and London says 12:00,
         // London is EARLIER because its UTC instant is smaller.
@@ -60,8 +61,8 @@ extension ZonedDateTimeTests {
     func sameInstantDifferentZones() {
         let now = Instant(seconds: 1_735_243_200, nanoseconds: 0)
 
-        let nyc = ZonedDateTime(instant: now, timeZone: .fixedOffset(seconds: -18000)) // UTC-5
-        let tokyo = ZonedDateTime(instant: now, timeZone: .fixedOffset(seconds: 32400)) // UTC+9
+        let nyc = ZonedDateTime(instant: now, timeZone: .fixedOffset(seconds: -18000), calendar: .gregorian) // UTC-5
+        let tokyo = ZonedDateTime(instant: now, timeZone: .fixedOffset(seconds: 32400), calendar: .gregorian) // UTC+9
 
         #expect(!(nyc < tokyo))
         #expect(!(tokyo < nyc))
@@ -72,8 +73,8 @@ extension ZonedDateTimeTests {
         let base = Instant(seconds: 100, nanoseconds: 500)
         let slightlyLater = Instant(seconds: 100, nanoseconds: 501)
 
-        let dt1 = ZonedDateTime(instant: base, timeZone: .utc)
-        let dt2 = ZonedDateTime(instant: slightlyLater, timeZone: .utc)
+        let dt1 = ZonedDateTime(instant: base, timeZone: .utc, calendar: .gregorian)
+        let dt2 = ZonedDateTime(instant: slightlyLater, timeZone: .utc, calendar: .gregorian)
 
         #expect(dt1 < dt2)
     }
@@ -83,9 +84,9 @@ extension ZonedDateTimeTests {
         let i1 = Instant(seconds: 100)
         let i2 = Instant(seconds: 10)
 
-        let dt1 = ZonedDateTime(instant: i1, timeZone: .fixedOffset(seconds: 3600))
-        let dt2 = ZonedDateTime(instant: i1, timeZone: .fixedOffset(seconds: 3600))
-        let dt3 = ZonedDateTime(instant: i2, timeZone: .fixedOffset(seconds: 0))
+        let dt1 = ZonedDateTime(instant: i1, timeZone: .fixedOffset(seconds: 3600), calendar: .gregorian)
+        let dt2 = ZonedDateTime(instant: i1, timeZone: .fixedOffset(seconds: 3600), calendar: .gregorian)
+        let dt3 = ZonedDateTime(instant: i2, timeZone: .fixedOffset(seconds: 0), calendar: .gregorian)
 
         #expect(dt1 == dt2)
         #expect(dt1 != dt3)
@@ -97,9 +98,9 @@ extension ZonedDateTimeTests {
         let i2 = Instant(seconds: 2000)
         let i3 = Instant(seconds: 3000)
 
-        let d1 = ZonedDateTime(instant: i1, timeZone: .fixedOffset(seconds: 3600))
-        let d2 = ZonedDateTime(instant: i2, timeZone: .fixedOffset(seconds: -3600))
-        let d3 = ZonedDateTime(instant: i3, timeZone: .fixedOffset(seconds: 0))
+        let d1 = ZonedDateTime(instant: i1, timeZone: .fixedOffset(seconds: 3600), calendar: .gregorian)
+        let d2 = ZonedDateTime(instant: i2, timeZone: .fixedOffset(seconds: -3600), calendar: .gregorian)
+        let d3 = ZonedDateTime(instant: i3, timeZone: .fixedOffset(seconds: 0), calendar: .gregorian)
 
         let unsorted = [d3, d1, d2]
         let sorted = unsorted.sorted()
@@ -120,8 +121,8 @@ extension ZonedDateTimeTests {
         let instant = Instant(seconds: seconds, nanoseconds: nanoseconds)
 
         // Use different timezones to ensure they don't interfere with the UTC timestamps
-        let dtUTC = ZonedDateTime(instant: instant, timeZone: .utc)
-        let dtOffset = ZonedDateTime(instant: instant, timeZone: .fixedOffset(seconds: -18000))
+        let dtUTC = ZonedDateTime(instant: instant, timeZone: .utc, calendar: .gregorian)
+        let dtOffset = ZonedDateTime(instant: instant, timeZone: .fixedOffset(seconds: -18000), calendar: .gregorian)
 
         // Verify standard timestamp
         #expect(dtUTC.timestamp == instant.timestamp)
@@ -144,13 +145,13 @@ extension ZonedDateTimeTests {
     func checkedDelegation() {
         // Test valid range
         let validInstant = Instant(seconds: 100, nanoseconds: 0)
-        let dtValid = ZonedDateTime(instant: validInstant, timeZone: .utc)
+        let dtValid = ZonedDateTime(instant: validInstant, timeZone: .utc, calendar: .gregorian)
         #expect(dtValid.timestampNanosecondsChecked == validInstant.timestampNanosecondsChecked)
 
         // Test overflow range (approx +/- 292 years from epoch for Int64 nanos)
         // 20,000,000,000 seconds is well beyond the limit.
         let overflowInstant = Instant(seconds: 20_000_000_000, nanoseconds: 0)
-        let dtOverflow = ZonedDateTime(instant: overflowInstant, timeZone: .utc)
+        let dtOverflow = ZonedDateTime(instant: overflowInstant, timeZone: .utc, calendar: .gregorian)
 
         #expect(dtOverflow.timestampNanosecondsChecked == nil)
         #expect(dtOverflow.timestampNanosecondsChecked == overflowInstant.timestampNanosecondsChecked)
@@ -163,7 +164,11 @@ extension ZonedDateTimeTests {
     @Test("ZonedDateTimeTests: advanced(bySeconds:nanoseconds:) preserves timezone")
     func advancedByComponents() {
         let timeZone: TimeZone = .fixedOffset(seconds: -18000) // NYC
-        let start = ZonedDateTime(instant: Instant(seconds: 100, nanoseconds: 0), timeZone: timeZone)
+        let start = ZonedDateTime(
+            instant: Instant(seconds: 100, nanoseconds: 0),
+            timeZone: timeZone,
+            calendar: .gregorian
+        )
 
         // Advance by 50.5 seconds
         let result = start.advanced(bySeconds: 50, nanoseconds: 500_000_000)
@@ -175,7 +180,7 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: advanced(by: Duration) preserves timezone")
     func advancedByDuration() {
-        let start = ZonedDateTime(instant: Instant(seconds: 1000), timeZone: .utc)
+        let start = ZonedDateTime(instant: Instant(seconds: 1000), timeZone: .utc, calendar: .gregorian)
         let duration = Duration(seconds: 60, nanoseconds: 0)
         let result = start.advanced(by: duration)
         #expect(result.instant.seconds == 1060)
@@ -186,8 +191,8 @@ extension ZonedDateTimeTests {
         let i1 = Instant(seconds: 2000, nanoseconds: 0)
         let i2 = Instant(seconds: 1500, nanoseconds: 500_000_000)
 
-        let dt1 = ZonedDateTime(instant: i1, timeZone: .utc)
-        let dt2 = ZonedDateTime(instant: i2, timeZone: .fixedOffset(.hours(1)))
+        let dt1 = ZonedDateTime(instant: i1, timeZone: .utc, calendar: .gregorian)
+        let dt2 = ZonedDateTime(instant: i2, timeZone: .fixedOffset(.hours(1)), calendar: .gregorian)
 
         // 2000.0 - 1500.5 = 499.5 seconds
         let diff: Duration = dt1 - dt2
@@ -203,7 +208,7 @@ extension ZonedDateTimeTests {
     @Test("ZonedDateTimeTests: Standard forward advance")
     func dateTimePlusDuration() {
         let instant = Instant(seconds: 1000, nanoseconds: 0)
-        let dt = ZonedDateTime(instant: instant, timeZone: .utc)
+        let dt = ZonedDateTime(instant: instant, timeZone: .utc, calendar: .gregorian)
         let delta = Duration(seconds: 500, nanoseconds: 500_000_000)
 
         let result = dt + delta
@@ -215,7 +220,7 @@ extension ZonedDateTimeTests {
     @Test("ZonedDateTimeTests: Commutative addition")
     func durationPlusDateTime() {
         let delta: Duration = .hours(1)
-        let dt = ZonedDateTime(instant: .zero, timeZone: .utc)
+        let dt = ZonedDateTime(instant: .zero, timeZone: .utc, calendar: .gregorian)
 
         let result = delta + dt
 
@@ -224,7 +229,7 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: In-place mutation")
     func dateTimeCompoundAddition() {
-        var dt = ZonedDateTime(instant: Instant(seconds: 1000, nanoseconds: 0), timeZone: .utc)
+        var dt = ZonedDateTime(instant: Instant(seconds: 1000, nanoseconds: 0), timeZone: .utc, calendar: .gregorian)
         let delta = Duration(seconds: 1, nanoseconds: 0)
 
         dt += delta
@@ -235,7 +240,7 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: Sub-second carry normalization")
     func dateTimeCarryNormalization() {
-        let dt = ZonedDateTime(instant: Instant(seconds: 0, nanoseconds: 800_000_000), timeZone: .utc)
+        let dt = ZonedDateTime(instant: Instant(seconds: 0, nanoseconds: 800_000_000), timeZone: .utc, calendar: .gregorian)
         let delta = Duration(seconds: 0, nanoseconds: 400_000_000)
 
         // 0.8s + 0.4s = 1.2s
@@ -252,9 +257,17 @@ extension ZonedDateTimeTests {
     @Test("ZonedDateTimeTests: Different timezones")
     func distanceBetweenDifferentTimezones() {
         // 1000s past epoch in UTC
-        let dt1 = ZonedDateTime(instant: Instant(seconds: 1000, nanoseconds: 0), timeZone: .utc)
+        let dt1 = ZonedDateTime(
+            instant: Instant(seconds: 1000, nanoseconds: 0),
+            timeZone: .utc,
+            calendar: .gregorian
+        )
         // 1500s past epoch in Tokyo
-        let dt2 = ZonedDateTime(instant: Instant(seconds: 1500, nanoseconds: 0), timeZone: .fixedOffset(.hours(-5)))
+        let dt2 = ZonedDateTime(
+            instant: Instant(seconds: 1500, nanoseconds: 0),
+            timeZone: .fixedOffset(.hours(-5)),
+            calendar: .gregorian
+        )
 
         // The distance depends ONLY on the underlying Instant, not the TZ offset
         let diff = dt2 - dt1
@@ -265,8 +278,16 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: Negative distance with sub-second borrow")
     func negativeDistanceNormalization() {
-        let dt1 = ZonedDateTime(instant: Instant(seconds: 10, nanoseconds: 100_000_000), timeZone: .utc)
-        let dt2 = ZonedDateTime(instant: Instant(seconds: 10, nanoseconds: 500_000_000), timeZone: .utc)
+        let dt1 = ZonedDateTime(
+            instant: Instant(seconds: 10, nanoseconds: 100_000_000),
+            timeZone: .utc,
+            calendar: .gregorian
+        )
+        let dt2 = ZonedDateTime(
+            instant: Instant(seconds: 10, nanoseconds: 500_000_000),
+            timeZone: .utc,
+            calendar: .gregorian
+        )
 
         // 10.1s - 10.5s = -0.4s
         let diff = dt1 - dt2
@@ -278,7 +299,11 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: Standard backward shift")
     func dateTimeMinusDuration() {
-        let dt = ZonedDateTime(instant: Instant(seconds: 1000, nanoseconds: 0), timeZone: .utc)
+        let dt = ZonedDateTime(
+            instant: Instant(seconds: 1000, nanoseconds: 0),
+            timeZone: .utc,
+            calendar: .gregorian
+        )
         let delta = Duration(seconds: 100, nanoseconds: 0)
 
         let result = dt - delta
@@ -289,7 +314,11 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: Sub-second borrow")
     func dateTimeMinusDurationBorrow() {
-        let dt = ZonedDateTime(instant: Instant(seconds: 10, nanoseconds: 0), timeZone: .utc)
+        let dt = ZonedDateTime(
+            instant: Instant(seconds: 10, nanoseconds: 0),
+            timeZone: .utc,
+            calendar: .gregorian
+        )
         let delta = Duration(seconds: 0, nanoseconds: 100_000_000) // 0.1s
 
         // 10.0s - 0.1s = 9.9s
@@ -301,7 +330,11 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: In-place mutation")
     func dateTimeCompoundSubtraction() {
-        var dt = ZonedDateTime(instant: Instant(seconds: 100, nanoseconds: 0), timeZone: .utc)
+        var dt = ZonedDateTime(
+            instant: Instant(seconds: 100, nanoseconds: 0),
+            timeZone: .utc,
+            calendar: .gregorian
+        )
         let delta = Duration(seconds: 10, nanoseconds: 0)
 
         dt -= delta
@@ -316,7 +349,14 @@ extension ZonedDateTimeTests {
     @Test("ZonedDateTimeTests: withPlain preserves TimeZone and Time")
     func withPlainPreservation() throws {
         let timeZone: TimeZone = .fixedOffset(seconds: 3600) // UTC+1
-        let dt = try #require(ZonedDateTime(year: 2025, month: 1, day: 1, hour: 10, timeZone: timeZone))
+        let dt = try #require(ZonedDateTime(
+            year: 2025,
+            month: 1,
+            day: 1,
+            hour: 10,
+            timeZone: timeZone,
+            calendar: .gregorian
+        ))
 
         // Transform: Change only the year
         let result = try #require(dt.withPlain { $0.with(year: 2030) })
@@ -330,7 +370,14 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: withPlain handles nil transformations")
     func withPlainNilSafety() throws {
-        let dt = try #require(ZonedDateTime(year: 2025, month: 1, day: 1, hour: 10, timeZone: .utc))
+        let dt = try #require(ZonedDateTime(
+            year: 2025,
+            month: 1,
+            day: 1,
+            hour: 10,
+            timeZone: .utc,
+            calendar: .gregorian
+        ))
 
         // Transform: Create an invalid date (Feb 30)
         let result = dt.withPlain { $0.with(month: 2)?.with(day: 30) }
@@ -340,7 +387,14 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: withPlain multi-component update")
     func withPlainMultiUpdate() throws {
-        let dt = try #require(ZonedDateTime(year: 2025, month: 1, day: 1, hour: 10, timeZone: .utc))
+        let dt = try #require(ZonedDateTime(
+            year: 2025,
+            month: 1,
+            day: 1,
+            hour: 10,
+            timeZone: .utc,
+            calendar: .gregorian
+        ))
 
         // Transform: Change month and day in one go
         let result = dt.withPlain { plain in
@@ -358,7 +412,7 @@ extension ZonedDateTimeTests {
         let instant = Instant(seconds: 43200, nanoseconds: 0)
         let timeZone: TimeZone = .fixedOffset(seconds: -3600) // UTC-1
 
-        let dt = ZonedDateTime(instant: instant, timeZone: timeZone)
+        let dt = ZonedDateTime(instant: instant, timeZone: timeZone, calendar: .gregorian)
 
         // Wall clock should be 11:00 AM
         #expect(dt.plainDateTime.time.hour == 11)
@@ -373,7 +427,14 @@ extension ZonedDateTimeTests {
     func withPlainPolicy() throws {
         // Note: This test becomes much more powerful when using a TimeZone
         // that actually has gaps/overlaps. For FixedOffset, policy has no effect.
-        let dt = try #require(ZonedDateTime(year: 2025, month: 1, day: 1, hour: 10, timeZone: .utc))
+        let dt = try #require(ZonedDateTime(
+            year: 2025,
+            month: 1,
+            day: 1,
+            hour: 10,
+            timeZone: .utc,
+            calendar: .gregorian
+        ))
 
         // We can't easily spy on the policy without a MockTimeZone,
         // but we verify the parameter is accepted.
@@ -386,7 +447,11 @@ extension ZonedDateTimeTests {
     func gapResolution() {
         let gapTZ = MockGapTimeZone()
         // Start with a valid time (doesn't matter what, the mock always returns .invalid)
-        let dt = ZonedDateTime(instant: Instant(seconds: 0, nanoseconds: 0), timeZone: TimeZone(gapTZ))
+        let dt = ZonedDateTime(
+            instant: Instant(seconds: 0, nanoseconds: 0),
+            timeZone: TimeZone(gapTZ),
+            calendar: .gregorian
+        )
 
         // Try to modify the date. Because the mock says the result is .invalid,
         // withPlain must return nil.
@@ -398,11 +463,15 @@ extension ZonedDateTimeTests {
     @Test("ZonedDateTimeTests: Respects .earlier policy in ambiguous time")
     func ambiguousEarlier() {
         let ambTZ = MockAmbiguousTimeZone(earlierOffset: 7200, laterOffset: 3600)
-        let dt = ZonedDateTime(instant: Instant(seconds: 0, nanoseconds: 0), timeZone: TimeZone(ambTZ))
+        let dt = ZonedDateTime(
+            instant: Instant(seconds: 0, nanoseconds: 0),
+            timeZone: TimeZone(ambTZ),
+            calendar: .gregorian
+        )
 
         // Force the plain time to be exactly "Epoch Midnight" (0 seconds from Epoch)
         let result = dt.withPlain(resolving: .preferEarlier) { _ in
-            PlainDateTime(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0)
+            PlainDateTime(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: .gregorian)
         }
 
         // Plain(0) - Offset(7200) = -7200
@@ -412,11 +481,15 @@ extension ZonedDateTimeTests {
     @Test("ZonedDateTimeTests: Respects .later policy in ambiguous time")
     func ambiguousLater() {
         let ambTZ = MockAmbiguousTimeZone(earlierOffset: 7200, laterOffset: 3600)
-        let dt = ZonedDateTime(instant: Instant(seconds: 0, nanoseconds: 0), timeZone: TimeZone(ambTZ))
+        let dt = ZonedDateTime(
+            instant: Instant(seconds: 0, nanoseconds: 0),
+            timeZone: TimeZone(ambTZ),
+            calendar: .gregorian
+        )
 
         // Force the plain time to be exactly "Epoch Midnight"
         let result = dt.withPlain(resolving: .preferLater) { _ in
-            PlainDateTime(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0)
+            PlainDateTime(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: .gregorian)
         }
 
         // Plain(0) - Offset(3600) = -3600
@@ -432,7 +505,14 @@ extension ZonedDateTimeTests {
         (2025, false),
     ])
     func yearAndLeapProperties(inputYear: Int, expectedLeap: Bool) throws {
-        let dt = try #require(ZonedDateTime(year: inputYear, month: 1, day: 1, hour: 0, timeZone: .utc))
+        let dt = try #require(ZonedDateTime(
+            year: inputYear,
+            month: 1,
+            day: 1,
+            hour: 0,
+            timeZone: .utc,
+            calendar: .gregorian
+        ))
 
         #expect(dt.year == inputYear)
         #expect(dt.isLeapYear == expectedLeap)
@@ -451,7 +531,8 @@ extension ZonedDateTimeTests {
         let dt = try #require(ZonedDateTime(
             year: 2025, month: month, day: 1,
             hour: 12,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
 
         #expect(dt.month == month)
@@ -470,7 +551,8 @@ extension ZonedDateTimeTests {
         let dt = try #require(ZonedDateTime(
             year: 2025, month: 2, day: 1,
             hour: 10,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
 
         #expect(dt.day == 1)
@@ -484,7 +566,8 @@ extension ZonedDateTimeTests {
         let dt = try #require(ZonedDateTime(
             year: 2025, month: 12, day: 29,
             hour: 12,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
         #expect(dt.isoWeek.week == 1)
         #expect(dt.isoWeek.year == 2026)
@@ -500,7 +583,8 @@ extension ZonedDateTimeTests {
         let base = try #require(ZonedDateTime(
             year: 2023, month: 5, day: 1,
             hour: 14, minute: 30,
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: .gregorian
         ))
 
         // Test basic component modification
@@ -521,7 +605,14 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: Ordinal modifications")
     func ordinalModifications() throws {
-        let dt = try #require(ZonedDateTime(year: 2025, month: 1, day: 1, hour: 9, timeZone: .utc))
+        let dt = try #require(ZonedDateTime(
+            year: 2025,
+            month: 1,
+            day: 1,
+            hour: 9,
+            timeZone: .utc,
+            calendar: .gregorian
+        ))
 
         // Day 60 in 2025 (common) is March 1
         let mar1 = try #require(dt.with(ordinal: 60))
@@ -534,7 +625,14 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: Invalid protocol modifications return nil")
     func invalidModifications() throws {
-        let dt = try #require(ZonedDateTime(year: 2025, month: 2, day: 1, hour: 12, timeZone: .utc))
+        let dt = try #require(ZonedDateTime(
+            year: 2025,
+            month: 2,
+            day: 1,
+            hour: 12,
+            timeZone: .utc,
+            calendar: .gregorian
+        ))
 
         // Feb 29 on non-leap year
         #expect(dt.with(day: 29) == nil)
@@ -561,7 +659,8 @@ extension ZonedDateTimeTests {
         let dt = try #require(ZonedDateTime(
             year: 2025, month: 12, day: 25,
             hour: hour24,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
 
         #expect(dt.hour12.isPM == expectedIsPM)
@@ -581,7 +680,8 @@ extension ZonedDateTimeTests {
         let dt = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: hour, minute: minute, second: second,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
 
         #expect(dt.secondsFromMidnight == expectedSeconds)
@@ -597,7 +697,8 @@ extension ZonedDateTimeTests {
         let base = try #require(ZonedDateTime(
             year: 2025, month: 5, day: 20,
             hour: 10, minute: 30,
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: .gregorian
         ))
 
         let modified = try #require(base.with(hour: 22))
@@ -616,7 +717,8 @@ extension ZonedDateTimeTests {
         let base = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 30,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
 
         let modified = try #require(base.with(minute: 45))
@@ -632,7 +734,8 @@ extension ZonedDateTimeTests {
         let base = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 30, second: 30,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
 
         let modified = try #require(base.with(second: 0))
@@ -647,7 +750,8 @@ extension ZonedDateTimeTests {
         let base = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
 
         let modified = try #require(base.with(nanosecond: 500_000_000))
@@ -670,7 +774,8 @@ extension ZonedDateTimeTests {
     func truncation(nanoseconds: Int, digits: Int, expected: Int) {
         let dt = ZonedDateTime(
             instant: Instant(seconds: 1000, nanoseconds: nanoseconds),
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         )
 
         let result = dt.truncateSubseconds(digits)
@@ -688,7 +793,8 @@ extension ZonedDateTimeTests {
     func rounding(nanoseconds: Int, digits: Int, expectedNano: Int) {
         let dt = ZonedDateTime(
             instant: Instant(seconds: 1000, nanoseconds: nanoseconds),
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         )
 
         let result = dt.roundSubseconds(digits)
@@ -708,7 +814,8 @@ extension ZonedDateTimeTests {
         let dt = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 0, second: 0, nanosecond: 750_000_000,
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: .gregorian
         ))
 
         let rounded = dt.roundSubseconds(0)
@@ -733,7 +840,8 @@ extension ZonedDateTimeTests {
         let dt = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10, minute: minute,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
         let quantum = Duration(seconds: Int64(quantumMin * 60))
 
@@ -752,7 +860,8 @@ extension ZonedDateTimeTests {
         let early = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 29, second: 59,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
         let roundedDown = try early.round(byQuantum: quantum)
         #expect(roundedDown.hour == 10)
@@ -761,7 +870,8 @@ extension ZonedDateTimeTests {
         let middle = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 30, second: 0,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
         let roundedUp = try middle.round(byQuantum: quantum)
         #expect(roundedUp.hour == 11)
@@ -775,7 +885,8 @@ extension ZonedDateTimeTests {
         let base = try #require(ZonedDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 0, second: 1,
-            timeZone: .utc
+            timeZone: .utc,
+            calendar: .gregorian
         ))
         let result = try base.roundUp(byQuantum: quantum)
 
@@ -785,7 +896,14 @@ extension ZonedDateTimeTests {
 
     @Test("ZonedDateTimeTests: Throws error for invalid quantum")
     func invalidQuantum() throws {
-        let dt = try #require(ZonedDateTime(year: 2025, month: 1, day: 1, hour: 10, timeZone: .utc))
+        let dt = try #require(ZonedDateTime(
+            year: 2025,
+            month: 1,
+            day: 1,
+            hour: 10,
+            timeZone: .utc,
+            calendar: .gregorian
+        ))
 
         // Quantum of zero or negative should throw
         #expect(throws: TimeRoundingError.self) {

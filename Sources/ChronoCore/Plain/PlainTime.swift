@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct PlainTime: Equatable, Hashable, Sendable {
     @usableFromInline package let nanosecondsSinceMidnight: Int64
@@ -159,13 +159,17 @@ extension PlainTime: TimeProtocol {
 
 extension PlainTime: SubsecondRoundable {
     public func roundSubseconds(_ digits: Int) -> PlainTime {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         let nanos = nanosecondsSinceMidnight
 
         let deltaDown = floorMod(nanos, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -179,13 +183,17 @@ extension PlainTime: SubsecondRoundable {
     }
 
     public func truncateSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         let nanos = nanosecondsSinceMidnight
 
         let deltaDown = floorMod(nanos, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         return Self(nanosecondsSinceMidnight: nanos - deltaDown)
     }
@@ -199,26 +207,49 @@ public extension PlainTime {
         PlainDateTime(date: date, time: self)
     }
 
-    @inlinable
-    func on(daysSinceEpoch days: Int64) -> PlainDateTime {
+    func on(
+        daysSinceEpoch days: Int64,
+        calendar: Calendar = .gregorian
+    ) -> PlainDateTime {
         PlainDateTime(
-            date: PlainDate(daysSinceEpoch: days),
+            date: PlainDate(
+                daysSinceEpoch: days,
+                calendar: calendar
+            ),
             time: self
         )
     }
 
-    @inlinable
-    func on(year: Int32, month: UInt8, day: UInt8) -> PlainDateTime? {
-        guard let date = PlainDate(year: year, month: month, day: day) else { return nil }
+    func on(
+        year: Int32,
+        month: UInt8,
+        day: UInt8,
+        calendar: Calendar = .gregorian
+    ) -> PlainDateTime? {
+        guard let date = PlainDate(
+            year: year,
+            month: month,
+            day: day,
+            calendar: calendar
+        ) else { return nil }
         return PlainDateTime(
             date: date,
             time: self
         )
     }
 
-    @inlinable
-    func on(year: Int, month: Int, day: Int) -> PlainDateTime? {
-        guard let date = PlainDate(year: year, month: month, day: day) else { return nil }
+    func on(
+        year: Int,
+        month: Int,
+        day: Int,
+        calendar: Calendar = .gregorian
+    ) -> PlainDateTime? {
+        guard let date = PlainDate(
+            year: year,
+            month: month,
+            day: day,
+            calendar: calendar
+        ) else { return nil }
         return PlainDateTime(
             date: date,
             time: self

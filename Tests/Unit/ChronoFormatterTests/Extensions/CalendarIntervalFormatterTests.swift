@@ -1,6 +1,6 @@
-import ChronoCore
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoFormatter
-import ChronoMath
 import Testing
 
 struct CalendarIntervalFormatterTests {

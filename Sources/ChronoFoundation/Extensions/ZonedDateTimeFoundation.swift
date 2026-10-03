@@ -1,3 +1,4 @@
+import ChronoCalendar
 import ChronoCore
 import Foundation
 
@@ -9,7 +10,11 @@ public extension ChronoCore.ZonedDateTime {
     ) {
         guard let plainDateTime = ChronoCore.PlainDateTime(foundation: components),
               let instant = plainDateTime.instant(in: timeZone, resolving: policy) else { return nil }
-        self.init(instant: instant, timeZone: timeZone)
+        self.init(
+            instant: instant,
+            timeZone: timeZone,
+            calendar: plainDateTime.date.calendar
+        )
     }
 
     init?(
@@ -20,13 +25,21 @@ public extension ChronoCore.ZonedDateTime {
         self.init(foundation: components, timeZone: timeZone.chrono.timeZone, resolving: policy)
     }
 
-    init(foundation date: Foundation.Date, timeZone: ChronoCore.TimeZone) {
+    init(
+        foundation date: Foundation.Date,
+        timeZone: ChronoCore.TimeZone,
+        calendar: ChronoCalendar.Calendar = .gregorian
+    ) {
         let instant = ChronoCore.Instant(foundation: date)
-        self.init(instant: instant, timeZone: timeZone)
+        self.init(instant: instant, timeZone: timeZone, calendar: calendar)
     }
 
-    init(foundation date: Foundation.Date, timeZone: Foundation.TimeZone) {
-        self.init(foundation: date, timeZone: timeZone.chrono.timeZone)
+    init(
+        foundation date: Foundation.Date,
+        timeZone: Foundation.TimeZone,
+        calendar: ChronoCalendar.Calendar = .gregorian
+    ) {
+        self.init(foundation: date, timeZone: timeZone.chrono.timeZone, calendar: calendar)
     }
 }
 
@@ -69,11 +82,17 @@ public extension FoundationOutboundBridge where Base == Foundation.DateComponent
 }
 
 public extension FoundationOutboundBridge where Base == Foundation.Date {
-    func zonedDateTime(timeZone: ChronoCore.TimeZone) -> ChronoCore.ZonedDateTime {
-        return ChronoCore.ZonedDateTime(foundation: base, timeZone: timeZone)
+    func zonedDateTime(
+        timeZone: ChronoCore.TimeZone,
+        calendar: ChronoCalendar.Calendar = .gregorian
+    ) -> ChronoCore.ZonedDateTime {
+        return ChronoCore.ZonedDateTime(foundation: base, timeZone: timeZone, calendar: calendar)
     }
 
-    func zonedDateTime(timeZone: Foundation.TimeZone) -> ChronoCore.ZonedDateTime {
-        return ChronoCore.ZonedDateTime(foundation: base, timeZone: timeZone)
+    func zonedDateTime(
+        timeZone: Foundation.TimeZone,
+        calendar: ChronoCalendar.Calendar = .gregorian
+    ) -> ChronoCore.ZonedDateTime {
+        return ChronoCore.ZonedDateTime(foundation: base, timeZone: timeZone, calendar: calendar)
     }
 }

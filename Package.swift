@@ -39,9 +39,9 @@ let package = Package(
         .target(
             name: "ChronoKit",
             dependencies: [
+                "ChronoCalendar",
                 "ChronoCore",
                 "ChronoFormatter",
-                "ChronoMath",
                 "ChronoParser",
                 "ChronoSystem",
                 "ChronoTZ",
@@ -50,21 +50,21 @@ let package = Package(
         ),
         .target(
             name: "ChronoCore",
-            dependencies: ["ChronoMath"],
+            dependencies: ["ChronoCalendar"],
             path: "Sources/ChronoCore"
         ),
         .target(
             name: "ChronoFormatter",
-            dependencies: ["ChronoCore", "ChronoMath"],
+            dependencies: ["ChronoCalendar", "ChronoCore"],
             path: "Sources/ChronoFormatter"
         ),
         .target(
-            name: "ChronoMath",
-            path: "Sources/ChronoMath"
+            name: "ChronoCalendar",
+            path: "Sources/ChronoCalendar"
         ),
         .target(
             name: "ChronoParser",
-            dependencies: ["ChronoCore", "ChronoMath"],
+            dependencies: ["ChronoCalendar", "ChronoCore"],
             path: "Sources/ChronoParser"
         ),
         .target(
@@ -75,8 +75,8 @@ let package = Package(
         .target(
             name: "ChronoTZ",
             dependencies: [
+                "ChronoCalendar",
                 "ChronoCore",
-                "ChronoMath",
                 "ChronoSystem",
             ],
             path: "Sources/ChronoTZ",
@@ -116,24 +116,24 @@ let package = Package(
         .testTarget(
             name: "ChronoFormatterTests",
             dependencies: [
+                "ChronoCalendar",
                 "ChronoCore",
                 "ChronoFormatter",
-                "ChronoMath",
                 "ChronoSystem",
             ],
             path: "Tests/Unit/ChronoFormatterTests"
         ),
         .testTarget(
-            name: "ChronoMathTests",
-            dependencies: ["ChronoMath"],
-            path: "Tests/Unit/ChronoMathTests"
+            name: "ChronoCalendarTests",
+            dependencies: ["ChronoCalendar"],
+            path: "Tests/Unit/ChronoCalendarTests"
         ),
         .testTarget(
             name: "ChronoParserTests",
             dependencies: [
+                "ChronoCalendar",
                 "ChronoCore",
                 "ChronoParser",
-                "ChronoMath",
             ],
             path: "Tests/Unit/ChronoParserTests"
         ),
@@ -145,8 +145,8 @@ let package = Package(
         .testTarget(
             name: "ChronoTZTests",
             dependencies: [
+                "ChronoCalendar",
                 "ChronoCore",
-                "ChronoMath",
                 "ChronoSystem",
                 "ChronoTZ",
             ],
@@ -164,6 +164,7 @@ let package = Package(
         .testTarget(
             name: "ChronoFoundationTests",
             dependencies: [
+                "ChronoCalendar",
                 "ChronoCore",
                 "ChronoFoundation",
             ],
@@ -175,9 +176,9 @@ let package = Package(
         .testTarget(
             name: "ChronoIntegrationTests",
             dependencies: [
+                "ChronoCalendar",
                 "ChronoCore",
                 "ChronoFormatter",
-                "ChronoMath",
                 "ChronoParser",
                 "ChronoSystem",
                 "ChronoTZ",
@@ -190,9 +191,9 @@ let package = Package(
         .testTarget(
             name: "ChronoPropertyTests",
             dependencies: [
+                "ChronoCalendar",
                 "ChronoCore",
                 "ChronoFormatter",
-                "ChronoMath",
                 "ChronoParser",
                 "ChronoSystem",
                 "ChronoTZ",

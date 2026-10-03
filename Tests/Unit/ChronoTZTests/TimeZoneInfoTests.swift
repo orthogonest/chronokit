@@ -1,4 +1,5 @@
-import ChronoCore
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoTZ
 import Testing
 
@@ -47,7 +48,11 @@ extension TimeZoneInfoTests {
         )
         let tz = TimeZoneInfo(identifier: "Empty/Zone", payload: payload)
 
-        let plainTime = try #require(PlainDateTime(year: 2026, month: 4, day: 24, second: 0, nanosecond: 0))
+        let plainTime = try #require(PlainDateTime(
+            year: 2026, month: 4, day: 24,
+            second: 0, nanosecond: 0,
+            calendar: .gregorian
+        ))
         let result = tz.offset(for: plainTime)
 
         if case let .unique(metadata) = result {
@@ -81,7 +86,8 @@ extension TimeZoneInfoTests {
         // and the Standard period (01:30 UTC).
         let plainTime = try #require(PlainDateTime(
             year: 2026, month: 4, day: 24,
-            hour: 1, minute: 30
+            hour: 1, minute: 30,
+            calendar: .gregorian
         ))
 
         let offset = tz.offset(for: plainTime)
@@ -116,7 +122,11 @@ extension TimeZoneInfoTests {
         // Query time: 01:30 AM
         // This plain time doesn't exists in both the DST period (00:30 UTC)
         // and the Standard period (01:30 UTC).
-        let plainTime = try #require(PlainDateTime(year: 2026, month: 4, day: 24, hour: 1, minute: 30))
+        let plainTime = try #require(PlainDateTime(
+            year: 2026, month: 4, day: 24,
+            hour: 1, minute: 30,
+            calendar: .gregorian
+        ))
 
         let offset = tz.offset(for: plainTime)
 

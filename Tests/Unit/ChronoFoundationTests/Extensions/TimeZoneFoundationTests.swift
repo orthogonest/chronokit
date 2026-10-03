@@ -1,4 +1,5 @@
-import ChronoCore
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoFoundation
 import Foundation
 import Testing
@@ -43,7 +44,7 @@ extension TimeZoneFoundationTests {
         let foundationZone: Foundation.TimeZone = try #require(TimeZone(identifier: "America/New_York"))
 
         // Create civil date and time at winter (Standard Time, -5 hour = -18000 second)
-        let date: ChronoCore.PlainDate = try #require(PlainDate(year: 2026, month: 12, day: 25))
+        let date: ChronoCore.PlainDate = try #require(PlainDate(year: 2026, month: 12, day: 25, calendar: .gregorian))
         let time: ChronoCore.PlainTime = try #require(PlainTime(hour: 12, minute: 0, second: 0, nanosecond: 0))
         let plainDateTime = ChronoCore.PlainDateTime(date: date, time: time)
 

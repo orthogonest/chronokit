@@ -1,6 +1,6 @@
-import ChronoCore
-import ChronoMath
-import ChronoTZ
+@testable import ChronoCalendar
+@testable import ChronoCore
+@testable import ChronoTZ
 import Testing
 
 struct PlainDateTimeTZIntegrationTests {
@@ -8,7 +8,8 @@ struct PlainDateTimeTZIntegrationTests {
     func convertToInstant() throws {
         let plain = try #require(PlainDateTime(
             year: 2025, month: 1, day: 1,
-            hour: 12, minute: 0, second: 0
+            hour: 12, minute: 0, second: 0,
+            calendar: .gregorian
         ))
         let zone = "UTC"
 
@@ -25,7 +26,8 @@ struct PlainDateTimeTZIntegrationTests {
         // We verify that the policy (preferEarlier/preferLater) changes the resulting instant.
         let plain = try #require(PlainDateTime(
             year: 2025, month: 10, day: 26,
-            hour: 1, minute: 30, second: 0
+            hour: 1, minute: 30, second: 0,
+            calendar: .gregorian
         ))
         let zone = "Europe/London"
 
@@ -40,7 +42,8 @@ struct PlainDateTimeTZIntegrationTests {
     func convertToDateTime() throws {
         let plain = try #require(PlainDateTime(
             year: 2025, month: 5, day: 20,
-            hour: 10, minute: 30, second: 0
+            hour: 10, minute: 30, second: 0,
+            calendar: .gregorian
         ))
         let zone = "Asia/Jakarta"
 
@@ -54,7 +57,8 @@ struct PlainDateTimeTZIntegrationTests {
     func throwsForUnknownZone() throws {
         let plain = try #require(PlainDateTime(
             year: 2025, month: 1, day: 1,
-            hour: 0, minute: 0, second: 0
+            hour: 0, minute: 0, second: 0,
+            calendar: .gregorian
         ))
 
         #expect(throws: TimeZoneError.zoneNotFound("Invalid/Zone")) {

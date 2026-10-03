@@ -1,4 +1,5 @@
-import ChronoCore
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoFoundation
 import Foundation
 import Testing
@@ -6,12 +7,12 @@ import Testing
 struct ConverterTests {
     @Test("ConverterTests: ChronoCore types adopt ChronoToFoundation and provide foundation proxy")
     func inboundBridgeStorage() {
-        let date = ChronoCore.PlainDate(daysSinceEpoch: 0)
+        let date = ChronoCore.PlainDate(daysSinceEpoch: 0, calendar: .gregorian)
         let time = ChronoCore.PlainTime(nanosecondsSinceMidnight: 0)
         let dateTime = ChronoCore.PlainDateTime(date: date, time: time)
         let instant = ChronoCore.Instant(seconds: 0, nanoseconds: 0)
         let timeZone = ChronoCore.TimeZone(ChronoCore.FixedOffset.utc)
-        let zonedDateTime = ChronoCore.ZonedDateTime(instant: instant, timeZone: timeZone)
+        let zonedDateTime = ChronoCore.ZonedDateTime(instant: instant, timeZone: timeZone, calendar: .gregorian)
 
         // Memastikan kompilasi dan jenis tipe proxy inbound benar
         #expect(type(of: date.foundation) == FoundationInboundBridge<ChronoCore.PlainDate>.self)

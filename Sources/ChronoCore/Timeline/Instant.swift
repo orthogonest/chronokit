@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct Instant: Equatable, Hashable, Sendable {
     public let seconds: Int64
@@ -76,10 +76,14 @@ public extension Instant {
     @inlinable
     var timestampNanosecondsChecked: Int64? {
         let (secPart, overflowMul) = seconds.multipliedReportingOverflow(by: NanoSeconds.perSecond64)
-        if overflowMul { return nil }
+        if overflowMul {
+            return nil
+        }
 
         let (total, overflowSum) = secPart.addingReportingOverflow(Int64(nanoseconds))
-        if overflowSum { return nil }
+        if overflowSum {
+            return nil
+        }
 
         return total
     }
@@ -98,7 +102,6 @@ public extension Instant {
         )
     }
 
-    @inlinable
     func advanced(by duration: Duration) -> Self {
         advanced(
             bySeconds: duration.seconds,
@@ -153,13 +156,17 @@ public extension Instant {
 
 extension Instant: SubsecondRoundable {
     public func roundSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         let nanos = Int64(nanoseconds)
 
         let deltaDown = floorMod(nanos, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -171,13 +178,17 @@ extension Instant: SubsecondRoundable {
     }
 
     public func truncateSubseconds(_ digits: Int) -> Self {
-        if digits >= 9 { return self }
+        if digits >= 9 {
+            return self
+        }
 
         let span = NanosecondMath.span(forDigits: digits)
         let nanos = Int64(nanoseconds)
 
         let deltaDown = floorMod(nanos, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         return advanced(bySeconds: 0, nanoseconds: -deltaDown)
     }
@@ -194,7 +205,9 @@ extension Instant: DurationRoundable {
         guard let stamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(stamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         let deltaUp = span - deltaDown
 
@@ -211,7 +224,9 @@ extension Instant: DurationRoundable {
         guard let stamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(stamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         return advanced(bySeconds: 0, nanoseconds: -deltaDown)
     }
@@ -222,7 +237,9 @@ extension Instant: DurationRoundable {
         guard let stamp = timestampNanosecondsChecked else { throw .timestampExceedsLimit }
 
         let deltaDown = floorMod(stamp, span)
-        if deltaDown == 0 { return self }
+        if deltaDown == 0 {
+            return self
+        }
 
         return advanced(bySeconds: 0, nanoseconds: span - deltaDown)
     }
@@ -231,7 +248,10 @@ extension Instant: DurationRoundable {
 // MARK: - Plain Date Time Conversion
 
 public extension Instant {
-    func plainDateTime(in timeZone: some TimeZoneProtocol) -> PlainDateTime {
+    func plainDateTime(
+        in timeZone: some TimeZoneProtocol,
+        calendar: Calendar = .gregorian
+    ) -> PlainDateTime {
         let offset = timeZone.offset(for: self)
 
         let totalSecs = seconds.addingReportingOverflow(offset.seconds).partialValue
@@ -248,24 +268,31 @@ public extension Instant {
         let nanosSinceMidnight = secondsOfDay * NanoSeconds.perSecond64 + finalNanos
 
         return PlainDateTime(
-            date: PlainDate(daysSinceEpoch: days),
+            date: PlainDate(daysSinceEpoch: days, calendar: calendar),
             time: PlainTime(nanosecondsSinceMidnight: nanosSinceMidnight)
         )
     }
 
     var plainDateTimeUTC: PlainDateTime {
-        plainDateTime(in: FixedOffset.utc)
+        plainDateTime(in: FixedOffset.utc, calendar: .gregorian)
     }
 }
 
 // MARK: - Zoned Date Time Conversion
 
 public extension Instant {
-    func zonedDateTime(in timeZone: TimeZone) -> ZonedDateTime {
-        ZonedDateTime(instant: self, timeZone: timeZone)
+    func zonedDateTime(
+        in timeZone: TimeZone,
+        calendar: Calendar = .gregorian
+    ) -> ZonedDateTime {
+        ZonedDateTime(
+            instant: self,
+            timeZone: timeZone,
+            calendar: calendar
+        )
     }
 
     var zonedDateTimeUTC: ZonedDateTime {
-        zonedDateTime(in: .utc)
+        zonedDateTime(in: .utc, calendar: .gregorian)
     }
 }

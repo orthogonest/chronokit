@@ -1,5 +1,5 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
-import ChronoMath
 import Testing
 
 struct PlainTimeTests {
@@ -515,7 +515,7 @@ extension PlainTimeTests {
     @Test("PlainTimeTests: Convert using PlainDate object")
     func toDateTimeWithDateObject() throws {
         let baseTime = try #require(PlainTime(hour: 14, minute: 15, second: 30, nanosecond: 500))
-        let date = try #require(PlainDate(year: 2025, month: 12, day: 25))
+        let date = try #require(PlainDate(year: 2025, month: 12, day: 25, calendar: .gregorian))
         let dt = baseTime.on(date)
 
         #expect(dt.time == baseTime)
@@ -531,7 +531,7 @@ extension PlainTimeTests {
     ])
     func toDateTimeWithDays(days: Int64, expY: Int32, expM: Int, expD: Int) throws {
         let baseTime = try #require(PlainTime(hour: 14, minute: 15, second: 30, nanosecond: 500))
-        let dt = baseTime.on(daysSinceEpoch: days)
+        let dt = baseTime.on(daysSinceEpoch: days, calendar: .gregorian)
 
         #expect(dt.time == baseTime)
         #expect(dt.year == expY)
@@ -543,7 +543,7 @@ extension PlainTimeTests {
     func toDateTimeWithValidComponents() throws {
         let baseTime = try #require(PlainTime(hour: 14, minute: 15, second: 30, nanosecond: 500))
         // Testing the (Int32, Int, Int) overload
-        let dt = baseTime.on(year: 2024, month: 2, day: 29)
+        let dt = baseTime.on(year: 2024, month: 2, day: 29, calendar: .gregorian)
 
         #expect(dt != nil)
         #expect(dt?.year == 2024)
@@ -559,7 +559,7 @@ extension PlainTimeTests {
     ])
     func toDateTimeWithInvalidComponents(year: Int, month: Int, day: Int) throws {
         let baseTime = try #require(PlainTime(hour: 14, minute: 15, second: 30, nanosecond: 500))
-        let result = baseTime.on(year: year, month: month, day: day)
+        let result = baseTime.on(year: year, month: month, day: day, calendar: .gregorian)
         #expect(result == nil)
     }
 
@@ -569,7 +569,7 @@ extension PlainTimeTests {
         // Testing the (Int32, UInt8, UInt8) overload
         let month: UInt8 = 10
         let day: UInt8 = 31
-        let dt = baseTime.on(year: 2025, month: month, day: day)
+        let dt = baseTime.on(year: 2025, month: month, day: day, calendar: .gregorian)
 
         #expect(dt?.month == 10)
         #expect(dt?.day == 31)

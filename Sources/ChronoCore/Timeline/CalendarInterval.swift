@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public typealias Period = CalendarInterval
 

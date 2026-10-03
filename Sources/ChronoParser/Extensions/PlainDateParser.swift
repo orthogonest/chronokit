@@ -1,5 +1,5 @@
+import ChronoCalendar
 import ChronoCore
-import ChronoMath
 
 public extension PlainDate {
     init?(rfc3339 string: String) {
@@ -20,7 +20,8 @@ public extension PlainDate {
         self.init(
             year: Int32(parsed.year),
             month: UInt8(parsed.month),
-            day: UInt8(parsed.day)
+            day: UInt8(parsed.day),
+            calendar: .gregorian
         )
     }
 
@@ -48,7 +49,8 @@ public extension PlainDate {
         self.init(
             year: Int32(parsed.year),
             month: UInt8(parsed.month),
-            day: UInt8(parsed.day)
+            day: UInt8(parsed.day),
+            calendar: .gregorian
         )
     }
 

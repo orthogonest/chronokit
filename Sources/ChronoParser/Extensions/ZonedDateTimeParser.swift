@@ -1,5 +1,5 @@
-import ChronoCore
-import ChronoMath
+@testable import ChronoCalendar
+@testable import ChronoCore
 
 public extension ZonedDateTime {
     init?(rfc3339 string: String) {
@@ -15,7 +15,8 @@ public extension ZonedDateTime {
             minute: parsed.time.minute,
             second: parsed.time.second,
             nanosecond: Int(parsed.time.nanosecond),
-            timeZone: .fixedOffset(seconds: parsed.offset)
+            timeZone: .fixedOffset(seconds: parsed.offset),
+            calendar: .gregorian
         )
     }
 
@@ -32,7 +33,8 @@ public extension ZonedDateTime {
             minute: parsed.time.minute,
             second: parsed.time.second,
             nanosecond: Int(parsed.time.nanosecond),
-            timeZone: .fixedOffset(seconds: parsed.offset)
+            timeZone: .fixedOffset(seconds: parsed.offset),
+            calendar: .gregorian
         )
     }
 

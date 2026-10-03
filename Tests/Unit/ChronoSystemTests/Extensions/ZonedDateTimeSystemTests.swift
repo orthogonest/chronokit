@@ -1,4 +1,5 @@
-import ChronoCore
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoSystem
 import Testing
 
@@ -17,11 +18,11 @@ struct ZonedDateTimeSystemTests {
     func genericNow() {
         // Test with FixedOffset
         let jakartaTZ: TimeZone = .fixedOffset(.hours(7))
-        let dtFixed: ZonedDateTime = .now(in: jakartaTZ)
+        let dtFixed: ZonedDateTime = .now(in: jakartaTZ, calendar: .gregorian)
         #expect(dtFixed.timeZone == jakartaTZ)
 
         // Test with System
-        let dtSystem: ZonedDateTime = .now(in: .system)
+        let dtSystem: ZonedDateTime = .now(in: .system, calendar: .gregorian)
         #expect(!dtSystem.timeZone.identifier.isEmpty)
     }
 
@@ -39,13 +40,13 @@ struct ZonedDateTimeSystemTests {
     @Test("ZonedDateTimeSystemTests: Gap Initialization Clock")
     func highPrecisionGap() {
         let now: ZonedDateTime = .now
-        let manualNow: ZonedDateTime = .now(in: .system)
+        let manualNow: ZonedDateTime = .now(in: .system, calendar: .gregorian)
 
         // Ensure they captured roughly the same time
         let diff = abs(now.instant.seconds - manualNow.instant.seconds)
         #expect(diff < 1)
 
-        let fixed: ZonedDateTime = .now(in: .fixedOffset(.hours(7)))
+        let fixed: ZonedDateTime = .now(in: .fixedOffset(.hours(7)), calendar: .gregorian)
         #expect(fixed.timeZone.offset(for: fixed.instant) == .hours(7))
     }
 
@@ -62,7 +63,7 @@ struct ZonedDateTimeSystemTests {
         0, 3600, -3600, 18000, -18000
     ])
     func parameterizedOffsets(seconds: Int) {
-        let dt: ZonedDateTime = .now(in: .fixedOffset(seconds: seconds))
+        let dt: ZonedDateTime = .now(in: .fixedOffset(seconds: seconds), calendar: .gregorian)
         #expect(dt.timeZone.offset(for: dt.instant) == .seconds(seconds))
     }
 
@@ -71,7 +72,7 @@ struct ZonedDateTimeSystemTests {
         -12 * 3600 // Max West
     ])
     func extremeOffsets(seconds: Int) {
-        let dt: ZonedDateTime = .now(in: .fixedOffset(seconds: seconds))
+        let dt: ZonedDateTime = .now(in: .fixedOffset(seconds: seconds), calendar: .gregorian)
         #expect(dt.timeZone.offset(for: dt.instant) == .seconds(seconds))
     }
 }

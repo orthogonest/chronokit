@@ -1,4 +1,4 @@
-import ChronoMath
+import ChronoCalendar
 
 public struct FixedOffset: Equatable, Hashable, Sendable {
     /// The offset in seconds east of UTC.
@@ -144,7 +144,9 @@ public extension FixedOffset {
 
 extension FixedOffset: TimeZoneProtocol {
     public var identifier: String {
-        if duration == .zero { return "UTC" }
+        if duration == .zero {
+            return "UTC"
+        }
 
         let totalSeconds = Int(duration.seconds)
         let total = abs(totalSeconds)

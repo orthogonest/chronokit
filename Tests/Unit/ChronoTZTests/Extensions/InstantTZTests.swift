@@ -1,4 +1,5 @@
-import ChronoCore
+@testable import ChronoCalendar
+@testable import ChronoCore
 @testable import ChronoTZ
 import Testing
 
@@ -18,7 +19,7 @@ struct InstantTZTests {
         let tz = TimeZoneInfo(identifier: tzName, payload: payload)
         mock.insertZones(tzName, tz: tz)
 
-        _ = try instant.plainDateTime(in: tzName, provider: mock)
+        _ = try instant.plainDateTime(in: tzName, provider: mock, calendar: .gregorian)
     }
 
     @Test("InstantTZTests: DateTime conversion succeeds with valid provider")
@@ -34,7 +35,7 @@ struct InstantTZTests {
         let tz = TimeZoneInfo(identifier: tzName, payload: payload)
         mock.insertZones(tzName, tz: tz)
 
-        let result = try instant.zonedDateTime(in: tzName, provider: mock)
+        let result = try instant.zonedDateTime(in: tzName, provider: mock, calendar: .gregorian)
 
         #expect(result.timeZone.identifier == tzName)
     }
@@ -44,11 +45,11 @@ struct InstantTZTests {
         let mock = MockTimeZoneProvider()
 
         #expect(throws: (any Error).self) {
-            try instant.plainDateTime(in: "Invalid/Zone", provider: mock)
+            try instant.plainDateTime(in: "Invalid/Zone", provider: mock, calendar: .gregorian)
         }
 
         #expect(throws: (any Error).self) {
-            try instant.zonedDateTime(in: "Invalid/Zone", provider: mock)
+            try instant.zonedDateTime(in: "Invalid/Zone", provider: mock, calendar: .gregorian)
         }
     }
 }

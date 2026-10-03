@@ -6,7 +6,15 @@ public extension ChronoCore.PlainDate {
         guard let year = components.year,
               let month = components.month,
               let day = components.day else { return nil }
-        self.init(year: year, month: month, day: day)
+
+        let calendar = components.calendar?.chrono ?? .gregorian
+
+        self.init(
+            year: year,
+            month: month,
+            day: day,
+            calendar: calendar
+        )
     }
 }
 
@@ -16,6 +24,7 @@ public extension Foundation.DateComponents {
         components.year = date.year
         components.month = date.month
         components.day = date.day
+        components.calendar = date.calendar.foundation
         self = components
     }
 }

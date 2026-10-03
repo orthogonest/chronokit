@@ -10,7 +10,10 @@ public extension ChronoCore.PlainDateTime {
 }
 
 public extension Foundation.DateComponents {
-    init(chrono dateTime: ChronoCore.PlainDateTime, timeZone: ChronoCore.TimeZone? = nil) {
+    init(
+        chrono dateTime: ChronoCore.PlainDateTime,
+        timeZone: ChronoCore.TimeZone? = nil
+    ) {
         var components = Self()
         components.year = dateTime.year
         components.month = dateTime.month
@@ -20,6 +23,7 @@ public extension Foundation.DateComponents {
         components.second = dateTime.second
         components.nanosecond = dateTime.nanosecond
         components.timeZone = timeZone?.foundation.timeZone
+        components.calendar = dateTime.date.calendar.foundation
         self = components
     }
 }
