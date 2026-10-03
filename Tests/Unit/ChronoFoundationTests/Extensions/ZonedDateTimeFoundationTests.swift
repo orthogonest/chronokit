@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoFoundation
 import Foundation
@@ -92,7 +93,7 @@ extension ZonedDateTimeFoundationTests {
     func componentsFromChronoZonedDateTime() {
         let instant = ChronoCore.Instant(seconds: 0, nanoseconds: 0) // Unix Epoch UTC
         let chronoTimeZone: ChronoCore.TimeZone = .fixedOffset(seconds: 25200) // +7 Hour (Asia/Jakarta)
-        let zonedDateTime = ChronoCore.ZonedDateTime(instant: instant, timeZone: chronoTimeZone)
+        let zonedDateTime = ChronoCore.ZonedDateTime(instant: instant, timeZone: chronoTimeZone, calendar: .gregorian)
 
         let components = Foundation.DateComponents(chrono: zonedDateTime)
 
@@ -109,7 +110,7 @@ extension ZonedDateTimeFoundationTests {
     func dateFromChronoZonedDateTime() {
         let instant = ChronoCore.Instant(seconds: 123_456, nanoseconds: 0)
         let chronoTimeZone: ChronoCore.TimeZone = .utc
-        let zonedDateTime = ChronoCore.ZonedDateTime(instant: instant, timeZone: chronoTimeZone)
+        let zonedDateTime = ChronoCore.ZonedDateTime(instant: instant, timeZone: chronoTimeZone, calendar: .gregorian)
 
         let date = Foundation.Date(chrono: zonedDateTime)
         #expect(date.timeIntervalSince1970 == 123_456.0, "Date should reflect the absolute instant universally")
@@ -123,7 +124,7 @@ extension ZonedDateTimeFoundationTests {
     func inboundBridgeProxyProperties() {
         let instant = ChronoCore.Instant(seconds: 2000, nanoseconds: 0)
         let chronoTimeZone: ChronoCore.TimeZone = .utc
-        let zonedDateTime = ChronoCore.ZonedDateTime(instant: instant, timeZone: chronoTimeZone)
+        let zonedDateTime = ChronoCore.ZonedDateTime(instant: instant, timeZone: chronoTimeZone, calendar: .gregorian)
 
         #expect(zonedDateTime.foundation.date.timeIntervalSince1970 == 2000.0)
 

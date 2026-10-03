@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoFoundation
 import Foundation
@@ -38,7 +39,12 @@ struct PlainDateFoundationTests {
 extension PlainDateFoundationTests {
     @Test("PlainDateTests: Foundation.DateComponents from ChronoCore.PlainDate")
     func componentsFromChronoPlainDate() throws {
-        let plainDate: ChronoCore.PlainDate = try #require(PlainDate(year: 2024, month: 2, day: 29)) // Leap year
+        let plainDate: ChronoCore.PlainDate = try #require(PlainDate(
+            year: 2024,
+            month: 2,
+            day: 29,
+            calendar: .gregorian
+        )) // Leap year
         let components = Foundation.DateComponents(chrono: plainDate)
 
         #expect(components.year == 2024, "DateComponents year should be populated correctly")
@@ -56,7 +62,7 @@ extension PlainDateFoundationTests {
 extension PlainDateFoundationTests {
     @Test("PlainDateTests: Inbound bridge proxy property (.foundation.components)")
     func inboundBridgeProxyProperty() {
-        let plainDate = ChronoCore.PlainDate(year: 1970, month: 1, day: 1)
+        let plainDate = ChronoCore.PlainDate(year: 1970, month: 1, day: 1, calendar: .gregorian)
         let components = plainDate?.foundation.components
 
         #expect(components?.year == 1970)

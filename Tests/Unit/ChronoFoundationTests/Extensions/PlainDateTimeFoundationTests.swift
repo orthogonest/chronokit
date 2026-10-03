@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoFoundation
 import Foundation
@@ -45,7 +46,7 @@ struct PlainDateTimeFoundationTests {
 extension PlainDateTimeFoundationTests {
     @Test("PlainDateTimeFoundationTests: Foundation.DateComponents from ChronoCore.PlainDateTime without TimeZone")
     func componentsFromChronoPlainDateTimeWithoutTimeZone() throws {
-        let date = try #require(PlainDate(year: 2024, month: 12, day: 25))
+        let date = try #require(PlainDate(year: 2024, month: 12, day: 25, calendar: .gregorian))
         let time = try #require(PlainTime(hour: 8, minute: 0, second: 0, nanosecond: 0))
         let plainDateTime = ChronoCore.PlainDateTime(date: date, time: time)
 
@@ -63,7 +64,7 @@ extension PlainDateTimeFoundationTests {
 
     @Test("PlainDateTimeFoundationTests: Foundation.DateComponents from ChronoCore.PlainDateTime with TimeZone")
     func componentsFromChronoPlainDateTimeWithTimeZone() throws {
-        let date: ChronoCore.PlainDate = try #require(PlainDate(year: 2026, month: 1, day: 1))
+        let date: ChronoCore.PlainDate = try #require(PlainDate(year: 2026, month: 1, day: 1, calendar: .gregorian))
         let time: ChronoCore.PlainTime = try #require(PlainTime(hour: 0, minute: 0, second: 0, nanosecond: 0))
         let plainDateTime = ChronoCore.PlainDateTime(date: date, time: time)
 
@@ -80,7 +81,7 @@ extension PlainDateTimeFoundationTests {
 extension PlainDateTimeFoundationTests {
     @Test("PlainDateTimeFoundationTests: Inbound bridge proxy properties and functions (.foundation)")
     func inboundBridgeProxy() throws {
-        let date: ChronoCore.PlainDate = try #require(PlainDate(year: 2026, month: 9, day: 21))
+        let date: ChronoCore.PlainDate = try #require(PlainDate(year: 2026, month: 9, day: 21, calendar: .gregorian))
         let time: ChronoCore.PlainTime = try #require(PlainTime(hour: 15, minute: 45, second: 30, nanosecond: 500))
         let plainDateTime = ChronoCore.PlainDateTime(date: date, time: time)
 
