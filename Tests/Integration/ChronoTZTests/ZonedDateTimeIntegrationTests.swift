@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoTZ
 import Testing
@@ -8,7 +9,7 @@ struct ZonedDateTimeIntegrationTests {
         let instant = Instant(seconds: 1_700_000_000, nanoseconds: 0)
         let zoneName = "UTC" // Assuming "UTC" is in your shared DB
 
-        let dt = try ZonedDateTime(instant: instant, timeZone: zoneName)
+        let dt = try ZonedDateTime(instant: instant, timeZone: zoneName, calendar: .gregorian)
 
         #expect(dt.timeZone.identifier == "UTC")
         #expect(dt.instant == instant)
@@ -19,13 +20,13 @@ struct ZonedDateTimeIntegrationTests {
         let instant = Instant(seconds: 0, nanoseconds: 0)
 
         #expect(throws: TimeZoneError.zoneNotFound("Invalid/Zone")) {
-            try ZonedDateTime(instant: instant, timeZone: "Invalid/Zone")
+            try ZonedDateTime(instant: instant, timeZone: "Invalid/Zone", calendar: .gregorian)
         }
     }
 
     @Test("ZonedDateTimeIntegrationTests: now(in:) creates valid object")
     func nowInZone() throws {
-        let dt = try ZonedDateTime.now(in: "UTC")
+        let dt = try ZonedDateTime.now(in: "UTC", calendar: .gregorian)
 
         #expect(dt.timeZone.identifier == "UTC", "Timezone should match")
 
@@ -37,7 +38,7 @@ struct ZonedDateTimeIntegrationTests {
 
     @Test("ZonedDateTimeIntegrationTests: now in WIB")
     func nowInJakarta() throws {
-        let dt = try ZonedDateTime.now(in: "Asia/Jakarta")
+        let dt = try ZonedDateTime.now(in: "Asia/Jakarta", calendar: .gregorian)
 
         #expect(dt.timeZone.identifier == "Asia/Jakarta", "Timezone should match")
 

@@ -11,7 +11,7 @@ struct InstantTZIntegrationTests {
 
         let zone = "UTC"
 
-        let plain = try instant.plainDateTime(in: zone)
+        let plain = try instant.plainDateTime(in: zone, calendar: .gregorian)
 
         // Ensure conversion didn't return an empty/error state
         // You might add specific property checks here depending on PlainDateTime's API
@@ -28,7 +28,7 @@ struct InstantTZIntegrationTests {
         let instant = Instant(seconds: 1_700_000_000, nanoseconds: 0)
         let zone = "Asia/Jakarta"
 
-        let dt = try instant.zonedDateTime(in: zone)
+        let dt = try instant.zonedDateTime(in: zone, calendar: .gregorian)
 
         #expect(dt.timeZone.identifier == "Asia/Jakarta")
         #expect(dt.instant == instant)
@@ -41,7 +41,7 @@ struct InstantTZIntegrationTests {
         #expect(throws: TZDBError.invalidHeader) {
             let dummyBytes: [UInt8] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
             let provider = try IANAProvider(bytes: dummyBytes)
-            _ = try instant.zonedDateTime(in: "UTC", provider: provider)
+            _ = try instant.zonedDateTime(in: "UTC", provider: provider, calendar: .gregorian)
         }
     }
 
@@ -50,7 +50,7 @@ struct InstantTZIntegrationTests {
         let instant = Instant(seconds: 0, nanoseconds: 0)
 
         #expect(throws: TimeZoneError.zoneNotFound("Invalid/Zone")) {
-            _ = try instant.zonedDateTime(in: "Invalid/Zone")
+            _ = try instant.zonedDateTime(in: "Invalid/Zone", calendar: .gregorian)
         }
     }
 }
