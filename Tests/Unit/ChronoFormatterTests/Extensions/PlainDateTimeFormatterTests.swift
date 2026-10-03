@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoFormatter
 import Testing
@@ -8,7 +9,8 @@ struct PlainDateTimeFormatterTests {
     let dt = PlainDateTime(
         year: 2026, month: 12, day: 29,
         hour: 15, minute: 30, second: 0,
-        nanosecond: 500_000_000
+        nanosecond: 500_000_000,
+        calendar: .gregorian
     )
 
     @Test("PlainDateTimeFormatterTests: Default string RFC 3339 formatting")
@@ -30,7 +32,7 @@ struct PlainDateTimeFormatterTests {
 
     @Test("PlainDateTimeFormatterTests: RFC 3339 Plain with Fixed Offset")
     func withOffset_rfc3339() throws {
-        let dt = PlainDateTime(year: 2026, month: 4, day: 16, hour: 13, minute: 0, second: 0)
+        let dt = PlainDateTime(year: 2026, month: 4, day: 16, hour: 13, minute: 0, second: 0, calendar: .gregorian)
         let plain = try #require(dt)
         let offset = FixedOffset(seconds: 25200) // +07:00
         let result = plain.rfc3339(digits: 0, offset: offset)
@@ -39,7 +41,7 @@ struct PlainDateTimeFormatterTests {
 
     @Test("PlainDateTimeFormatterTests: RFC 3339 Plain with UTC Offset (Zulu)")
     func withUTCOffset_rfc3339() throws {
-        let dt = PlainDateTime(year: 2026, month: 1, day: 1, hour: 0, minute: 0, second: 0)
+        let dt = PlainDateTime(year: 2026, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: .gregorian)
         let plain = try #require(dt)
         let result = plain.rfc3339(digits: 0, offset: .utc)
         #expect(result == "2026-01-01T00:00:00Z", "Should print zulu offset")
@@ -47,7 +49,12 @@ struct PlainDateTimeFormatterTests {
 
     @Test("PlainDateTimeFormatterTests: RFC 3339 Fractions and Offsets Combined")
     func fractionsAndOffsets_rfc3339() throws {
-        let dt = PlainDateTime(year: 2026, month: 4, day: 16, hour: 13, minute: 0, second: 0, nanosecond: 123_456_789)
+        let dt = PlainDateTime(
+            year: 2026, month: 4, day: 16,
+            hour: 13, minute: 0, second: 0,
+            nanosecond: 123_456_789,
+            calendar: .gregorian
+        )
         let plain = try #require(dt)
         let offset = FixedOffset(seconds: -18000) // -05:00
         #expect(plain.rfc3339(digits: 3, offset: offset) == "2026-04-16T13:00:00.123-05:00")
@@ -56,7 +63,12 @@ struct PlainDateTimeFormatterTests {
 
     @Test("PlainDateTimeFormatterTests: RFC 3339 Max Digits Padding")
     func fractionPadding_rfc3339() throws {
-        let dt = PlainDateTime(year: 2026, month: 4, day: 16, hour: 12, minute: 0, second: 0, nanosecond: 0)
+        let dt = PlainDateTime(
+            year: 2026, month: 4, day: 16,
+            hour: 12, minute: 0, second: 0,
+            nanosecond: 0,
+            calendar: .gregorian
+        )
         let plain = try #require(dt)
         #expect(plain.rfc3339(digits: 3) == "2026-04-16T12:00:00.000", "Should print .000 even if nanos is 0")
     }
@@ -69,7 +81,8 @@ struct PlainDateTimeFormatterTests {
             day: 29,
             hour: 23,
             minute: 59,
-            second: 59
+            second: 59,
+            calendar: .gregorian
         ))
         #expect(leap.rfc3339() == "2024-02-29T23:59:59")
     }
@@ -82,7 +95,8 @@ struct PlainDateTimeFormatterTests {
             day: 1,
             hour: 0,
             minute: 0,
-            second: 0
+            second: 0,
+            calendar: .gregorian
         ))
         let yearEnd = try #require(PlainDateTime(
             year: 2025,
@@ -90,7 +104,8 @@ struct PlainDateTimeFormatterTests {
             day: 31,
             hour: 23,
             minute: 59,
-            second: 59
+            second: 59,
+            calendar: .gregorian
         ))
 
         #expect(yearStart.rfc3339() == "2026-01-01T00:00:00")
@@ -120,7 +135,8 @@ extension PlainDateTimeFormatterTests {
             day: day,
             hour: hour,
             minute: minute,
-            second: second
+            second: second,
+            calendar: .gregorian
         ))
         #expect(datetime.rfc5322() == expected)
     }
@@ -144,7 +160,8 @@ extension PlainDateTimeFormatterTests {
             day: 1,
             hour: 12,
             minute: 0,
-            second: 0
+            second: 0,
+            calendar: .gregorian
         )
         #expect(rawDT?.rfc5322() == nil)
     }
@@ -162,7 +179,8 @@ extension PlainDateTimeFormatterTests {
             day: 1,
             hour: 0,
             minute: 0,
-            second: 0
+            second: 0,
+            calendar: .gregorian
         ))
         let modern = datetime.rfc5322()
         let deprecated = datetime.rfc2822()

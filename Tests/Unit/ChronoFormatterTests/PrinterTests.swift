@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoFormatter
 import Testing
@@ -5,7 +6,7 @@ import Testing
 struct ChronoPrinterTests {
     @Test("ChronoPrinterTests: Print Date")
     func printDate() throws {
-        let date = try #require(PlainDate(year: 2026, month: 4, day: 16))
+        let date = try #require(PlainDate(year: 2026, month: 4, day: 16, calendar: .gregorian))
         let result = withBuffer(capacity: 10) { buffer, cursor in
             ChronoPrinter.printDate(date, to: buffer, at: &cursor)
         }

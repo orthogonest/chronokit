@@ -1,3 +1,4 @@
+@testable import ChronoCalendar
 @testable import ChronoCore
 @testable import ChronoFormatter
 @testable import ChronoSystem
@@ -9,7 +10,7 @@ struct ZonedDateTimeFormatterTests {
     @Test("ZonedDateTimeFormatterTests: UTC RFC 3339 DateTime")
     func defaultUTC_rfc3339() {
         let instant = Instant(seconds: 1_776_340_800, nanoseconds: 0) // 2026-04-16T12:00:00Z
-        let dt = ZonedDateTime(instant: instant, timeZone: .utc)
+        let dt = ZonedDateTime(instant: instant, timeZone: .utc, calendar: .gregorian)
         #expect(dt.rfc3339() == "2026-04-16T12:00:00Z")
         #expect(dt.description == "2026-04-16T12:00:00Z")
         #expect("Today is \(dt)" == "Today is 2026-04-16T12:00:00Z")
@@ -20,7 +21,7 @@ struct ZonedDateTimeFormatterTests {
         let instant = Instant(seconds: 1_776_340_800, nanoseconds: 0)
         // UTC: 12:00:00 -> +07:00: 19:00:00
         let jkt: TimeZone = .fixedOffset(seconds: 25200)
-        let dt = ZonedDateTime(instant: instant, timeZone: jkt)
+        let dt = ZonedDateTime(instant: instant, timeZone: jkt, calendar: .gregorian)
 
         #expect(dt.rfc3339() == "2026-04-16T19:00:00+07:00")
     }
@@ -30,7 +31,7 @@ struct ZonedDateTimeFormatterTests {
         let instant = Instant(seconds: 1_776_340_800, nanoseconds: 500_000_000)
         // UTC: 12:00:00.5 -> -05:00: 07:00:00.5
         let nyc: TimeZone = .fixedOffset(seconds: -18000)
-        let dt = ZonedDateTime(instant: instant, timeZone: nyc)
+        let dt = ZonedDateTime(instant: instant, timeZone: nyc, calendar: .gregorian)
 
         #expect(dt.rfc3339(digits: 3) == "2026-04-16T07:00:00.500-05:00")
     }
@@ -48,7 +49,7 @@ struct ZonedDateTimeFormatterTests {
     @Test("ZonedDateTimeFormatterTests: RFC 3339 Fixed Fraction Width")
     func fixedFractionWidth_rfc3339() {
         let instant = Instant(seconds: 100, nanoseconds: 12345)
-        let dt = ZonedDateTime(instant: instant, timeZone: .utc)
+        let dt = ZonedDateTime(instant: instant, timeZone: .utc, calendar: .gregorian)
 
         // Should pad nanoseconds correctly inside the DateTime context
         #expect(dt.rfc3339(digits: 9) == "1970-01-01T00:01:40.000012345Z")
@@ -56,7 +57,7 @@ struct ZonedDateTimeFormatterTests {
 
     @Test("ZonedDateTimeFormatterTests: RFC 3339 Generic TimeZone Handling")
     func genericTimeZone_rfc3339() {
-        let dt = ZonedDateTime(instant: .now, timeZone: TimeZone(MockZeroZone()))
+        let dt = ZonedDateTime(instant: .now, timeZone: TimeZone(MockZeroZone()), calendar: .gregorian)
         #expect(dt.rfc3339().hasSuffix("Z"))
     }
 
@@ -64,7 +65,7 @@ struct ZonedDateTimeFormatterTests {
     func halfHourOffset_rfc3339() {
         let instant = Instant(seconds: 1_773_748_800, nanoseconds: 0) // 12:00:00 UTC
         let ist: TimeZone = .fixedOffset(seconds: 19800) // +05:30
-        let dt = ZonedDateTime(instant: instant, timeZone: ist)
+        let dt = ZonedDateTime(instant: instant, timeZone: ist, calendar: .gregorian)
         #expect(dt.rfc3339() == "2026-03-17T17:30:00+05:30")
     }
 }
@@ -78,7 +79,7 @@ extension ZonedDateTimeFormatterTests {
         // Jakarta (+07:00): 19:00:00 -> Still 2026-03-17 (Tuesday)
         let instant = Instant(seconds: 1_773_748_800, nanoseconds: 0)
         let jkt: TimeZone = .fixedOffset(seconds: 25200)
-        let dt = ZonedDateTime(instant: instant, timeZone: jkt)
+        let dt = ZonedDateTime(instant: instant, timeZone: jkt, calendar: .gregorian)
 
         #expect(dt.rfc5322() == "Tue, 17 Mar 2026 19:00:00 +0700")
     }
@@ -89,7 +90,7 @@ extension ZonedDateTimeFormatterTests {
         // NYC (-05:00): 2026-03-16 21:00:00 (Monday)
         let instant = Instant(seconds: 1_773_712_800, nanoseconds: 0)
         let nyc: TimeZone = .fixedOffset(seconds: -18000)
-        let dt = ZonedDateTime(instant: instant, timeZone: nyc)
+        let dt = ZonedDateTime(instant: instant, timeZone: nyc, calendar: .gregorian)
 
         #expect(dt.rfc5322() == "Mon, 16 Mar 2026 21:00:00 -0500")
     }
@@ -97,7 +98,7 @@ extension ZonedDateTimeFormatterTests {
     @Test("ZonedDateTimeFormatterTests: RFC 5322 UTC handling")
     func utc_rfc5322() {
         let instant = Instant(seconds: 0, nanoseconds: 0)
-        let dt = ZonedDateTime(instant: instant, timeZone: .utc)
+        let dt = ZonedDateTime(instant: instant, timeZone: .utc, calendar: .gregorian)
 
         // RFC 5322 prefers numeric offset +0000 for UTC
         #expect(dt.rfc5322() == "Thu, 01 Jan 1970 00:00:00 +0000")
@@ -107,7 +108,7 @@ extension ZonedDateTimeFormatterTests {
     func halfHourOffset_rfc5322() {
         let instant = Instant(seconds: 1_773_748_800, nanoseconds: 0) // 12:00:00 UTC
         let ist: TimeZone = .fixedOffset(seconds: 19800) // +05:30
-        let dt = ZonedDateTime(instant: instant, timeZone: ist)
+        let dt = ZonedDateTime(instant: instant, timeZone: ist, calendar: .gregorian)
         #expect(dt.rfc5322() == "Tue, 17 Mar 2026 17:30:00 +0530")
     }
 
@@ -116,7 +117,7 @@ extension ZonedDateTimeFormatterTests {
         // "Tue, 17 Mar 2026 19:00:00 +0700" is 31 chars.
         // Your capacity is 48, which is plenty for RFC 5322.
         let instant = Instant(seconds: 1_773_748_800, nanoseconds: 999_999_999)
-        let dt = ZonedDateTime(instant: instant, timeZone: .fixedOffset(seconds: 25200))
+        let dt = ZonedDateTime(instant: instant, timeZone: .fixedOffset(seconds: 25200), calendar: .gregorian)
 
         let result = try #require(dt.rfc5322())
         #expect(result.count <= 48)
@@ -131,7 +132,7 @@ extension ZonedDateTimeFormatterTests {
     func redirectedDeprecation_rfc2822() {
         let instant = Instant(seconds: 1_773_748_800, nanoseconds: 0)
         let jkt: TimeZone = .fixedOffset(seconds: 25200)
-        let dt = ZonedDateTime(instant: instant, timeZone: jkt)
+        let dt = ZonedDateTime(instant: instant, timeZone: jkt, calendar: .gregorian)
         let modern = dt.rfc5322()
         let deprecated = dt.rfc2822()
         #expect(deprecated != nil)
