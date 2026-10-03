@@ -34,6 +34,8 @@ public protocol DateProtocol: Equatable, Comparable {
 
     func with(ordinal: Int) -> Self?
     func with(ordinalZeroBased value: Int) -> Self?
+
+    func with(calendar: Calendar) -> Self?
 }
 
 public extension DateProtocol {
@@ -44,10 +46,6 @@ public extension DateProtocol {
         } else {
             (isCE: true, year: UInt32(year))
         }
-    }
-
-    var isLeapYear: Bool {
-        ChronoCalendar.isLeapYear(Int64(year))
     }
 
     @inlinable
@@ -82,17 +80,5 @@ public extension DateProtocol {
 
     var isoWeek: ISOWeek {
         ISOWeek(year: Int64(year), month: UInt8(month), day: UInt8(day))
-    }
-
-    var daysSinceUnixEpoch: Int {
-        Int(daysFromCivil(
-            year: Int64(year),
-            month: UInt8(month),
-            day: UInt8(day)
-        ))
-    }
-
-    var daysInMonth: Int {
-        Int(lastDayOfMonth(Int64(year), UInt8(month)))
     }
 }

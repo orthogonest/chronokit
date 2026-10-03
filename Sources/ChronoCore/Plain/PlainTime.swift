@@ -207,26 +207,49 @@ public extension PlainTime {
         PlainDateTime(date: date, time: self)
     }
 
-    @inlinable
-    func on(daysSinceEpoch days: Int64) -> PlainDateTime {
+    func on(
+        daysSinceEpoch days: Int64,
+        calendar: Calendar = .gregorian
+    ) -> PlainDateTime {
         PlainDateTime(
-            date: PlainDate(daysSinceEpoch: days),
+            date: PlainDate(
+                daysSinceEpoch: days,
+                calendar: calendar
+            ),
             time: self
         )
     }
 
-    @inlinable
-    func on(year: Int32, month: UInt8, day: UInt8) -> PlainDateTime? {
-        guard let date = PlainDate(year: year, month: month, day: day) else { return nil }
+    func on(
+        year: Int32,
+        month: UInt8,
+        day: UInt8,
+        calendar: Calendar = .gregorian
+    ) -> PlainDateTime? {
+        guard let date = PlainDate(
+            year: year,
+            month: month,
+            day: day,
+            calendar: calendar
+        ) else { return nil }
         return PlainDateTime(
             date: date,
             time: self
         )
     }
 
-    @inlinable
-    func on(year: Int, month: Int, day: Int) -> PlainDateTime? {
-        guard let date = PlainDate(year: year, month: month, day: day) else { return nil }
+    func on(
+        year: Int,
+        month: Int,
+        day: Int,
+        calendar: Calendar = .gregorian
+    ) -> PlainDateTime? {
+        guard let date = PlainDate(
+            year: year,
+            month: month,
+            day: day,
+            calendar: calendar
+        ) else { return nil }
         return PlainDateTime(
             date: date,
             time: self

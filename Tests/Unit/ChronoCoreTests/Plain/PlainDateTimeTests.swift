@@ -7,7 +7,7 @@ struct PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Initialize from existing PlainDate and PlainTime object")
     func componentInit() {
-        let date = PlainDate(year: 2025, month: 12, day: 25)!
+        let date = PlainDate(year: 2025, month: 12, day: 25, calendar: .gregorian)!
         let time = PlainTime(hour: 10, minute: 30, second: 0)!
         let dateTime = PlainDateTime(date: date, time: time)
 
@@ -45,6 +45,7 @@ struct PlainDateTimeTests {
             minute: minute,
             second: second,
             nanosecond: nanosecond,
+            calendar: .gregorian
         )
 
         #expect(dateTime != nil)
@@ -81,6 +82,7 @@ struct PlainDateTimeTests {
             minute: minute,
             second: second,
             nanosecond: nanosecond,
+            calendar: .gregorian
         )
         #expect(dateTime == nil)
     }
@@ -99,7 +101,7 @@ struct PlainDateTimeTests {
 extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Comparing same date, different times")
     func sameDateDifferentTimes() {
-        let date = PlainDate(year: 2025, month: 6, day: 15)!
+        let date = PlainDate(year: 2025, month: 6, day: 15, calendar: .gregorian)!
         let morning = PlainTime(hour: 8, minute: 0, second: 0)!
         let evening = PlainTime(hour: 20, minute: 0, second: 0)!
 
@@ -112,8 +114,8 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Comparing different dates (Date priority)")
     func differentDates() {
-        let jan1 = PlainDate(year: 2025, month: 1, day: 1)!
-        let jan2 = PlainDate(year: 2025, month: 1, day: 2)!
+        let jan1 = PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!
+        let jan2 = PlainDate(year: 2025, month: 1, day: 2, calendar: .gregorian)!
 
         // Late night on Jan 1st
         let dt1 = PlainDateTime(date: jan1, time: PlainTime(hour: 23, minute: 59, second: 59)!)
@@ -126,8 +128,8 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Comparing identity equality")
     func equalityComparison() {
-        let dt1 = PlainDateTime(year: 2025, month: 12, day: 25, hour: 12, minute: 0, second: 0)!
-        let dt2 = PlainDateTime(year: 2025, month: 12, day: 25, hour: 12, minute: 0, second: 0)!
+        let dt1 = PlainDateTime(year: 2025, month: 12, day: 25, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
+        let dt2 = PlainDateTime(year: 2025, month: 12, day: 25, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
 
         #expect(!(dt1 < dt2), "Equal values should not be less than each other")
         #expect(!(dt1 > dt2), "Equal values should not be greater than each other")
@@ -137,9 +139,9 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Sorting across multiple years and times")
     func complexSorting() {
-        let dt1 = PlainDateTime(year: 2024, month: 12, day: 31, hour: 23, minute: 59, second: 0)!
-        let dt2 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 0, minute: 0, second: 0)!
-        let dt3 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0)!
+        let dt1 = PlainDateTime(year: 2024, month: 12, day: 31, hour: 23, minute: 59, second: 0, calendar: .gregorian)!
+        let dt2 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: .gregorian)!
+        let dt3 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
 
         let unsorted = [dt3, dt1, dt2]
         let sorted = unsorted.sorted()
@@ -162,10 +164,12 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Equality and Hashable conformance")
     func equality() {
-        let dt1 = PlainDateTime(year: 2025, month: 5, day: 1, hour: 12, minute: 0, second: 0)!
-        let dt2 = PlainDateTime(year: 2025, month: 5, day: 1, hour: 12, minute: 0, second: 0)!
-        let dt3 = PlainDateTime(year: 2025, month: 5, day: 2, hour: 12, minute: 0, second: 0)! // Different day
-        let dt4 = PlainDateTime(year: 2025, month: 5, day: 1, hour: 13, minute: 0, second: 0)! // Different hour
+        let dt1 = PlainDateTime(year: 2025, month: 5, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
+        let dt2 = PlainDateTime(year: 2025, month: 5, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
+        // Different day
+        let dt3 = PlainDateTime(year: 2025, month: 5, day: 2, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
+        // Different hour
+        let dt4 = PlainDateTime(year: 2025, month: 5, day: 1, hour: 13, minute: 0, second: 0, calendar: .gregorian)!
 
         #expect(dt1 == dt2)
         #expect(dt1 != dt3)
@@ -181,7 +185,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Within the same day")
     func standardAdvance() {
         let base = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 1)!,
+            date: PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!,
             time: PlainTime(hour: 10, minute: 0, second: 0)!,
         )
         // Add 1 hour and 30 minutes
@@ -195,7 +199,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Forward across midnight")
     func forwardRollover() {
         let base = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 1)!,
+            date: PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!,
             time: PlainTime(hour: 23, minute: 59, second: 50)!,
         )
         // Add 20 seconds
@@ -210,7 +214,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Backward across midnight")
     func backwardRollover() {
         let base = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 2)!,
+            date: PlainDate(year: 2025, month: 1, day: 2, calendar: .gregorian)!,
             time: PlainTime(hour: 0, minute: 0, second: 10)!,
         )
         // Subtract 20 seconds
@@ -225,7 +229,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Multi-day leap year jump")
     func leapYearMultiDay() {
         let base = PlainDateTime(
-            date: PlainDate(year: 2024, month: 2, day: 28)!,
+            date: PlainDate(year: 2024, month: 2, day: 28, calendar: .gregorian)!,
             time: PlainTime(hour: 12, minute: 0, second: 0)!,
         )
         // Add 48 hours (2 days)
@@ -240,7 +244,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Nanosecond overflow to days")
     func nanoOverflow() {
         let base = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 1)!,
+            date: PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!,
             time: PlainTime(hour: 23, minute: 59, second: 59, nanosecond: 900_000_000)!,
         )
         // Add 200ms
@@ -254,7 +258,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Advanced by Duration")
     func durationInterface() {
         let base = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 1)!,
+            date: PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!,
             time: PlainTime(hour: 12, minute: 0, second: 0)!,
         )
         let duration = Duration(seconds: 86400 + 3600, nanoseconds: 0) // 1 day, 1 hour
@@ -272,7 +276,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: PlainDateTime + Duration")
     func dateTimePlusDuration() {
         let base = PlainDateTime(
-            date: PlainDate(year: 2025, month: 6, day: 1)!,
+            date: PlainDate(year: 2025, month: 6, day: 1, calendar: .gregorian)!,
             time: PlainTime(hour: 12, minute: 0, second: 0)!,
         )
         let delta = Duration(seconds: 3600) // 1 hour
@@ -287,7 +291,7 @@ extension PlainDateTimeTests {
     func durationPlusDateTime() {
         let delta = Duration(seconds: 86400) // 1 day
         let base = PlainDateTime(
-            date: PlainDate(year: 2025, month: 12, day: 31)!,
+            date: PlainDate(year: 2025, month: 12, day: 31, calendar: .gregorian)!,
             time: PlainTime(hour: 10, minute: 0, second: 0)!,
         )
 
@@ -303,7 +307,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Sub-second overflow via Duration")
     func subSecondAddition() {
         let base = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 1)!,
+            date: PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!,
             time: PlainTime(hour: 23, minute: 59, second: 59, nanosecond: 500_000_000)!,
         )
         let delta = Duration(seconds: 0, nanoseconds: 600_000_000) // 0.6s
@@ -320,7 +324,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: In-place mutation")
     func compoundAddition() {
         var dt = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 1)!,
+            date: PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!,
             time: PlainTime(hour: 12, minute: 0, second: 0)!,
         )
         let delta = Duration(seconds: 7200) // 2 hours
@@ -336,7 +340,7 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Multiple chain rollovers")
     func multipleMutations() {
         var dt = PlainDateTime(
-            date: PlainDate(year: 1999, month: 12, day: 31)!,
+            date: PlainDate(year: 1999, month: 12, day: 31, calendar: .gregorian)!,
             time: PlainTime(hour: 23, minute: 0, second: 0)!,
         )
 
@@ -370,7 +374,7 @@ extension PlainDateTimeTests {
         expectedDay: Int,
         expectedMonth: Int,
     ) {
-        let date = PlainDate(year: year, month: month, day: day)!
+        let date = PlainDate(year: year, month: month, day: day, calendar: .gregorian)!
         let time = PlainTime(hour: hour, minute: 0, second: 0)!
         let dt = PlainDateTime(date: date, time: time)
 
@@ -392,7 +396,8 @@ extension PlainDateTimeTests {
         (h: 12, addH: -25, expectedDayOffset: -1, expectedHour: 11)
     ])
     func midnightOverflow(h: Int, addH: Int64, expectedDayOffset: Int64, expectedHour: Int) {
-        let baseDate = PlainDate(year: 2025, month: 6, day: 15)! // Mid-month to avoid month overflow
+        // Mid-month to avoid month overflow
+        let baseDate = PlainDate(year: 2025, month: 6, day: 15, calendar: .gregorian)!
         let baseTime = PlainTime(hour: h, minute: 0, second: 0)!
         let dt = PlainDateTime(date: baseDate, time: baseTime)
 
@@ -407,7 +412,7 @@ extension PlainDateTimeTests {
     func complexInterval() {
         // Start: 2025-01-31 23:00:00
         let dt = PlainDateTime(
-            date: PlainDate(year: 2025, month: 1, day: 31)!,
+            date: PlainDate(year: 2025, month: 1, day: 31, calendar: .gregorian)!,
             time: PlainTime(hour: 23, minute: 0, second: 0)!,
         )
 
@@ -429,8 +434,8 @@ extension PlainDateTimeTests {
 extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Same day, positive and negative")
     func distanceWithinDay() {
-        let dt1 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0)!
-        let dt2 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 10, minute: 0, second: 0)!
+        let dt1 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
+        let dt2 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 10, minute: 0, second: 0, calendar: .gregorian)!
 
         let diff = dt1 - dt2
         #expect(diff.seconds == 7200) // 2 hours
@@ -446,11 +451,13 @@ extension PlainDateTimeTests {
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 0, second: 1,
             nanosecond: 100_000_000,
+            calendar: .gregorian
         )! // 1.1s
         let dt2 = PlainDateTime(
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 0, second: 1,
             nanosecond: 900_000_000,
+            calendar: .gregorian
         )! // 1.9s
 
         let diff = dt1 - dt2 // Should be -0.8s
@@ -462,8 +469,8 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Across day boundaries")
     func distanceAcrossDays() {
-        let jan2 = PlainDateTime(year: 2025, month: 1, day: 2, hour: 1, minute: 0, second: 0)!
-        let jan1 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 23, minute: 0, second: 0)!
+        let jan2 = PlainDateTime(year: 2025, month: 1, day: 2, hour: 1, minute: 0, second: 0, calendar: .gregorian)!
+        let jan1 = PlainDateTime(year: 2025, month: 1, day: 1, hour: 23, minute: 0, second: 0, calendar: .gregorian)!
 
         let diff = jan2 - jan1
         #expect(diff.seconds == 7200) // 2 hours apart
@@ -471,7 +478,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Subtract duration across midnight")
     func subtractDurationAcrossMidnight() {
-        let dt = PlainDateTime(year: 2025, month: 1, day: 2, hour: 0, minute: 30, second: 0)!
+        let dt = PlainDateTime(year: 2025, month: 1, day: 2, hour: 0, minute: 30, second: 0, calendar: .gregorian)!
         let delta = Duration(seconds: 3600) // 1 hour
 
         let result = dt - delta
@@ -483,7 +490,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Subtract duration across year boundary")
     func subtractDurationAcrossYear() {
-        let dt = PlainDateTime(year: 2025, month: 1, day: 1, hour: 0, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 2025, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: .gregorian)!
         let delta = Duration(seconds: 1)
 
         let result = dt - delta
@@ -498,7 +505,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Mutating subtraction")
     func compoundSubtraction() {
-        var dt = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0)!
+        var dt = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
         dt -= Duration(seconds: 86400) // 1 day
 
         #expect(dt.date.day == 31)
@@ -527,7 +534,7 @@ extension PlainDateTimeTests {
         expD: Int,
     ) {
         let dt = PlainDateTime(
-            date: PlainDate(year: y, month: m, day: d)!,
+            date: PlainDate(year: y, month: m, day: d, calendar: .gregorian)!,
             time: PlainTime(hour: 12, minute: 0, second: 0)!,
         )
 
@@ -549,7 +556,7 @@ extension PlainDateTimeTests {
         (h: 0, subH: 0, expDayOffset: -1, expH: 23)
     ])
     func timeSubtraction(h: Int, subH: Int64, expDayOffset: Int64, expH: Int) {
-        let baseDate = PlainDate(year: 2025, month: 6, day: 15)!
+        let baseDate = PlainDate(year: 2025, month: 6, day: 15, calendar: .gregorian)!
         let baseTime = PlainTime(hour: h, minute: 0, second: 0)!
         let dt = PlainDateTime(date: baseDate, time: baseTime)
 
@@ -575,7 +582,7 @@ extension PlainDateTimeTests {
         (-1, false, 2),
     ])
     func yearCE(inputYear: Int, expectedIsCE: Bool, expectedYear: UInt32) {
-        let dt = PlainDateTime(year: inputYear, month: 1, day: 1, hour: 12, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: inputYear, month: 1, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
         #expect(dt.yearCE.isCE == expectedIsCE)
         #expect(dt.yearCE.year == expectedYear)
     }
@@ -587,7 +594,7 @@ extension PlainDateTimeTests {
         (2023, false)
     ])
     func leapYear(year: Int, expected: Bool) {
-        let dt = PlainDateTime(year: year, month: 1, day: 1, hour: 0, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: year, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: .gregorian)!
         #expect(dt.isLeapYear == expected)
     }
 }
@@ -599,7 +606,7 @@ extension PlainDateTimeTests {
         (1, 1), (4, 2), (7, 3), (10, 4),
     ])
     func quarters(month: Int, expectedQuarter: Int) {
-        let dt = PlainDateTime(year: 2025, month: month, day: 1, hour: 12, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 2025, month: month, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
         #expect(dt.quarter == expectedQuarter)
     }
 }
@@ -609,7 +616,7 @@ extension PlainDateTimeTests {
 extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Month zero-based properties")
     func monthProperties() {
-        let dt = PlainDateTime(year: 2025, month: 12, day: 25, hour: 10, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 2025, month: 12, day: 25, hour: 10, minute: 0, second: 0, calendar: .gregorian)!
         #expect(dt.month == 12)
         #expect(dt.monthZeroBased == 11)
         #expect(dt.monthSymbol == .december)
@@ -622,14 +629,14 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: ISO Week Consistency")
     func isoWeekCheck() {
         // Monday, Dec 29, 2025 is Week 1 of 2026
-        let dt = PlainDateTime(year: 2025, month: 12, day: 29, hour: 23, minute: 59, second: 59)!
+        let dt = PlainDateTime(year: 2025, month: 12, day: 29, hour: 23, minute: 59, second: 59, calendar: .gregorian)!
         #expect(dt.isoWeek.week == 1)
         #expect(dt.isoWeek.year == 2026)
     }
 
     @Test("PlainDateTimeTests: Weekday symbol check")
     func weekdaySymbol() {
-        let dt = PlainDateTime(year: 2025, month: 12, day: 26, hour: 12, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 2025, month: 12, day: 26, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
         // Dec 26, 2025 is Friday (usually 5 or 6 depending on your Weekday enum start)
         #expect(dt.weekdaySymbol != nil)
         #expect(dt.weekdaySymbol?.rawValue == dt.weekday)
@@ -641,7 +648,7 @@ extension PlainDateTimeTests {
 extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Unix Epoch Alignment")
     func unixEpoch() {
-        let dt = PlainDateTime(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: .gregorian)!
         #expect(dt.daysSinceUnixEpoch == 0)
     }
 
@@ -650,7 +657,7 @@ extension PlainDateTimeTests {
         (2025, 2, 28)
     ])
     func daysInMonth(year: Int, month: Int, expectedDays: Int) {
-        let dt = PlainDateTime(year: year, month: month, day: 1, hour: 12, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: year, month: month, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
         #expect(dt.daysInMonth == expectedDays)
     }
 }
@@ -661,7 +668,10 @@ extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Modify date components preserves time")
     func modificationWith() {
         let originalTime = PlainTime(hour: 14, minute: 30, second: 15)!
-        let base = PlainDateTime(date: PlainDate(year: 2023, month: 5, day: 1)!, time: originalTime)
+        let base = PlainDateTime(
+        date: PlainDate(year: 2023, month: 5, day: 1, calendar: .gregorian)!,
+        time: originalTime
+        )
 
         #expect(base.with(year: 2025)?.year == 2025)
         #expect(base.with(month: 10)?.month == 10)
@@ -677,7 +687,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Ordinal modifications")
     func ordinalModifications() {
-        let dt = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
 
         // Day 60 in 2025 (common) is March 1
         let mar1 = dt.with(ordinal: 60)
@@ -691,7 +701,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Invalid date modifications return nil")
     func invalidModifications() {
-        let dt = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 2025, month: 1, day: 1, hour: 12, minute: 0, second: 0, calendar: .gregorian)!
 
         // Feb 29 on non-leap year
         let feb = dt.with(month: 2)!
@@ -713,7 +723,7 @@ extension PlainDateTimeTests {
         (23, true, 11), // 11 PM
     ])
     func hour12Conversion(hour24: Int, expectedIsPM: Bool, expectedHour12: Int) {
-        let date = PlainDate(year: 2025, month: 12, day: 25)!
+        let date = PlainDate(year: 2025, month: 12, day: 25, calendar: .gregorian)!
         let time = PlainTime(hour: hour24, minute: 0, second: 0)!
         let dt = PlainDateTime(date: date, time: time)
 
@@ -738,6 +748,7 @@ extension PlainDateTimeTests {
             hour: hour,
             minute: minute,
             second: second,
+            calendar: .gregorian
         )!
         #expect(dt.secondsFromMidnight == expectedSeconds)
     }
@@ -748,7 +759,7 @@ extension PlainDateTimeTests {
 extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Modify hour component preserves date")
     func modifyHour() {
-        let originalDate = PlainDate(year: 2025, month: 5, day: 20)!
+        let originalDate = PlainDate(year: 2025, month: 5, day: 20, calendar: .gregorian)!
         let base = PlainDateTime(date: originalDate, time: PlainTime(hour: 10, minute: 30, second: 0)!)
 
         let modified = base.with(hour: 22)
@@ -761,7 +772,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Modify minute component preserves date")
     func modifyMinute() {
-        let originalDate = PlainDate(year: 2025, month: 1, day: 1)!
+        let originalDate = PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!
         let base = PlainDateTime(date: originalDate, time: PlainTime(hour: 10, minute: 30, second: 0)!)
 
         let modified = base.with(minute: 45)
@@ -773,7 +784,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Modify second component preserves date")
     func modifySecond() {
-        let originalDate = PlainDate(year: 2025, month: 1, day: 1)!
+        let originalDate = PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!
         let base = PlainDateTime(date: originalDate, time: PlainTime(hour: 10, minute: 30, second: 30)!)
 
         let modified = base.with(second: 0)
@@ -785,7 +796,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Modify nanosecond component preserves date")
     func modifyNanosecond() {
-        let originalDate = PlainDate(year: 2025, month: 1, day: 1)!
+        let originalDate = PlainDate(year: 2025, month: 1, day: 1, calendar: .gregorian)!
         let base = PlainDateTime(date: originalDate, time: PlainTime(hour: 10, minute: 0, second: 0, nanosecond: 500)!)
 
         let modified = base.with(nanosecond: 123_456_789)
@@ -809,6 +820,7 @@ extension PlainDateTimeTests {
             year: 2025, month: 1, day: 1,
             hour: 10, minute: 0, second: 0,
             nanosecond: nanos,
+            calendar: .gregorian
         )!
         let truncated = dt.truncateSubseconds(digits)
 
@@ -827,6 +839,7 @@ extension PlainDateTimeTests {
             year: 2025, month: 1, day: 1,
             hour: 0, minute: 0, second: 0,
             nanosecond: nanos,
+            calendar: .gregorian
         )!
         let rounded = dt.roundSubseconds(digits)
 
@@ -840,6 +853,7 @@ extension PlainDateTimeTests {
             year: 2025, month: 1, day: 1,
             hour: 23, minute: 59, second: 59,
             nanosecond: 999_999_999,
+            calendar: .gregorian
         )!
 
         let truncated = endOfDay.truncateSubseconds(0)
@@ -856,6 +870,7 @@ extension PlainDateTimeTests {
             year: 2025, month: 12, day: 31,
             hour: 23, minute: 59, second: 59,
             nanosecond: 600_000_000,
+            calendar: .gregorian
         )!
 
         // Rounding to 0 digits (nearest second) should push it to the next year
@@ -876,6 +891,7 @@ extension PlainDateTimeTests {
             year: 2025, month: 1, day: 1,
             hour: 12, minute: 0, second: 0,
             nanosecond: 123,
+            calendar: .gregorian
         )!
         let result = dt.roundSubseconds(9)
 
@@ -892,6 +908,7 @@ extension PlainDateTimeTests {
         let epoch = PlainDateTime(
             year: 1970, month: 1, day: 1,
             hour: 0, minute: 0, second: 0,
+            calendar: .gregorian
         )!
         let instant = epoch.instantUTC
 
@@ -903,6 +920,7 @@ extension PlainDateTimeTests {
             year: 2025, month: 12, day: 25,
             hour: 15, minute: 30, second: 45,
             nanosecond: 123_000_000,
+            calendar: .gregorian
         )!
         let instant2 = dt.instantUTC
 
@@ -921,7 +939,7 @@ extension PlainDateTimeTests {
         (-5 * 3600, 18000) // UTC-5 (Plain is behind, so UTC is 5 hours ahead)
     ])
     func toInstantWithOffset(offsetSeconds: Int, expectedInstantSeconds: Int64) {
-        let dt = PlainDateTime(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0, calendar: .gregorian)!
         let offset = FixedOffset(seconds: offsetSeconds)
 
         let instant = dt.instant(offset: offset)
@@ -934,7 +952,7 @@ extension PlainDateTimeTests {
     func toInstantWithTimeZone() {
         // Mock a timezone that has a gap (Spring Forward) or overlap (Fall Back)
         // For this test, assume a simple timezone protocol implementation
-        let dt = PlainDateTime(year: 2024, month: 3, day: 10, hour: 10, minute: 0, second: 0)!
+        let dt = PlainDateTime(year: 2024, month: 3, day: 10, hour: 10, minute: 0, second: 0, calendar: .gregorian)!
         let mockTZ = MockTimeZone(offset: 3600) // UTC+1
 
         // Policy: .earlier
@@ -948,7 +966,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: returns nil when DST policy fails to resolve")
     func toInstantNilResolution() {
-        let dt = PlainDateTime(year: 2024, month: 3, day: 10, hour: 2, minute: 30, second: 0)!
+        let dt = PlainDateTime(year: 2024, month: 3, day: 10, hour: 2, minute: 30, second: 0, calendar: .gregorian)!
         let invalidMockTZ = MockInvalidTimeZone() // Always fails to resolve
 
         let instant = dt.instant(in: invalidMockTZ, resolving: .preferEarlier)
@@ -961,7 +979,11 @@ extension PlainDateTimeTests {
 extension PlainDateTimeTests {
     @Test("PlainDateTimeTests: Convert to DateTime<UTC>")
     func toDateTimeUTC() {
-        let plain = PlainDateTime(year: 2025, month: 12, day: 25, hour: 15, minute: 30, second: 0)!
+        let plain = PlainDateTime(
+            year: 2025, month: 12, day: 25,
+            hour: 15, minute: 30, second: 0,
+            calendar: .gregorian
+        )!
         let zonedUTC = plain.zonedDateTimeUTC
 
         // The components should match exactly because UTC has 0 offset
@@ -977,7 +999,7 @@ extension PlainDateTimeTests {
         0 // UTC+0
     ])
     func toDateTimeWithOffset(offsetSeconds: Int) {
-        let plain = PlainDateTime(year: 2025, month: 6, day: 1, hour: 10, minute: 0, second: 0)!
+        let plain = PlainDateTime(year: 2025, month: 6, day: 1, hour: 10, minute: 0, second: 0, calendar: .gregorian)!
         let offset = FixedOffset(seconds: offsetSeconds)
 
         let zoned = plain.zonedDateTime(offset: offset)
@@ -991,7 +1013,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: Convert using complex TimeZoneProtocol")
     func toDateTimeWithTimeZone() {
-        let plain = PlainDateTime(year: 2024, month: 3, day: 10, hour: 10, minute: 0, second: 0)!
+        let plain = PlainDateTime(year: 2024, month: 3, day: 10, hour: 10, minute: 0, second: 0, calendar: .gregorian)!
         let mockTZ = MockTimeZone(offset: 3600) // UTC+1
 
         guard let zoned = plain.zonedDateTime(timeZone: TimeZone(mockTZ)) else {
@@ -1009,7 +1031,7 @@ extension PlainDateTimeTests {
 
     @Test("PlainDateTimeTests: returns nil if TimeZone cannot resolve the plain time")
     func toDateTimeNilResolution() {
-        let plain = PlainDateTime(year: 2024, month: 3, day: 10, hour: 2, minute: 30, second: 0)!
+        let plain = PlainDateTime(year: 2024, month: 3, day: 10, hour: 2, minute: 30, second: 0, calendar: .gregorian)!
         let invalidTZ = MockInvalidTimeZone() // Mocking a DST gap where 2:30 doesn't exist
 
         let zoned = plain.zonedDateTime(timeZone: TimeZone(invalidTZ))

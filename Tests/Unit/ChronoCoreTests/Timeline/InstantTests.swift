@@ -503,7 +503,7 @@ extension InstantTests {
         let epoch = Instant(seconds: 0, nanoseconds: 0)
         let utc = MockTimeZone(offset: 0)
 
-        let result = epoch.plainDateTime(in: utc)
+        let result = epoch.plainDateTime(in: utc, calendar: .gregorian)
 
         #expect(result.year == 1970)
         #expect(result.month == 1)
@@ -526,7 +526,7 @@ extension InstantTests {
         let instant = Instant(seconds: seconds, nanoseconds: 0)
         let tz = MockTimeZone(offset: offset)
 
-        let result = instant.plainDateTime(in: tz)
+        let result = instant.plainDateTime(in: tz, calendar: .gregorian)
 
         #expect(result.year == 1970)
         #expect(result.month == 1)
@@ -551,7 +551,7 @@ extension InstantTests {
         let instant = Instant(seconds: seconds, nanoseconds: 0)
         let tz = MockTimeZone(offset: offset)
 
-        let result = instant.plainDateTime(in: tz)
+        let result = instant.plainDateTime(in: tz, calendar: .gregorian)
 
         #expect(result.year == expY)
         #expect(result.month == expM)
@@ -564,7 +564,7 @@ extension InstantTests {
         let instant = Instant(seconds: 100, nanoseconds: 123_456_789)
         let tz = MockTimeZone(offset: 3600)
 
-        let result = instant.plainDateTime(in: tz)
+        let result = instant.plainDateTime(in: tz, calendar: .gregorian)
 
         #expect(result.nanosecond == 123_456_789)
     }
@@ -578,7 +578,7 @@ extension InstantTests {
         let instant = Instant(seconds: 1_735_171_200, nanoseconds: 500) // 2024-12-26
         let mockTZ = MockTimeZone(offset: 3600) // UTC+1
 
-        let zoned = instant.zonedDateTime(in: TimeZone(mockTZ))
+        let zoned = instant.zonedDateTime(in: TimeZone(mockTZ), calendar: .gregorian)
 
         #expect(zoned.instant == instant)
         #expect(zoned.timeZone.offset(for: instant) == .seconds(3600))
@@ -598,7 +598,7 @@ extension InstantTests {
         let instant = Instant(seconds: 0, nanoseconds: 0)
         let offset: TimeZone = .fixedOffset(seconds: -18000) // UTC-5
 
-        let zoned = instant.zonedDateTime(in: offset)
+        let zoned = instant.zonedDateTime(in: offset, calendar: .gregorian)
 
         #expect(zoned.instant == instant)
         #expect(zoned.timeZone.offset(for: instant) == .seconds(-18000))

@@ -5,38 +5,56 @@ public struct PlainDate: Hashable, Sendable {
     @usableFromInline package let _year: Int32
     @usableFromInline package let _month: UInt8
     @usableFromInline package let _day: UInt8
+    @usableFromInline package let calendar: Calendar
 
-    @inlinable
-    public init(daysSinceEpoch days: Int64) {
+    public init(
+        daysSinceEpoch days: Int64,
+        calendar: Calendar = .gregorian
+    ) {
         precondition(
             days >= CalendarConstants.minInputDay && days <= CalendarConstants.maxInputDay,
             "Day since epoch exceeds maximum supported calendar range."
         )
 
-        let civil = civilDate(from: days)
+        let civil = calendar.dateComponents(from: days)
 
         daysSinceEpoch = days
         _year = Int32(civil.year)
         _month = civil.month
         _day = civil.day
+        self.calendar = calendar
     }
 
-    @inlinable
-    public init?(year: Int32, month: UInt8, day: UInt8) {
+    public init?(
+        year: Int32,
+        month: UInt8,
+        day: UInt8,
+        calendar: Calendar = .gregorian
+    ) {
         guard month >= 1, month <= 12 else { return nil }
 
         guard day >= 1, day <= lastDayOfMonth(Int64(year), month)
         else { return nil }
 
-        daysSinceEpoch = daysFromCivil(year: Int64(year), month: month, day: day)
+        daysSinceEpoch = calendar.daySinceEpoch(year: Int64(year), month: month, day: day)
         _year = year
         _month = month
         _day = day
+        self.calendar = calendar
     }
 
-    @inlinable
-    public init?(year: Int, month: Int, day: Int) {
-        self.init(year: Int32(year), month: UInt8(month), day: UInt8(day))
+    public init?(
+        year: Int,
+        month: Int,
+        day: Int,
+        calendar: Calendar = .gregorian
+    ) {
+        self.init(
+            year: Int32(year),
+            month: UInt8(month),
+            day: UInt8(day),
+            calendar: calendar
+        )
     }
 }
 
@@ -61,13 +79,13 @@ extension PlainDate: Comparable {
 // MARK: - Constructors
 
 public extension PlainDate {
-    static let min: Self = .init(daysSinceEpoch: CalendarConstants.minInputDay)
-    static let max: Self = .init(daysSinceEpoch: CalendarConstants.maxInputDay)
-    static let unixEpoch: Self = .init(daysSinceEpoch: 0)
+    static let min: Self = .init(daysSinceEpoch: CalendarConstants.minInputDay, calendar: .gregorian)
+    static let max: Self = .init(daysSinceEpoch: CalendarConstants.maxInputDay, calendar: .gregorian)
+    static let unixEpoch: Self = .init(daysSinceEpoch: 0, calendar: .gregorian)
 
     @usableFromInline
     internal var jan1: Int64 {
-        daysFromCivil(year: Int64(_year), month: 1, day: 1)
+        calendar.daySinceEpoch(year: Int64(_year), month: 1, day: 1)
     }
 }
 
@@ -76,7 +94,7 @@ public extension PlainDate {
 public extension PlainDate {
     @inlinable
     func advanced(byDays days: Int64) -> Self {
-        Self(daysSinceEpoch: daysSinceEpoch + days)
+        Self(daysSinceEpoch: daysSinceEpoch + days, calendar: calendar)
     }
 }
 
@@ -115,7 +133,10 @@ public extension PlainDate {
 
         let baseDays = daysFromCivil(year: newYear, month: UInt8(newMonth), day: UInt8(clampedDay))
 
-        return Self(daysSinceEpoch: baseDays + Int64(rhs.day))
+        return Self(
+            daysSinceEpoch: baseDays + Int64(rhs.day),
+            calendar: lhs.calendar
+        )
     }
 }
 
@@ -161,50 +182,67 @@ extension PlainDate: DateProtocol {
         Int(daysSinceEpoch - jan1 + 1)
     }
 
-    @inlinable
     public var weekday: Int {
-        ChronoCalendar.weekday(from: daysSinceEpoch)
+        calendar.weekday(from: daysSinceEpoch)
     }
 
-    @inlinable
+    public var isLeapYear: Bool {
+        calendar.isLeapYear(Int64(_year))
+    }
+
+    public var daysSinceUnixEpoch: Int {
+        Int(calendar.daySinceEpoch(
+            year: Int64(year),
+            month: UInt8(month),
+            day: UInt8(day)
+        ))
+    }
+
+    public var daysInMonth: Int {
+        Int(calendar.lastDayOfMonth(Int64(year), UInt8(month)))
+    }
+
     public func with(year: Int) -> Self? {
-        Self(year: Int32(year), month: _month, day: _day)
+        Self(year: Int32(year), month: _month, day: _day, calendar: calendar)
     }
 
-    @inlinable
     public func with(month: Int) -> Self? {
-        Self(year: _year, month: UInt8(month), day: _day)
+        Self(year: _year, month: UInt8(month), day: _day, calendar: calendar)
     }
 
-    @inlinable
     public func with(monthZeroBased value: Int) -> Self? {
-        Self(year: _year, month: UInt8(value + 1), day: _day)
+        Self(year: _year, month: UInt8(value + 1), day: _day, calendar: calendar)
     }
 
-    @inlinable
     public func with(monthSymbol value: Month) -> Self? {
-        Self(year: _year, month: UInt8(value.rawValue), day: _day)
+        Self(year: _year, month: UInt8(value.rawValue), day: _day, calendar: calendar)
     }
 
-    @inlinable
     public func with(day: Int) -> Self? {
-        Self(year: _year, month: _month, day: UInt8(day))
+        Self(year: _year, month: _month, day: UInt8(day), calendar: calendar)
     }
 
-    @inlinable
     public func with(dayZeroBased value: Int) -> Self? {
-        Self(year: _year, month: _month, day: UInt8(value + 1))
+        Self(year: _year, month: _month, day: UInt8(value + 1), calendar: calendar)
     }
 
-    @inlinable
     public func with(ordinal: Int) -> Self? {
         guard ordinal >= 1, ordinal <= (isLeapYear ? 366 : 365) else { return nil }
-        return Self(daysSinceEpoch: jan1 + Int64(ordinal - 1))
+        return Self(daysSinceEpoch: jan1 + Int64(ordinal - 1), calendar: calendar)
     }
 
-    @inlinable
     public func with(ordinalZeroBased value: Int) -> Self? {
         with(ordinal: value + 1)
+    }
+
+    public func with(calendar targetCalendar: Calendar) -> Self? {
+        guard calendar != targetCalendar else { return self }
+        let epochDays = targetCalendar.daySinceEpoch(
+            year: Int64(_year),
+            month: _month,
+            day: _day
+        )
+        return Self(daysSinceEpoch: epochDays, calendar: targetCalendar)
     }
 }
 

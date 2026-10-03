@@ -102,7 +102,6 @@ public extension Instant {
         )
     }
 
-    @inlinable
     func advanced(by duration: Duration) -> Self {
         advanced(
             bySeconds: duration.seconds,
@@ -249,7 +248,10 @@ extension Instant: DurationRoundable {
 // MARK: - Plain Date Time Conversion
 
 public extension Instant {
-    func plainDateTime(in timeZone: some TimeZoneProtocol) -> PlainDateTime {
+    func plainDateTime(
+        in timeZone: some TimeZoneProtocol,
+        calendar: Calendar = .gregorian
+    ) -> PlainDateTime {
         let offset = timeZone.offset(for: self)
 
         let totalSecs = seconds.addingReportingOverflow(offset.seconds).partialValue
@@ -266,24 +268,31 @@ public extension Instant {
         let nanosSinceMidnight = secondsOfDay * NanoSeconds.perSecond64 + finalNanos
 
         return PlainDateTime(
-            date: PlainDate(daysSinceEpoch: days),
+            date: PlainDate(daysSinceEpoch: days, calendar: calendar),
             time: PlainTime(nanosecondsSinceMidnight: nanosSinceMidnight)
         )
     }
 
     var plainDateTimeUTC: PlainDateTime {
-        plainDateTime(in: FixedOffset.utc)
+        plainDateTime(in: FixedOffset.utc, calendar: .gregorian)
     }
 }
 
 // MARK: - Zoned Date Time Conversion
 
 public extension Instant {
-    func zonedDateTime(in timeZone: TimeZone) -> ZonedDateTime {
-        ZonedDateTime(instant: self, timeZone: timeZone)
+    func zonedDateTime(
+        in timeZone: TimeZone,
+        calendar: Calendar = .gregorian
+    ) -> ZonedDateTime {
+        ZonedDateTime(
+            instant: self,
+            timeZone: timeZone,
+            calendar: calendar
+        )
     }
 
     var zonedDateTimeUTC: ZonedDateTime {
-        zonedDateTime(in: .utc)
+        zonedDateTime(in: .utc, calendar: .gregorian)
     }
 }

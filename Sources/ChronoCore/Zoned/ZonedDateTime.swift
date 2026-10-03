@@ -1,3 +1,5 @@
+import ChronoCalendar
+
 public struct ZonedDateTime: Sendable {
     /// The exact moment in time, stored as UTC.
     public let instant: Instant
@@ -5,10 +7,17 @@ public struct ZonedDateTime: Sendable {
     /// The timezone associated with this instant.
     public let timeZone: TimeZone
 
+    public let calendar: Calendar
+
     @inlinable
-    public init(instant: Instant, timeZone: TimeZone) {
+    public init(
+        instant: Instant,
+        timeZone: TimeZone,
+        calendar: Calendar = .gregorian
+    ) {
         self.instant = instant
         self.timeZone = timeZone
+        self.calendar = calendar
     }
 
     public init?(
@@ -19,7 +28,8 @@ public struct ZonedDateTime: Sendable {
         minute: Int = 0,
         second: Int = 0,
         nanosecond: Int = 0,
-        timeZone: TimeZone
+        timeZone: TimeZone,
+        calendar: Calendar = .gregorian
     ) {
         guard
             let plainDateTime = PlainDateTime(
@@ -29,12 +39,17 @@ public struct ZonedDateTime: Sendable {
                 hour: hour,
                 minute: minute,
                 second: second,
-                nanosecond: nanosecond
+                nanosecond: nanosecond,
+                calendar: calendar
             ),
             let utcInstant = plainDateTime.instant(in: timeZone)
         else { return nil }
 
-        self.init(instant: utcInstant, timeZone: timeZone)
+        self.init(
+            instant: utcInstant,
+            timeZone: timeZone,
+            calendar: calendar
+        )
     }
 }
 
@@ -108,11 +123,11 @@ public extension ZonedDateTime {
     func advanced(bySeconds seconds: Int64, nanoseconds: Int64 = 0) -> Self {
         Self(
             instant: instant.advanced(bySeconds: seconds, nanoseconds: nanoseconds),
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: calendar
         )
     }
 
-    @inlinable
     func advanced(by duration: Duration) -> Self {
         advanced(
             bySeconds: duration.seconds,
@@ -124,17 +139,14 @@ public extension ZonedDateTime {
 // MARK: - Addition
 
 public extension ZonedDateTime {
-    @inlinable
     static func + (lhs: Self, rhs: Duration) -> Self {
         lhs.advanced(by: rhs)
     }
 
-    @inlinable
     static func + (lhs: Duration, rhs: Self) -> Self {
         rhs.advanced(by: lhs)
     }
 
-    @inlinable
     static func += (lhs: inout Self, rhs: Duration) {
         lhs = lhs + rhs
     }
@@ -182,6 +194,18 @@ extension ZonedDateTime: DateProtocol {
         plainDateTime.date.weekday
     }
 
+    public var isLeapYear: Bool {
+        plainDateTime.date.isLeapYear
+    }
+
+    public var daysSinceUnixEpoch: Int {
+        plainDateTime.date.daysSinceUnixEpoch
+    }
+
+    public var daysInMonth: Int {
+        plainDateTime.date.daysInMonth
+    }
+
     public func with(year: Int) -> Self? {
         withPlain { $0.with(year: year) }
     }
@@ -212,6 +236,10 @@ extension ZonedDateTime: DateProtocol {
 
     public func with(ordinalZeroBased value: Int) -> Self? {
         withPlain { $0.with(ordinalZeroBased: value) }
+    }
+
+    public func with(calendar: Calendar) -> Self? {
+        withPlain { $0.with(calendar: calendar) }
     }
 }
 
@@ -257,14 +285,16 @@ extension ZonedDateTime: SubsecondRoundable {
     public func roundSubseconds(_ digits: Int) -> Self {
         Self(
             instant: instant.roundSubseconds(digits),
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: calendar
         )
     }
 
     public func truncateSubseconds(_ digits: Int) -> Self {
         Self(
             instant: instant.truncateSubseconds(digits),
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: calendar
         )
     }
 }
@@ -277,21 +307,24 @@ extension ZonedDateTime: DurationRoundable {
     public func round(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         try Self(
             instant: instant.round(byQuantum: quantum),
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: calendar
         )
     }
 
     public func truncate(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         try Self(
             instant: instant.truncate(byQuantum: quantum),
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: calendar
         )
     }
 
     public func roundUp(byQuantum quantum: Duration) throws(RoundingError) -> Self {
         try Self(
             instant: instant.roundUp(byQuantum: quantum),
-            timeZone: timeZone
+            timeZone: timeZone,
+            calendar: calendar
         )
     }
 }
@@ -302,7 +335,7 @@ extension ZonedDateTime {
     /// The 'Wall Clock' view of the time.
     /// This applies the timezone offset to the stored UTC time.
     public var plainDateTime: PlainDateTime {
-        instant.plainDateTime(in: timeZone)
+        instant.plainDateTime(in: timeZone, calendar: calendar)
     }
 
     func withPlain(
@@ -316,6 +349,10 @@ extension ZonedDateTime {
               )
         else { return nil }
 
-        return Self(instant: newInstant, timeZone: timeZone)
+        return Self(
+            instant: newInstant,
+            timeZone: timeZone,
+            calendar: calendar
+        )
     }
 }
