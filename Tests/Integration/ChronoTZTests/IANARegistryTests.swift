@@ -51,12 +51,20 @@ struct IANARegistryTests {
     @Test("IANARegistryTests: Registry completeness check")
     func registryCompleteness() {
         let zones = IANARegistryTests.allZoneNames
-        print("DEBUG: Verified \(zones.count) time zones in registry.")
+        let lowerBound = 590 // (590 is a safe lower bound for modern IANA releases)
 
-        // Ensure we haven't lost a significant chunk of the database
-        // (590 is a safe lower bound for modern IANA releases)
+        print("""
+        ======================================================================
+        🌐 IANA REGISTRY COMPLETENESS VERIFICATION
+        ======================================================================
+         • Total Zones Registered : \(zones.count)
+         • Minimum Safe Threshold : \(lowerBound)
+         • Status                 : \(zones.count >= lowerBound ? "🟢 Healthy" : "🔴 Deficient")
+        ----------------------------------------------------------------------
+        """)
+
         #expect(
-            zones.count >= 590,
+            zones.count >= lowerBound,
             "Registry count dropped significantly: found \(zones.count)"
         )
     }
