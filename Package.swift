@@ -105,6 +105,11 @@ let package = Package(
             dependencies: ["ChronoTZGenCore", "ChronoSystem"],
             path: "Tools/ChronoTZGen"
         ),
+        .executableTarget(
+            name: "ChronoLocaleGen",
+            dependencies: ["ChronoSystem"],
+            path: "Tools/ChronoLocaleGen"
+        ),
 
         // MARK: - Unit Tests
 
@@ -182,6 +187,7 @@ let package = Package(
                 "ChronoParser",
                 "ChronoSystem",
                 "ChronoTZ",
+                "ChronoLocaleGen",
             ],
             path: "Tests/Integration"
         ),
