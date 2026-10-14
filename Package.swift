@@ -84,6 +84,15 @@ let package = Package(
                 .embedInCode("Resources/iana.tzdb"),
             ]
         ),
+        .target(
+            name: "ChronoLocale",
+            dependencies: [
+                "ChronoCalendar",
+                "ChronoCore",
+                "ChronoSystem",
+            ],
+            path: "Sources/ChronoLocale"
+        ),
 
         // MARK: - Compatibility Layer
 
@@ -107,7 +116,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "ChronoLocaleGen",
-            dependencies: ["ChronoSystem"],
+            dependencies: ["ChronoLocale", "ChronoSystem"],
             path: "Tools/ChronoLocaleGen"
         ),
 
