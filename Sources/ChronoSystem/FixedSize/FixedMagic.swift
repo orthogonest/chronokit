@@ -42,6 +42,7 @@ package struct FixedMagic {
 }
 
 package extension FixedMagic {
+    @usableFromInline static let cldb = Self(bytes: [0x43, 0x4C, 0x44, 0x42])
     @usableFromInline static let tzdb = Self(bytes: [0x54, 0x5A, 0x44, 0x42])
 }
 

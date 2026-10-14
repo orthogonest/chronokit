@@ -1,3 +1,5 @@
+import ChronoSystem
+
 package struct TZDBHeader: Equatable, Hashable {
     @usableFromInline package var magic: FixedMagic
     @usableFromInline package var version: UInt32

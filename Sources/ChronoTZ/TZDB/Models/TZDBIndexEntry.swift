@@ -1,3 +1,5 @@
+import ChronoSystem
+
 package struct TZDBIndexEntry: Equatable, Hashable {
     @usableFromInline package var name: FixedName
     @usableFromInline package var offset: UInt32
