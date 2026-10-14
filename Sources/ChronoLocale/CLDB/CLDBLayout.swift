@@ -52,7 +52,7 @@ package struct LocaleIndexNodeLayout {
 }
 
 package struct LocaleBlockLayout {
-    // A. Date/Time Format Styles (12 * 4 = 48 bytes)
+    // Date/Time Format Styles (12 * 4 = 48 bytes)
     package let dateFormatFull: UInt32
     package let dateFormatLong: UInt32
     package let dateFormatMedium: UInt32
@@ -68,7 +68,7 @@ package struct LocaleBlockLayout {
     package let dateTimeFormatMedium: UInt32
     package let dateTimeFormatShort: UInt32
 
-    /// B. Months (12 elements * 6 variants * 4 bytes = 288 bytes)
+    /// Months (12 elements * 6 variants * 4 bytes = 288 bytes)
     package let monthsFormatWide: (
         UInt32, UInt32, UInt32, UInt32,
         UInt32, UInt32, UInt32, UInt32,
@@ -101,7 +101,7 @@ package struct LocaleBlockLayout {
         UInt32, UInt32, UInt32, UInt32
     )
 
-    // C. Days (7 elements * 8 variants * 4 bytes = 224 bytes)
+    // Days (7 elements * 8 variants * 4 bytes = 224 bytes)
     // Starting from Sunday (index 0) to Saturday (index 6)
     package let daysFormatWide: (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32)
     package let daysFormatAbbreviated: (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32)
@@ -113,11 +113,39 @@ package struct LocaleBlockLayout {
     package let daysStandaloneNarrow: (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32)
     package let daysStandaloneShort: (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32)
 
-    // D. Eras (2 elements * 3 variants * 4 bytes = 24 bytes)
-    // (BCE, CE)
+    // Quarters (4 elements * 6 variants * 4 bytes = 96 bytes)
+    package let quartersFormatWide: (UInt32, UInt32, UInt32, UInt32)
+    package let quartersFormatAbbreviated: (UInt32, UInt32, UInt32, UInt32)
+    package let quartersFormatNarrow: (UInt32, UInt32, UInt32, UInt32)
+
+    package let quartersStandaloneWide: (UInt32, UInt32, UInt32, UInt32)
+    package let quartersStandaloneAbbreviated: (UInt32, UInt32, UInt32, UInt32)
+    package let quartersStandaloneNarrow: (UInt32, UInt32, UInt32, UInt32)
+
+    // Day Periods / AM-PM (2 elements [AM, PM] * 6 variants * 4 bytes = 48 bytes)
+    package let dayPeriodsFormatWide: (UInt32, UInt32)
+    package let dayPeriodsFormatAbbreviated: (UInt32, UInt32)
+    package let dayPeriodsFormatNarrow: (UInt32, UInt32)
+
+    package let dayPeriodsStandaloneWide: (UInt32, UInt32)
+    package let dayPeriodsStandaloneAbbreviated: (UInt32, UInt32)
+    package let dayPeriodsStandaloneNarrow: (UInt32, UInt32)
+
+    // Eras / BCE-CE (2 elements * 3 variants * 4 bytes = 24 bytes)
     package let erasWide: (UInt32, UInt32)
     package let erasAbbreviated: (UInt32, UInt32)
     package let erasNarrow: (UInt32, UInt32)
+
+    // Skeletons (2 blocks * 4 variants * 4 bytes = 32 bytes)
+    package let dateSkeletonFull: UInt32
+    package let dateSkeletonLong: UInt32
+    package let dateSkeletonMedium: UInt32
+    package let dateSkeletonShort: UInt32
+
+    package let timeSkeletonFull: UInt32
+    package let timeSkeletonLong: UInt32
+    package let timeSkeletonMedium: UInt32
+    package let timeSkeletonShort: UInt32
 
     package init(
         dateFormatFull: UInt32,
@@ -170,9 +198,29 @@ package struct LocaleBlockLayout {
         daysStandaloneAbbreviated: (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32),
         daysStandaloneNarrow: (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32),
         daysStandaloneShort: (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32),
+        quartersFormatWide: (UInt32, UInt32, UInt32, UInt32),
+        quartersFormatAbbreviated: (UInt32, UInt32, UInt32, UInt32),
+        quartersFormatNarrow: (UInt32, UInt32, UInt32, UInt32),
+        quartersStandaloneWide: (UInt32, UInt32, UInt32, UInt32),
+        quartersStandaloneAbbreviated: (UInt32, UInt32, UInt32, UInt32),
+        quartersStandaloneNarrow: (UInt32, UInt32, UInt32, UInt32),
+        dayPeriodsFormatWide: (UInt32, UInt32),
+        dayPeriodsFormatAbbreviated: (UInt32, UInt32),
+        dayPeriodsFormatNarrow: (UInt32, UInt32),
+        dayPeriodsStandaloneWide: (UInt32, UInt32),
+        dayPeriodsStandaloneAbbreviated: (UInt32, UInt32),
+        dayPeriodsStandaloneNarrow: (UInt32, UInt32),
         erasWide: (UInt32, UInt32),
         erasAbbreviated: (UInt32, UInt32),
-        erasNarrow: (UInt32, UInt32)
+        erasNarrow: (UInt32, UInt32),
+        dateSkeletonFull: UInt32,
+        dateSkeletonLong: UInt32,
+        dateSkeletonMedium: UInt32,
+        dateSkeletonShort: UInt32,
+        timeSkeletonFull: UInt32,
+        timeSkeletonLong: UInt32,
+        timeSkeletonMedium: UInt32,
+        timeSkeletonShort: UInt32
     ) {
         self.dateFormatFull = dateFormatFull
         self.dateFormatLong = dateFormatLong
@@ -207,9 +255,32 @@ package struct LocaleBlockLayout {
         self.daysStandaloneNarrow = daysStandaloneNarrow
         self.daysStandaloneShort = daysStandaloneShort
 
+        self.quartersFormatWide = quartersFormatWide
+        self.quartersFormatAbbreviated = quartersFormatAbbreviated
+        self.quartersFormatNarrow = quartersFormatNarrow
+        self.quartersStandaloneWide = quartersStandaloneWide
+        self.quartersStandaloneAbbreviated = quartersStandaloneAbbreviated
+        self.quartersStandaloneNarrow = quartersStandaloneNarrow
+
+        self.dayPeriodsFormatWide = dayPeriodsFormatWide
+        self.dayPeriodsFormatAbbreviated = dayPeriodsFormatAbbreviated
+        self.dayPeriodsFormatNarrow = dayPeriodsFormatNarrow
+        self.dayPeriodsStandaloneWide = dayPeriodsStandaloneWide
+        self.dayPeriodsStandaloneAbbreviated = dayPeriodsStandaloneAbbreviated
+        self.dayPeriodsStandaloneNarrow = dayPeriodsStandaloneNarrow
+
         self.erasWide = erasWide
         self.erasAbbreviated = erasAbbreviated
         self.erasNarrow = erasNarrow
+
+        self.dateSkeletonFull = dateSkeletonFull
+        self.dateSkeletonLong = dateSkeletonLong
+        self.dateSkeletonMedium = dateSkeletonMedium
+        self.dateSkeletonShort = dateSkeletonShort
+        self.timeSkeletonFull = timeSkeletonFull
+        self.timeSkeletonLong = timeSkeletonLong
+        self.timeSkeletonMedium = timeSkeletonMedium
+        self.timeSkeletonShort = timeSkeletonShort
     }
 }
 
@@ -223,9 +294,11 @@ package struct StringPoolBuilder {
     private var rawBytes: [UInt8] = []
 
     package init() {}
+}
 
+package extension StringPoolBuilder {
     /// Returns the absolute number of compiled bytes currently held within the String Pool data segment.
-    package var count: Int {
+    var count: Int {
         rawBytes.count
     }
 
@@ -233,7 +306,7 @@ package struct StringPoolBuilder {
     /// deduplicated, returning its existing packed layout metadata (24 bits Offset : 8 bits Length).
     /// - Parameter string: The raw format pattern string or calendar entity token from CLDR.
     /// - Returns: A packed UInt32 integer carrying physical address offsets and byte counts.
-    package mutating func insert(_ string: String) -> UInt32 {
+    mutating func insert(_ string: String) -> UInt32 {
         if let packedValue = deduplicationMap[string] {
             return packedValue
         }
@@ -267,7 +340,7 @@ package struct StringPoolBuilder {
     /// - Parameter months: A flat array containing exactly 12 localized text entries (e.g., January through December).
     /// - Returns: A 12-element fixed tuple containing packed `UInt32` pointer coordinates (Offset + Length) mapping sequentially to the string pool.
     /// - Precondition: The input `months` collection must contain exactly 12 raw text items.
-    package mutating func insert12(months: [String]) -> (
+    mutating func insert12(months: [String]) -> (
         UInt32, UInt32, UInt32, UInt32,
         UInt32, UInt32, UInt32, UInt32,
         UInt32, UInt32, UInt32, UInt32
@@ -288,7 +361,7 @@ package struct StringPoolBuilder {
     /// - Parameter days: A flat array containing exactly 7 localized text entries starting from Sunday (index 0) to Saturday (index 6).
     /// - Returns: A 7-element fixed tuple containing packed `UInt32` pointer coordinates (Offset + Length) mapping sequentially to the string pool.
     /// - Precondition: The input `days` collection must contain exactly 7 raw text items.
-    package mutating func insert7(days: [String]) -> (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32) {
+    mutating func insert7(days: [String]) -> (UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32) {
         precondition(days.count == 7, "CLDR Mismatch: Expected exactly 7 elements for days database.")
         return (
             insert(days[0]), insert(days[1]), insert(days[2]), insert(days[3]),
@@ -296,9 +369,27 @@ package struct StringPoolBuilder {
         )
     }
 
+    /// Registers a complete sequence of 4 quarter string identifiers into the pool, converting them into a fixed binary representation.
+    ///
+    /// - Parameter quarters: A flat array containing exactly 4 localized text entries mapped sequentially from Q1 to Q4.
+    /// - Returns: A 4-element fixed tuple containing packed UInt32 pointer coordinates (Offset + Length).
+    /// - Precondition: The input collection must contain exactly 4 raw text items.
+    mutating func insert4(quarters: [String]) -> (UInt32, UInt32, UInt32, UInt32) {
+        precondition(quarters.count == 4, "CLDR Mismatch: Expected exactly 4 elements for quarters database.")
+        return (insert(quarters[0]), insert(quarters[1]), insert(quarters[2]), insert(quarters[3]))
+    }
+
+    /// Registers a complete sequence of 2 day period identifiers (AM/PM) into the pool.
+    /// - Parameter periods: An array containing exactly 2 elements: index 0 for AM, index 1 for PM.
+    /// - Returns: A packed 2-element UInt32 tuple.
+    mutating func insert2(periods: [String]) -> (UInt32, UInt32) {
+        precondition(periods.count == 2, "CLDR Mismatch: Expected exactly 2 elements for AM/PM periods.")
+        return (insert(periods[0]), insert(periods[1]))
+    }
+
     /// Forces section memory alignment by padding trailing data blocks to a standard 4-byte hardware boundary.
     /// Must be invoked at the conclusion of Pass 1 prior to merging with the global binary tree.
-    package mutating func build() -> [UInt8] {
+    mutating func build() -> [UInt8] {
         while rawBytes.count % 4 != 0 {
             rawBytes.append(0)
         }
