@@ -123,6 +123,11 @@ let package = Package(
         // MARK: - Unit Tests
 
         .testTarget(
+            name: "ChronoCalendarTests",
+            dependencies: ["ChronoCalendar"],
+            path: "Tests/Unit/ChronoCalendarTests"
+        ),
+        .testTarget(
             name: "ChronoCoreTests",
             dependencies: ["ChronoCore"],
             path: "Tests/Unit/ChronoCoreTests"
@@ -138,9 +143,19 @@ let package = Package(
             path: "Tests/Unit/ChronoFormatterTests"
         ),
         .testTarget(
-            name: "ChronoCalendarTests",
-            dependencies: ["ChronoCalendar"],
-            path: "Tests/Unit/ChronoCalendarTests"
+            name: "ChronoLocaleTests",
+            dependencies: [
+                "ChronoCalendar",
+                "ChronoCore",
+                "ChronoLocale",
+                "ChronoSystem",
+            ],
+            path: "Tests/Unit/ChronoLocaleTests"
+        ),
+        .testTarget(
+            name: "ChronoLocaleGenTests",
+            dependencies: ["ChronoLocale", "ChronoLocaleGen"],
+            path: "Tests/Unit/ChronoLocaleGenTests"
         ),
         .testTarget(
             name: "ChronoParserTests",

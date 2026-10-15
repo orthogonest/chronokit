@@ -66,10 +66,11 @@ test-unit tu:
 	@clear
 	@echo "$(CYAN)>>> Running Unit Tests in Development Configuration...$(RESET)"
 	@swift test \
-		--filter ChronoCoreTests \
 		--filter ChronoCalendarTests \
-		--filter ChronoFoundationTests \
+		--filter ChronoCoreTests \
 		--filter ChronoFormatterTests \
+		--filter ChronoFoundationTests \
+		--filter ChronoLocaleTests \
 		--filter ChronoParserTests \
 		--filter ChronoSystemTests \
 		--filter ChronoTZTests \

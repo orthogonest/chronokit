@@ -1,4 +1,4 @@
-@testable import ChronoTZ
+@testable import ChronoSystem
 import Testing
 
 struct FixedMagicTests {
